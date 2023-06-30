@@ -37,7 +37,8 @@ export const sitemap = [
     ],
     sublinks: ['/launchpad/pools', '/launchpad/create-sale'],
   },
-  {
+
+ {
     id: 3,
     name: 'Locker',
     extendable: true,
@@ -60,13 +61,13 @@ export const sitemap = [
         link: '/locker/lp-locker',
       },
     ],
-    sublinks: [ '/locked-assets', '/locker/token-locker', '/locker/lp-locker'],
+    sublinks: [ 'https://lock.arborswap.org/locked-assets', 'https://lock.arborswap.org/locker/token-locker', 'https://lock.arborswap.org/locker/lp-locker'],
   },
   {
     id: 4,
     name: 'Airdropper',
     extendable: true,
-    icon: <AirplaneSVG className="fill-dim-text dark:fill-dim-text-dark scale-[1.2] hover:fill-primary-green" />,
+    icon: <AirplaneSVG className="fill-dim-text dark:fill-dim-text-dark scale-[1.2] hover:fill-primary-green" style={{paddingLeft: '2px'}} />,
     activeIcon: <AirplaneSVG className="fill-primary-green scale-[1.2]" />,
     subitems: [
       {
@@ -80,61 +81,41 @@ export const sitemap = [
         link: '/airdropper/create-airdrop',
       },
     ],
-    sublinks: ['/airdropper/airdrops', '/airdropper/create-airdrop'],
+    sublinks: ['https://airdrop.arborswap.org/airdropper/airdrops', 'https://airdrop.arborswap.org/airdropper/create-airdrop'],
   },
-  // {
-  //   id: 5,
-  //   name: 'Trade',
-  //   extendable: true,
-  //   icon: <TradeSVG className="fill-dim-text dark:fill-dim-text-dark scale-[1.2] hover:fill-primary-green" />,
-  //   activeIcon: <TradeSVG className="fill-primary-green scale-[1.2]" />,
-  //   subitems: [
-  //     {
-  //       id: 1,
-  //       name: 'Exchange',
-  //       link: '/swap',
-  //     },
-  //     {
-  //       id: 2,
-  //       name: 'Liquidity',
-  //       link: '/swap/add',
-  //     },
-  //     {
-  //       id: 3,
-  //       name: 'Limit Orders',
-  //       link: '/pool',
-  //     },
-  //   ],
-  //   sublinks: ['/airdropper/airdrops', '/airdropper/create-airdrop'],
-  // },
-  // {
-  //   id: 6,
-  //   name: 'Staking',
-  //   extendable: false,
-  //   icon: <StakingSVG className="fill-dim-text dark:fill-dim-text-dark hover:fill-primary-green" />,
-  //   activeIcon: <StakingSVG className="fill-primary-green" />,
-  //   subitems: [],
-  //   link: '/pools',
-  //   sublinks: [],
-  // },
-  /* {
-    id: 7,
-    name: 'More Products',
+  {
+    id: 5,
+    name: 'Trade',
     extendable: true,
-    icon: <MoreProductsSVG className="fill-dim-text dark:fill-dim-text-dark hover:fill-primary-green" />,
-    activeIcon: <MoreProductsSVG className="fill-primary-green" />,
+    icon: <TradeSVG className="fill-dim-text dark:fill-dim-text-dark scale-[1.2] hover:fill-primary-green" style={{paddingLeft: '1.9px', width: '22px'}} />,
+    activeIcon: <TradeSVG className="fill-primary-green scale-[1.2]" />,
     subitems: [
       {
         id: 1,
-        name: 'Locker',
-        link: 'http://lock.arborswap.org/',
+        name: 'Exchange',
+        link: 'https://www.arborswap.org/swap',
       },
       {
         id: 2,
-        name: 'Airdropper',
-        link: 'http://airdrop.arborswap.org/',
+        name: 'Liquidity',
+        link: 'https://www.arborswap.org/add',
+      },
+      {
+        id: 3,
+        name: 'Limit Orders',
+        link: 'https://www.arborswap.org/liquidity',
       },
     ],
-    sublinks: ['', '/launchpad/token-locker', '/launchpad/lp-locker'],
-  }, */
+    sublinks: ['/airdropper/airdrops', '/airdropper/create-airdrop'],
+  },
+  {
+    id: 6,
+    name: 'Staking',
+    extendable: false,
+    icon: <StakingSVG className="fill-dim-text dark:fill-dim-text-dark hover:fill-primary-green" />,
+    activeIcon: <StakingSVG className="fill-primary-green" />,
+    subitems: [],
+    link: 'https://www.arborswap.org/pools',
+    sublinks: [],
+  },
 ]
