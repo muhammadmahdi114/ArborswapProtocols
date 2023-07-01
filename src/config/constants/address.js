@@ -10,8 +10,9 @@ export const MULTICALL_ADDRESS = {
 export const RPC_ADDRESS = {
   [BSCTestnet.chainId]: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
   159: 'https://preseed-testnet-1.roburna.com/',
-  [BSC.chainId]: 'https://rpc.ankr.com/bsc'
+  [BSC.chainId]: 'https://rpc.ankr.com/bsc',
 }
+
 
 export const ADMIN_ADDRESS = {
   [BSC.chainId]: BSC.multicallAddress,
@@ -20,12 +21,11 @@ export const ADMIN_ADDRESS = {
 }
 
 export const FACTORY_ADDRESS = {
-  [BSC.chainId]: BSC.multicallAddress,
+  [BSC.chainId]: '0xd48aCfe2BDCf62b10FB983bdB3720E49423Ef4A4',
   [BSCTestnet.chainId]: '0xCB33f39bB655019d3abdBF5489A4DABD00759943',
   [RbaChain.chainId]: '0xB503BA98dF8B35121df3034Bb319A6f71c502D98',
 }
 
 export const AIRDROP_FACTORY_ADDRESS = {
-  [BSC.chainId]: BSC.multicallAddress,
-  [BSCTestnet.chainId]: '0xCB33f39bB655019d3abdBF5489A4DABD00759943'
+  [BSC.chainId]: '0x7442c5433e34Ddf0088d60BeFFefB1536d421904',
 }

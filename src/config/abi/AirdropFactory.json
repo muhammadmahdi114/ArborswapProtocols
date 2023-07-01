@@ -259,7 +259,12 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "publicFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "privateFee",
         "type": "uint256"
       }
     ],
@@ -389,12 +394,12 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_fee",
-        "type": "uint256"
+        "internalType": "address payable",
+        "name": "_feeAddr",
+        "type": "address"
       }
     ],
-    "name": "setFee",
+    "name": "setFeeAddr",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -402,12 +407,25 @@
   {
     "inputs": [
       {
-        "internalType": "address payable",
-        "name": "_feeAddr",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
       }
     ],
-    "name": "setFeeAddr",
+    "name": "setPrivateFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setPublicFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

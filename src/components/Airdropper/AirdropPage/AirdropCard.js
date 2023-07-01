@@ -1,16 +1,29 @@
-import { useToken } from "@usedapp/core";
+
 import { formatUnits } from "ethers/lib/utils";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import moment from "moment";
-import { getLpInfo } from "utils/lpInfo";
-import TokenImage from "components/Common/TokenImage";
-import Timer from "../../Launchpad/Pools/Subcomponents/Timer";
+
+import { getPublicAirdropsInfos } from "utils/getAirdropList";
+import { useDefaultChainId } from 'config/useDefaultChainId'
+
 
 export default function AirdropCard({ data, status,  privateCard }) {
+  const [numberOfClaims, setNumberOfclaims] = useState(0)
+  const chainId = useDefaultChainId()
+  if (privateCard === false) {
+    (async () => {
+      try {
+
+        const publicAirdropInfos = await getPublicAirdropsInfos(chainId, [data.address]);
+        const numberOfClaimsNum = formatUnits(publicAirdropInfos.data[0][1], 0)
+        setNumberOfclaims(numberOfClaimsNum)
+      } catch (error) {
+        // Handle the error
+      }
+    })();
+  }
   let totalAmount = Number(formatUnits(data.info.totalAmountToAirdrop, 18));
   const tags = data.info.description[2].split(",");
-  console.log(tags, "tags");
 
   let totalDistributed = Number(
     formatUnits(data.info.totalAmountDistributed, 18)
@@ -18,7 +31,6 @@ export default function AirdropCard({ data, status,  privateCard }) {
   let remaining = totalAmount - totalDistributed;
   let filledPerc = (remaining / totalAmount) * 100;
 
-  console.log(totalAmount, "totalAmount");
   if (totalAmount === 0) {
     filledPerc = "NotStartedYet";
   }
@@ -122,7 +134,7 @@ export default function AirdropCard({ data, status,  privateCard }) {
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-6">
+          {privateCard? (<div className="flex items-center justify-between mt-6">
             <div className="flex flex-col items-center justify-between">
               <span className="text-xs font-medium text-gray dark:text-gray-dark">
                 Selected Addr.
@@ -141,7 +153,28 @@ export default function AirdropCard({ data, status,  privateCard }) {
                 {data.info.numberOfParticipants.toNumber()}
               </span>
             </div>
+          </div>) :(
+            <div className="flex items-center justify-between mt-6">
+            <div className="flex flex-col items-center justify-between">
+              <span className="text-xs font-medium text-gray dark:text-gray-dark">
+                Number Of Claims.
+              </span>
+              <span className="text-dark-text dark:text-light-text font-semibold">
+                {Math.floor(numberOfClaims)}
+              </span>
+            </div>
+
+            <div className="flex flex-col justify-between items-center">
+              <span className="text-xs font-medium text-gray dark:text-gray-dark">
+                Participants
+              </span>
+
+              <span className="text-dark-text dark:text-light-text font-semibold">
+                {data.info.numberOfParticipants.toNumber()}
+              </span>
+            </div>
           </div>
+          )}
         </div>
 
         {/* {data.status === 'Timed' &&

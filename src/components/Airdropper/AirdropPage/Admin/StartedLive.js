@@ -1,7 +1,7 @@
 import React from 'react'
 import PreviewDetails from 'components/Common/PreviewDetails'
 
-const Ended = ({whitelist_address, participants, amount, allocated, status, showModal}) => {
+const Ended = ({whitelist_address, participants, amount, allocated, status, showModal, numberOfClaims, numberOfRemainingClaims, claimSize, Private}) => {
   
   return (
     <div className='flex flex-col'>

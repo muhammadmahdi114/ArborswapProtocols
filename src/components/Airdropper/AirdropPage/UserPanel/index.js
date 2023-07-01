@@ -1,32 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import Timer from '../../../LockedAsset/Amount/Timer/Timer';
-import { useNavigate, useParams } from 'react-router-dom'
+
+import {  useParams } from 'react-router-dom'
 import PublicAirdropAbi from 'config/abi/PublicAirdropAbi.json';
 import { useEthers} from '@usedapp/core';
-import { ethers } from 'ethers';
+
 import { useModal } from 'react-simple-modal-provider'
 import { Contract } from '@ethersproject/contracts';
 import { formatUnits } from 'ethers/lib/utils';
-import PrivateAirdropAbi from 'config/abi/PrivateAirdropAbi.json';
+
 import { getUserParticipationPrivate, getUserParticipationPublic } from 'utils/getAirdropList'
-import {useAirdropIsWL, useAirdropGetParticipation, useAirdropIsClaimed} from 'hooks/useAirdropInfo'
-import {useAirdropClaimSize, useAirdropNumberOfClaims} from 'hooks/useAirdropNumberOfClaimsAndClaimSize.js'
+
+import { getPublicAirdropsInfos } from 'utils/getAirdropList';
+import { useDefaultChainId } from 'config/useDefaultChainId'
 
 
-export default function UserPanel({handleSetRemaining, is_private, amount, icon, filled_percent, ends_on, status, whitelist_address, whitelisted , remaining}) {
+export default function UserPanel({symbol, handleSetRemaining, is_private, amount, icon, filled_percent, ends_on, status, whitelist_address, whitelisted , remaining}) {
     const { id } = useParams()
     const [isAirdropClaimed, setIsAirdropClaimed] = useState(false);
     const [remainingAllocations, setRemainingAllocations] = useState();
+    const [error, setError] = useState();
     const [isWL, setIsWL] = useState();
     const [allocation, setAllocation] = useState();
+    const [numberOfClaims, setNumberOfclaims] = useState(0);
     const {library, chainId, account, active } = useEthers()   
     const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
-    
-    // const claimSize = useAirdropClaimSize(id)
-    // const numberOfClaims = useAirdropNumberOfClaims(id)
+    const chainID = useDefaultChainId()
 
-     console.log(remaining, 'remainng')
-    // console.log(numberOfClaims, 'numberOfClaims')
+  
+
+    if (is_private === false) {
+        (async () => {
+          try {
+    
+            const publicAirdropInfos = await getPublicAirdropsInfos(chainID, [id]);
+            const numberOfClaimsNum = formatUnits(publicAirdropInfos.data[0][2], 0)
+            setNumberOfclaims(numberOfClaimsNum)
+          } catch (error) {
+            // Handle the error
+          }
+        })();
+    }
     
     
 
@@ -36,12 +49,12 @@ export default function UserPanel({handleSetRemaining, is_private, amount, icon,
         async function fetchUserInfo() {
 
             if(account !== undefined && is_private){
-                const info = await getUserParticipationPrivate(id, account);
+                const info = await getUserParticipationPrivate(chainID, id, account);
                 setIsWL(info.data[0].isWL)
                 setAllocation(formatUnits(info.data[0].participation.allocation,18))
                 setIsAirdropClaimed(info.data[0].participation.claimed) 
             }else if(account !== undefined && !is_private){
-                const info = await getUserParticipationPublic(id, account);
+                const info = await getUserParticipationPublic(chainID, id, account);
                 setIsWL(false)
                 setAllocation(formatUnits(info.data[0].portionSize, 18))
                 setIsAirdropClaimed(info.data[0].isAirdropClaimed)
@@ -50,29 +63,30 @@ export default function UserPanel({handleSetRemaining, is_private, amount, icon,
         try {
             fetchUserInfo()
         } catch (error) {
-            console.log(error.message)
+            
         } 
 
 
     })
     
     const handleClaim = async () => {
-
         const contract = new Contract(id, PublicAirdropAbi, library.getSigner())
         try {
           openLoadingModal()
           const claim = await contract.claim()
           await claim.wait()
           setIsAirdropClaimed(true)
-          //debugger
           handleSetRemaining(allocation)
           if(!is_private){
             setRemainingAllocations(amount/allocation.toNumber())
           }
           closeLoadingModal()
+          setError(undefined)
+          window.location.reload()
           return
         } catch (error) {
-          console.log(error.message)
+          
+          setError(error.reason)
           closeLoadingModal()
           return false
         }
@@ -88,25 +102,34 @@ export default function UserPanel({handleSetRemaining, is_private, amount, icon,
                 <img src={icon}  className="w-7 h-7" />
 
                 <div className="ml-3">
-                    <span className="text-dark-text dark:text-light-text text-2xl font-bold">{amount.toLocaleString()}</span>
+                    <span className="text-dark-text dark:text-light-text text-2xl font-bold">{amount.toLocaleString()} {symbol}</span>
                 </div>
             </div>
 
-            {(remainingAllocations !== undefined && !is_private) && <div className="mt-7 flex justify-between">
+            {(numberOfClaims !== undefined && !is_private) && <div className="mt-7 flex justify-between">
                 <span className='font-medium text-sm text-gray dark:text-gray-dark'>
                     Remaining Allocations
                 </span>
                 <span className='font-bold text-sm text-dark-text dark:text-light-text'>
-                    {remainingAllocations.toLocaleString()} 
+                    {numberOfClaims.toLocaleString()} 
+                </span>
+            </div>}
+
+            {isAirdropClaimed && <div className="mt-7 flex justify-between">
+                <span className='font-medium text-sm text-gray dark:text-gray-dark'>
+                    You Claimed
+                </span>
+                <span className='font-bold text-sm text-dark-text dark:text-light-text'>
+                    {allocation.toLocaleString()} {symbol}
                 </span>
             </div>}
             
-            {(allocation !== undefined && account !== undefined) && <div className="mt-7 flex justify-between">
+            {(allocation !== undefined && account !== undefined && !isAirdropClaimed) && <div className="mt-7 flex justify-between">
                 <span className='font-medium text-sm text-gray dark:text-gray-dark'>
                     Your Allocation
                 </span>
                 <span className='font-bold text-sm text-dark-text dark:text-light-text'>
-                    {allocation.toLocaleString()} 
+                    {allocation.toLocaleString()} {symbol}
                 </span>
             </div>}
 
@@ -125,7 +148,7 @@ export default function UserPanel({handleSetRemaining, is_private, amount, icon,
                 </span>
 
                 <span className="text-xs  text-dim-text dark:text-dim-text-dark">
-                    {`${remaining.toLocaleString()} `}
+                    {`${remaining.toLocaleString()} `} {symbol}
                 </span>
             </div>
 
@@ -162,6 +185,10 @@ export default function UserPanel({handleSetRemaining, is_private, amount, icon,
                 </button>
                 }
             </div>
+
+            {error && (
+             <p className="mt-4 text-red-500 text-center">{error.replace(/\b\w/g, (c) => c.toUpperCase())}</p>
+            )}
      
         </div>
     )

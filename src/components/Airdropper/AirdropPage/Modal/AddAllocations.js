@@ -3,37 +3,79 @@ import QuestionSVG from 'svgs/question'
 import PrivateAirdropAbi from 'config/abi/PrivateAirdropAbi.json';
 import { useEthers} from '@usedapp/core';
 import { Contract } from '@ethersproject/contracts'
-import { useParams} from 'react-router-dom'
 import { useModal } from 'react-simple-modal-provider'
+import { parseUnits } from 'ethers/lib/utils'
+import { useParams } from 'react-router-dom';
+import { isAddress } from 'ethers/lib/utils';
 
-export default function AddAllocations({ showModal}) {
+export default function AddAllocations({decimals,  showModal}) {
   const [allocation, setAllocation] = useState("")
-  const { id } = useParams()
-  const { account, library, chainId } = useEthers()   
+  const [error, setError] = useState()
+  const [ready, setReady] = useState(false)
+  const { library } = useEthers()   
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
+  const {id} = useParams();
 
-  const handleSetAllocations = async (addys, amounts) => {
+  const handleSetAllocations = async () => {
     openLoadingModal()
-    var allocationArray = allocation.split(',');
+    const allocationString = allocation.trim();
+  
+    // Check if allocation string is in the correct format
+    const allocationRegex = /^0x[a-fA-F0-9]{40},\d+(\.\d+)?(\s*\n\s*0x[a-fA-F0-9]{40},\d+(\.\d+)?)*$/;
+    if (!allocationRegex.test(allocationString)) {
+      setError('Invalid input format');
+      closeLoadingModal();
+      return false;
+    }
+
+
+    var allocationArray = allocation.split(/,|\n/);
 
     var addys = [],
-        amounts = [];
+        amounts = [],
+        amountsBigNumber =[];
 
-    for(var i=0; i<allocationArray.length; i++)
-        (i % 2 == 0 ? addys : amounts).push(allocationArray[i]);
+        for (let i = 0; i < allocationArray.length; i++) {
+          if (i % 2 === 0) {
+            // Check if address is valid
+            if (!isAddress(allocationArray[i])) {
+              setError(`Invalid Ethereum address: ${allocationArray[i]}`);
+              closeLoadingModal();
+              return false;
+            }
+            addys.push(allocationArray[i]);
+          } else {
+            amounts.push(allocationArray[i]);
+          }
+        }
+      
+        for (let i = 0; i < amounts.length; i++) {
+          const amount = parseUnits(amounts[i], decimals);
+          amountsBigNumber.push(amount);
+        }
 
     const contract = new Contract(id, PrivateAirdropAbi, library.getSigner())
     try {
-      const setAllocations = await contract.setAllocations(addys, amounts)
+      const setAllocations = await contract.setAllocations(addys, amountsBigNumber)
       await setAllocations.wait()
+      if(addys.length > 0){
+          setReady(true)
+          setAllocation('')
+      }
       closeLoadingModal()
+      setError(undefined);
       //navigate(`/locked-assets`)
       return
     } catch (error) {
+      setError(error.reason);
       closeLoadingModal()
       return false
     }
   } 
+
+  const handleStartAirdrop = () => {
+     showModal(3)
+  };
    
 
 
@@ -64,19 +106,37 @@ export default function AddAllocations({ showModal}) {
                         className="bg-transparent w-full px-5 py-4 font-gilroy placeholder:font-medium placeholder:text-dim-text font-semibold text-dark-text dark:text-light-text focus:outline-none"
                         value={allocation}
                         onChange={(e) => setAllocation(e.target.value)}
-                        placeholder={"0xk45930x0xk45930x0xk45930x0xk45930x0xk45930x0xk45930x0xk45930x"}
+                        placeholder={"0x5168C3d820A2a2521F907cD74F6E1DE43E95da22,1000"}
                     />
                 </div>
                 </div>
             </div>
       <div className="w-full max-w-[420px]  mt-10">
-        <button
+        {!ready &&<button
           className="w-full bg-primary-green text-white py-5 rounded-md font-gilroy font-bold text-xl"
           onClick={handleSetAllocations}
         >
           Confirm
-        </button>
+        </button>} 
+        {ready && <button
+          className="w-full bg-primary-green text-white py-5 rounded-md font-gilroy font-bold text-xl"
+          onClick={handleSetAllocations}
+        >
+          Add More
+        </button>}
       </div>
+
+      <div className="w-full max-w-[420px]  mt-10">
+        {ready && <button
+          className="w-full bg-primary-green text-white py-5 rounded-md font-gilroy font-bold text-xl"
+          onClick={handleStartAirdrop}
+        >
+          Proceed to Start
+        </button>}
+      </div>
+      {error && (
+        <p className="mt-4 text-red-500 text-center">{error}</p>
+      )}
     </div>
     </div>
   )

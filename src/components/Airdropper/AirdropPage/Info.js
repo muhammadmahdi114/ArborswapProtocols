@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import DribbleSVG from '../../../svgs/Socials/dribble'
-import Options from '../../LockedAsset/Preview/Subcomponents/Options'
 import TwitterSVG from '../../../svgs/Socials/twitter'
-import EditSVG from 'svgs/edit'
-import { Link } from 'react-router-dom'
+import GithubSVG from 'svgs/Socials/github'
+import { ThemeContext } from 'context/ThemeContext/ThemeProvider'
+import LinkedinSVG from 'svgs/Socials/linkedin'
 
 export default function Info({ icon, name, is_private, tags, admin, airdrop }) {
+  const { theme } = useContext(ThemeContext);
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center">
@@ -43,13 +45,36 @@ export default function Info({ icon, name, is_private, tags, admin, airdrop }) {
         </div>
         :
         <div className="flex items-center gap-5">
-          <a href={airdrop.info.description[4]} target="_blank">
-            <TwitterSVG className="fill-dark-text dark:fill-light-text hidden md:block" />
-          </a>
-          <a href={airdrop.info.description[4]} target="_blank">
-            <DribbleSVG className="fill-dark-text dark:fill-light-text hidden md:block" />
-          </a>
-          <Options width={'w-7'} height={'h-7'} color={'[#FAF8F5]'} dark_color={'dark-2'} />
+          {
+            airdrop.info.description[3] !== "" &&
+            <a href={airdrop.info.description[3]} target="_blank" className='hidden md:block'>
+              <LinkedinSVG
+                className="w-5 h-5"
+                outer={`${theme === "dark" ? "#fff" : "#464754"}`}
+                inner={`${theme === "dark" ? "#464754" : "#fff"}`}
+              />            
+              </a>
+          }
+          {airdrop.info.description[4] !== "" &&
+            <a href={airdrop.info.description[4]} target="_blank">
+              <TwitterSVG className="fill-dark-text dark:fill-light-text hidden md:block" />
+            </a>
+          }
+          {airdrop.info.description[5] !== "" &&
+            <a href={airdrop.info.description[5]} target="_blank">
+              <DribbleSVG className="fill-dark-text dark:fill-light-text hidden md:block" />
+            </a>
+          }
+          {airdrop.info.description[6] !== "" &&
+            <a href={airdrop.info.description[6]} target="_blank" className='hidden md:block'>
+              <GithubSVG
+                className="w-5 h-5"
+                outer={`${theme === "dark" ? "#fff" : "#464754"}`}
+                inner={`${theme === "dark" ? "#464754" : "#fff"}`}
+              />
+            </a>
+          }
+          {/* <Options width={'w-7'} height={'h-7'} color={'[#FAF8F5]'} dark_color={'dark-2'} /> */}
         </div>
       }
 

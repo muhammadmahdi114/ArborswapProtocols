@@ -1,26 +1,19 @@
 import React, {useState} from 'react'
-import { Token_details } from '../../../data/sale'
 import BackArrowSVG from '../../../svgs/back_arrow'
 import PreviewDetails from '../../Common/PreviewDetails'
 import PreviewHeader from '../../Common/PreviewHeader'
 import HeadingTags from '../../TokenLocker/Subcomponents/HeadingTags'
 import { useModal } from 'react-simple-modal-provider'
-import AmountModal from 'components/TokenLocker/Subcomponents/AmountModal'
-import InputField from './InputField'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
+import {isAddress } from 'ethers/lib/utils'
 import { getTokenInfo } from '../../../utils/tokenInfo'
 import { formatBigToNum } from '../../../utils/numberFormat'
 import { useEthers } from '@usedapp/core'
-import { getTokenBalance } from '../../../utils/getTokenBalance'
-import { BigNumber } from 'ethers'
+import { useDefaultChainId } from 'config/useDefaultChainId'
+
 
 
 
 export default function Infopage({ setActive, setAirdropData, airdropData }) {
-  //const [address, setAddress] = React.useState('')
-  //const [popup, showPopup] = React.useState(false)
-  const [numberofclaims, setNumberofclaims] = useState("")
-  const [sizeofclaims, setSizeofclaims] = useState("")
 
   const [visible, setVisible] = useState(airdropData.showDetails)
   const [formStatus, setFormStatus] = useState({
@@ -31,7 +24,7 @@ export default function Infopage({ setActive, setAirdropData, airdropData }) {
   const [address, setAddress] = useState(airdropData.tokenAddress)
   const { account } = useEthers()
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
-
+  const chainId = useDefaultChainId()
   
   const handleTokenAddress = async (e) => {
     setFormStatus((prevState) => ({
@@ -43,10 +36,10 @@ export default function Infopage({ setActive, setAirdropData, airdropData }) {
     setEnable(false)
     setVisible(false)
     setAddress(e.target.value)
-    console.log(isAddress(e.target.value), 'isAddress(e.target.value)')
+    
     if (isAddress(e.target.value)) {
       openLoadingModal()
-      const tokenInfo = await getTokenInfo(e.target.value)
+      const tokenInfo = await getTokenInfo(chainId,e.target.value)
       if (tokenInfo.success) {
         setAirdropData((prevState) => ({
           ...prevState,

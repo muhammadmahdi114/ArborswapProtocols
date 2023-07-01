@@ -1,4 +1,4 @@
-import { FACTORY_ADDRESS, MULTICALL_ADDRESS, RPC_ADDRESS } from '../config/constants/address'
+import { AIRDROP_FACTORY_ADDRESS, MULTICALL_ADDRESS, RPC_ADDRESS } from '../config/constants/address'
 import PublicAirdropAbi from 'config/abi/PublicAirdropAbi.json'
 import PrivateAirdropAbi from 'config/abi/PrivateAirdropAbi.json'
 import AirdropFactoryAbi from 'config/abi/AirdropFactory.json'
@@ -9,9 +9,9 @@ import { useEthers} from '@usedapp/core'
 
 const CHAIN_NUMBER = DEFAULT_CHAIN
 
-export const sortAirdrops = async (airdrops) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const sortAirdrops = async (chainId, airdrops) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
 
@@ -66,9 +66,9 @@ export const sortAirdrops = async (airdrops) => {
   
 }
 
-export const getAirdropStatus = async (address) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getAirdropStatus = async (chainId, address) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -103,9 +103,9 @@ export const getAirdropStatus = async (address) => {
   }
 }
 
-export const getUserParticipationPrivate = async (address, account) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getUserParticipationPrivate = async (chainId, address, account) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -136,9 +136,9 @@ export const getUserParticipationPrivate = async (address, account) => {
   }
 }
 
-export const getUserParticipationPublic = async (address, account) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getUserParticipationPublic = async (chainId,address, account) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -169,9 +169,9 @@ export const getUserParticipationPublic = async (address, account) => {
   }
 }
 
-export const getAirdropInfos = async (address) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getAirdropInfos = async (chainId, address) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -208,9 +208,9 @@ export const getAirdropInfos = async (address) => {
   }
 }
 
-export const getPublicAirdropsInfos = async (address) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getPublicAirdropsInfos = async (chainId, address) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -237,9 +237,9 @@ export const getPublicAirdropsInfos = async (address) => {
   }
 }
 
-export const getPublicAirdrops = async (address) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getPublicAirdrops = async (chainId, address) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -275,13 +275,12 @@ export const getPublicAirdrops = async (address) => {
 }
 
 
-export const getAirdropList = async () => {
+export const getAirdropList = async (chainId) => {
   let START = 0,
     END = 0
   try {
-    const totalData = await getTotalAirdrop()
+    const totalData = await getTotalAirdrop(chainId)
     //
-    console.log('totalData', totalData)
 
     if (totalData.success) {
       if (totalData.data.number < TOTAL_DATA_DISPLAY) {
@@ -304,12 +303,12 @@ export const getAirdropList = async () => {
     }
   }
 
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
 
-  const tokenContract = new Contract('0x7442c5433e34Ddf0088d60BeFFefB1536d421904', AirdropFactoryAbi)
+  const tokenContract = new Contract(AIRDROP_FACTORY_ADDRESS[chainId], AirdropFactoryAbi)
   
   try {
     const tokenCall = await tokenContract.getAllAirdrops(START, END)
@@ -327,14 +326,14 @@ export const getAirdropList = async () => {
 }
 
 
-export const getTotalAirdrop = async () => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getTotalAirdrop = async (chainId) => {
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
 
 
-  const tokenContract = new Contract('0x7442c5433e34Ddf0088d60BeFFefB1536d421904', AirdropFactoryAbi)
+  const tokenContract = new Contract(AIRDROP_FACTORY_ADDRESS[chainId], AirdropFactoryAbi)
   
   try {
     const numberCall = await tokenContract.getNumberOfAirdropsDeployed()

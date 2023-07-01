@@ -1,7 +1,7 @@
 import React from 'react';
 import PreviewDetails from 'components/Common/PreviewDetails';
 import { useEthers} from '@usedapp/core';
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Contract } from '@ethersproject/contracts';
 import { useModal } from 'react-simple-modal-provider';
 import PrivateAirdropAbi from 'config/abi/PrivateAirdropAbi.json';

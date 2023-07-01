@@ -28,6 +28,7 @@ import {
   USDT_ADDRESS,
   RBA_ADDRESS,
   GUSD_ADDRESS,
+  BSC_PUBLIC_FACTORYADDRESS,
 } from "config/constants/LaunchpadAddress";
 
 const currencies = [
@@ -73,6 +74,7 @@ const dexes = [
 ];
 
 export default function Presale({ setActive, saleType, setSaleObject, token }) {
+  const { chainId } = useEthers();
   const [currencySelected, setCurrencySelected] = useState(1);
   const [tempfixed, setTempFixed] = useState(true);
   const [dex, setDex] = useState(2);
@@ -109,8 +111,8 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
     const updatedAddresses = addressesArray.map((address) => address.trim().toLowerCase());
     setWhiteListedAddresses(updatedAddresses);
   };
-  
-  
+
+
   // const handleDateChange = (newDate, index) => {
   //   const updatedDates = [...whiteListedDates];
   //   updatedDates[index] = newDate;
@@ -227,7 +229,11 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
     openLoadingModal();
     if (saleType === "standard") {
       if (currencySelected === 1) {
-        res = await approveTokens(library, token, Public_FACTORYADRESS);
+        if (chainId === 56) {
+          res = await approveTokens(library, token, BSC_PUBLIC_FACTORYADDRESS);
+        } else {
+          res = await approveTokens(library, token, Public_FACTORYADRESS);
+        }
       } else {
         res = await approveTokens(library, token, PublicErc_FACTORYADRESS);
       }
@@ -315,7 +321,7 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
       const reqTokens = hardCap * presalePrice;
       const reqTokens2 = (listing * (amountLiquidity / 100)) * hardCap;
       console.log(reqTokens, reqTokens2);
-      setRequiredToken((reqTokens+reqTokens2).toFixed(2));
+      setRequiredToken((reqTokens + reqTokens2).toFixed(2));
     }
     if (saleType === "private") {
       setRequiredToken(0);
@@ -497,18 +503,18 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
         {/* here if whitelisting is enabled, show an input field where addresses can be entered, seperated by comma */}
         {whiteisting && (
           <>
-              <div className="mt-5" >
-                <Input
-                  heading={`Whitelisted Address`}
-                  changeState={(newValue) =>
-                    handleAddressChange(newValue)
-                  }
-                  whitelist={true}
-                  tooltip="Enter addresses to whitelist them for the presale"
-                  placeholder="0xaEa574007c8ad33c7f4f7CF4a0d0B6F704ACD59e,..."
-                  nothing={true}
-                />
-                {/* <div className="mt-2">
+            <div className="mt-5" >
+              <Input
+                heading={`Whitelisted Address`}
+                changeState={(newValue) =>
+                  handleAddressChange(newValue)
+                }
+                whitelist={true}
+                tooltip="Enter addresses to whitelist them for the presale"
+                placeholder="0xaEa574007c8ad33c7f4f7CF4a0d0B6F704ACD59e,..."
+                nothing={true}
+              />
+              {/* <div className="mt-2">
                   <CalendarField
                     heading={`Whitelist start date (UTC) for Address ${
                       index + 1
@@ -517,7 +523,7 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
                     index={index}
                   />
                 </div> */}
-              </div>
+            </div>
           </>
         )}
 

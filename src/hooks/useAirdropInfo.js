@@ -1,19 +1,26 @@
 import PublicAirdropAbi from '../config/abi/PublicAirdropAbi.json'
-import Web3 from 'web3'
+import { Contract } from '@ethersproject/contracts'
+import { useCall } from "@usedapp/core"
 
 
-async function getAirdropInfo(airdropAddress) {
-  console.log(airdropAddress, "airdropAddress")
-  try{
-  const web3 = new Web3(window.ethereum);
-  await window.ethereum.enable();
-  const contract = new web3.eth.Contract(PublicAirdropAbi, airdropAddress);
-  const info = await contract.methods.airdropInfo().call();
-  console.log(info, "info")
-  return info;
-  }catch(e){
-    console.log(e, "error")
+function useAirdropInfo(airdropAddress) {
+
+  const { value, error } =
+    useCall(
+      {
+        contract: new Contract(airdropAddress, PublicAirdropAbi),
+        method: "airdropInfo",
+        args: [],
+      },
+      {
+        refresh: "never",
+      }
+    ) ?? {}
+  if (error) {
+    
+    return error
   }
+  return value
 }
 
-export default getAirdropInfo
+export default useAirdropInfo

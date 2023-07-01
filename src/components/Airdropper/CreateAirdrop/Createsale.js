@@ -1,33 +1,35 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import PreviewHeader from '../../Common/PreviewHeader'
 import BackArrowSVG from '../../../svgs/back_arrow'
 import PreviewDetails from '../../Common/PreviewDetails'
 import { useModal } from 'react-simple-modal-provider'
-import { AIRDROP_FACTORY_ADDRESS } from '../../../config/constants/address'
-import { ethers } from 'ethers'
 import { useEthers } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
 import AirdropFactoryAbi from 'config/abi/AirdropFactory.json'
 import { formatBigToNum } from '../../../utils/numberFormat'
-import { useNavigate } from 'react-router-dom'
 import StartPublicAirdropCreationPage from '../AirdropPage/Modal/StartPublicAirdropCreationPgae'
 import StartPrivateAirdropCreation from '../AirdropPage/Modal/StartPrivateAirdropCreation'
 import AddAllocationsCreation from './AddAllocationsCreationPage'
+import { AIRDROP_FACTORY_ADDRESS } from 'config/constants/address'
+
 
 
 export default function Createsale({ setAirdropData, airdropData, token, setActive, amount }) {
 
-  const { account, library, chainId } = useEthers()
+  const { library, chainId } = useEthers()
   const [modal, showModal] = useState(0);
-  const navigate = useNavigate()
+  const [error, setError] = useState();
+
+  
 
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
-  console.log(airdropData.tokenAddress, 'airdropData.tokenAddress')
 
   const handleCreateAirdrop = async () => {
     openLoadingModal()
-    const contract = new Contract('0xFEB0519C0eC588300146EA30133209aABD069432', AirdropFactoryAbi, library.getSigner())
+    const contract = new Contract(AIRDROP_FACTORY_ADDRESS[chainId], AirdropFactoryAbi, library.getSigner())
+    const fee = await contract.fee();
     try {
+
       const createAirdrop = await contract.deployAirdrop(airdropData.tokenAddress,
         [airdropData.image,
         airdropData.description,
@@ -37,8 +39,7 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
         airdropData.linkedin,
         airdropData.github,
         airdropData.name], {
-        value: 0,
-        gasLimit: 2000000
+        value: fee.privateFee
       })
       await createAirdrop.wait()
       const airdropAddress = await contract.getLastDeployedAirdrop();
@@ -46,11 +47,13 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
         ...prevState,
         airdropAddress: airdropAddress
       }))
+      setError(undefined)
       //navigate(`/airdropper/airdrops/${airdropAddress}`)
       closeLoadingModal()
       showModal(2)
       return
     } catch (error) {
+      setError(error.reason)
       closeLoadingModal()
       return false
     }
@@ -58,8 +61,12 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
 
   const handleCreatePublicAirdrop = async () => {
     openLoadingModal()
-    const contract = new Contract('0xFEB0519C0eC588300146EA30133209aABD069432', AirdropFactoryAbi, library.getSigner())
+    const contract = new Contract(AIRDROP_FACTORY_ADDRESS[chainId], AirdropFactoryAbi, library.getSigner())
+    const fee = await contract.fee();
+   // const publicFee = fee
+
     try {
+
       const createAirdrop = await contract.deployPublicAirdrop(airdropData.tokenAddress,
         [airdropData.image,
         airdropData.description,
@@ -69,9 +76,9 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
         airdropData.linkedin,
         airdropData.github,
         airdropData.name], {
-        value: 0,
-        gasLimit: 2000000
+        value: fee.publicFee,
       })
+      
       await createAirdrop.wait()
       const airdropAddress = await contract.getLastDeployedAirdrop();
       setAirdropData((prevState) => ({
@@ -79,10 +86,12 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
         airdropAddress: airdropAddress
       }))
       //navigate(`/airdropper/airdrops/${airdropAddress}`)
+      setError(undefined)
       closeLoadingModal()
       showModal(4)
       return
     } catch (error) {
+      setError(error.reason)
       closeLoadingModal()
       return false
     }
@@ -93,7 +102,7 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
     <div className="">
       {modal !== 0 &&
         <div className="fixed backdrop-blur-[7px] w-full h-full flex justify-center  z-50  top-0 left-0">
-          <div className='h-screen w-full flex items-center'>
+          <div className='h-screen sticky top-0 w-full flex items-center'>
             {modal === 2 && <AddAllocationsCreation decimals={airdropData.tokenDecimals} airdropAddress={airdropData.airdropAddress} tokenAddress={airdropData.tokenAddress} showModal={showModal} modal={modal} />}
             {modal === 3 && <StartPrivateAirdropCreation decimals={airdropData.tokenDecimals} airdropAddress={airdropData.airdropAddress} tokenAddress={airdropData.tokenAddress} showModal={showModal} modal={modal} />}
             {modal === 4 && <StartPublicAirdropCreationPage decimals={airdropData.tokenDecimals} tokenAddress={airdropData.tokenAddress} airdropAddress={airdropData.airdropAddress} showModal={showModal} modal={modal} />}
@@ -159,6 +168,9 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
           >
             Create Airdrop
           </button>
+          {error && (
+             <p className="mt-4 text-red-500 text-center">{error.replace(/\b\w/g, (c) => c.toUpperCase())}</p>
+            )}
         </div>
       </div>
     </div>

@@ -1,22 +1,25 @@
 import React, { useEffect } from 'react'
 import Modal, { useModalState } from 'react-simple-modal-provider'
-import { BSCTestnet } from '@usedapp/core'
+import { BSC } from '@usedapp/core'
 
 import { wallets } from '../../data/wallets'
 import { useEthers } from '@usedapp/core'
 import WalletConnectProvider from '@walletconnect/web3-provider/dist/umd/index.min.js'
-import {networkConfig } from '../../config/networks'
+import { getNetworkConfig } from '../../config/networks'
+import { useDefaultChainId } from '../../config/useDefaultChainId'
 
 export default function ConnectionModal({ children }) {
+  const defaultChainId = useDefaultChainId()
+  const config = getNetworkConfig(defaultChainId)
   const {chainId, switchNetwork, account, activate, activateBrowserWallet } = useEthers()
   const [isOpen, setOpen] = useModalState()
   const onConnect = async () => {
-    if(chainId !== BSCTestnet.chainId) {
-      await switchNetwork(BSCTestnet.chainId)
+    if(chainId !== BSC.chainId) {
+      await switchNetwork(BSC.chainId)
     }
     try {
       const provider = new WalletConnectProvider({
-        rpc: networkConfig.readOnlyUrls,
+        rpc: config.readOnlyUrls,
       })
       await provider.enable()
       await activate(provider)
@@ -28,8 +31,8 @@ export default function ConnectionModal({ children }) {
   const onMetamask = async () => {
     try {
       activateBrowserWallet()
-      if(chainId !== BSCTestnet.chainId){
-        switchNetwork(BSCTestnet.chainId)
+      if(chainId !== BSC.chainId){
+        switchNetwork(BSC.chainId)
       }
     } catch (error) {
       console.error(error)

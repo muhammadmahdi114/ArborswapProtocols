@@ -1,24 +1,24 @@
 import React, {useState, useMemo, useEffect} from 'react'
 import CalendarField from '../../../Launchpad/CreateSale/Subcomponents/CalendarField'
-import moment from 'moment'
 import PrivateAirdropAbi from 'config/abi/PrivateAirdropAbi.json';
 import ERCAbi from 'config/abi/ERC20.json';
 import { useEthers, useTokenAllowance, useTokenBalance} from '@usedapp/core';
 import { Contract } from '@ethersproject/contracts'
-import { useParams} from 'react-router-dom'
+
 import { useModal } from 'react-simple-modal-provider'
-import InputField from '../../CreateAirdrop/InputField.js'
+
 import { ethers } from 'ethers'
 import {getAirdropInfos} from 'utils/getAirdropList'
 import { useNavigate } from 'react-router-dom'
-import { formatBigToNum } from '../../../../utils/numberFormat'
+
 
 
 export default function StartPrivateAirdropCreation({ decimals, airdropAddress, tokenAddress, showModal, modal }) {
   const [date, setDate] = useState()
+  const [error, setError] = useState('')
   const [active, setActive] = useState(false)
   const [totalAmountToAirdrop, setTotalAmountToAirdrop] = useState()
-  const { account, library, chainId } = useEthers();
+  const { account, library } = useEthers();
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
   const [isChecked, setIsChecked] = useState(false);
   const navigate = useNavigate()
@@ -27,18 +27,15 @@ export default function StartPrivateAirdropCreation({ decimals, airdropAddress, 
     setIsChecked(!isChecked);
   };
 
-  console.log(tokenAddress, 'tkn')
-  console.log(airdropAddress, 'airdropAddressg')
 
   useEffect(() => {
-    console.log(date, 'dte')
+   
     if(!active){
       async function fetchData() {
         try{
           const info = await getAirdropInfos([airdropAddress]);
           setTotalAmountToAirdrop(info.data[0].info.totalAmountToAirdrop)
           setActive(true)
-          console.log(info.data[0].info.totalAmountToAirdrop)
         }catch(error){
           setActive(false)
         }
@@ -55,16 +52,11 @@ export default function StartPrivateAirdropCreation({ decimals, airdropAddress, 
     refresh: 5,
   })
 
-  console.log(allowance, 'allowance')
-  console.log(balance, 'balance')
-  console.log(totalAmountToAirdrop, 'totalAmountToAirdrop')
-
   const needApprove = useMemo(() => {
     if(active){
        if (typeof allowance === 'undefined') {
            return true
          }
-         console.log(totalAmountToAirdrop.gt(allowance), 'lll')
          return totalAmountToAirdrop.gt(allowance) 
     }
    
@@ -82,29 +74,30 @@ export default function StartPrivateAirdropCreation({ decimals, airdropAddress, 
 
   }, [totalAmountToAirdrop, needApprove, balance])
 
-  console.log(needApprove, 'needApprove')
-  console.log(isValid, 'isValid')
 
 
 
   const handleApprove = async () => {
-    console.log(tokenAddress, 'tokenAddress')  
-    console.log(airdropAddress, 'airdropAddress')  
-    try {
+   try {
       openLoadingModal()
       const contractERC20 = new Contract(tokenAddress, ERCAbi, library.getSigner())
       const approval = await contractERC20.approve(airdropAddress, ethers.constants.MaxUint256)
       await approval.wait()
       closeLoadingModal()
-    } catch (error) {closeLoadingModal()}
+      setError(undefined);
+    } catch (error) {
+      setError(error.reason);
+      closeLoadingModal()
+    }
   }
 
   const handleStartAirdrop = async() => {
     if(isChecked){
         setDate(Math.floor(Date.now() / 1000) + 60)
     }  
-    //debugger
-    if(date !== 'undefined'){
+
+  
+    if(date !== undefined){
       try {
         openLoadingModal()
         const airdrop = new Contract(airdropAddress, PrivateAirdropAbi, library.getSigner())
@@ -115,9 +108,13 @@ export default function StartPrivateAirdropCreation({ decimals, airdropAddress, 
         showModal(0)
         return
       } catch (error) {
+        setError(error.reason);
         closeLoadingModal()
         return false
       }
+    }else{
+      setError('Set The Start Date');
+      return false
     }
   }
 
@@ -161,7 +158,7 @@ export default function StartPrivateAirdropCreation({ decimals, airdropAddress, 
       {active && !needApprove  &&
         <div className="w-full max-w-[420px]  mt-10">
         <button
-          disabled={!isValid}
+          
           className="w-full bg-primary-green text-white py-5 rounded-md font-gilroy font-bold text-xl"
           onClick={handleStartAirdrop}
         >
@@ -169,6 +166,11 @@ export default function StartPrivateAirdropCreation({ decimals, airdropAddress, 
         </button>
       </div>
       }
+
+      {error && (
+        <p className="mt-4 text-red-500 text-center">{error}</p>
+      )}
+
 
 
 

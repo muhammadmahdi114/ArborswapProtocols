@@ -8,6 +8,7 @@ import FairErcAbi from "../config/abi/FairErcAbi.json";
 import PublicSaleAbi from "../config/abi/PublicSale.json";
 import {
   Public_FACTORYADRESS,
+  BSC_PUBLIC_FACTORYADDRESS,
   ROUTER_ADDRESS,
   ADMIN_ADDRESS,
   Private_FACTORYADRESS,
@@ -49,13 +50,24 @@ export const deployPublicSale = async (
   account,
   deploymentFee,
   saleData,
-  closeLoadingModal
+  closeLoadingModal,
 ) => {
-  const contract = new Contract(
+  const chainId = await library.getChainId();
+  console.log("chainId", chainId);
+  let contract = null;
+  if (chainId === 56) {
+    contract = new Contract(
+      BSC_PUBLIC_FACTORYADDRESS,
+      PublicAbi,
+      library.getSigner()
+    );
+  } else {
+  contract = new Contract(
     Public_FACTORYADRESS,
     PublicAbi,
     library.getSigner()
   );
+  }
 
   const saleId = await contract.getNumberOfSalesDeployed();
   const routerAddress = ROUTER_ADDRESS;

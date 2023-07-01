@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import TwitterSVG from "../../../svgs/Socials/twitter";
 import DribbleSVG from "../../../svgs/Socials/dribble";
 import HeadingTags from "../../TokenLocker/Subcomponents/HeadingTags";
-import UploadImageFlex from "../../Common/UploadImageFlex";
 import PreviewHeader from "components/Common/PreviewHeader";
 import BackArrowSVG from "../../../svgs/back_arrow";
 import LinkedinSVG from "../../../svgs/Socials/linkedin";
@@ -19,8 +18,7 @@ export default function Detailspage({
   const [validTwitter, setValidTwitter] = useState(true);
   const [validLinkedin, setValidLinkedin] = useState(true);
   const [validGithub, setValidGithub] = useState(true);
-  const [profileImage, setProfileImage] = useState(null);
-  const [valid, setValid] = useState(false);
+  const [valid, setValid] = useState(true);
   const { theme } = useContext(ThemeContext);
   //there are multiple tooltips so we need to keep track of which one is being hovered
   const [show, setShow] = useState([]);
@@ -36,6 +34,14 @@ export default function Detailspage({
   };
 
   const handleSubmit = () => {
+    if (!isValidUrl(airdropData.image)) {
+      setValid(false);
+      return;
+    } else {
+      setValid(true);
+    }
+
+
     if (!isValidUrl(airdropData.website)) {
       setValidWebsite(false);
       return;
@@ -43,32 +49,39 @@ export default function Detailspage({
       setValidWebsite(true);
     }
 
-    if (!isValidUrl(airdropData.twitter)) {
-      setValidTwitter(false);
-      return;
-    } else {
-      setValidTwitter(true);
+
+    if (airdropData.twitter !== "") {
+      if (!isValidUrl(airdropData.twitter)) {
+        setValidTwitter(false);
+        return;
+      } else {
+        setValidTwitter(true);
+      }
     }
 
-    if (!isValidUrl(airdropData.linkedin)) {
-      setValidLinkedin(false);
-      return;
-    } else {
-      setValidLinkedin(true);
+    if (airdropData.linkedin !== "") {
+      if (!isValidUrl(airdropData.linkedin)) {
+        setValidLinkedin(false);
+        return;
+      } else {
+        setValidLinkedin(true);
+      }
     }
 
-    if (!isValidUrl(airdropData.github)) {
-      setValidGithub(false);
-      return;
-    } else {
-      setValidGithub(true);
+
+    if (airdropData.github !== "") {
+      if (!isValidUrl(airdropData.github)) {
+        setValidGithub(false);
+        return;
+      } else {
+        setValidGithub(true);
+      }
     }
 
     if (isValidUrl(airdropData.image) && isValidUrl(airdropData.website))
       setActive("Preview");
   };
 
-  console.log(airdropData, "airdropdata");
 
   return (
     <div className="w-full p-5 md:p-9 bg-white dark:bg-dark-1 rounded-[10px] ">
@@ -95,7 +108,7 @@ export default function Detailspage({
           </div>
         </div>
         <div className="mt-5 flex items-center justify-between gap-5 cursor-pointer">
-          <div className="flex items-center justify-between bg-[#FAF8F5] dark:bg-dark-2 px-5 py-4 rounded-md w-[100%]">
+          <div className={`flex items-center justify-between bg-[#FAF8F5] border dark:bg-dark-2 px-5 py-4 rounded-md w-[100%] ${valid ? 'border-dim-text' : 'border-red-500'}`}>
             <input
               type="text"
               placeholder="Ex: https://..."

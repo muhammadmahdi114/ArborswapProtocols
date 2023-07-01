@@ -1,18 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import PreviewDetails from 'components/Common/PreviewDetails'
-//import { AIRDROP_FACTORY_ADDRESS } from '../../../config/constants/address'
-import { ethers } from 'ethers'
-import { useEthers, useTokenAllowance, useTokenBalance } from '@usedapp/core'
+import React from 'react'
+
+import { useEthers } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
-import { useNavigate, useParams } from 'react-router-dom'
-//import AirdropFactoryAbi from '../config/abi/AirdropFactory.json'
-import { formatBigToNum } from '../../../../utils/numberFormat'
+import { useParams } from 'react-router-dom'
 import { useModal } from 'react-simple-modal-provider'
 import PublicAirdropAbi from 'config/abi/PublicAirdropAbi.json';
-import ERCAbi from 'config/abi/ERC20.json'
+
 
 const NotStartedPublic = ({showModal}) => {
-  const { account, library, chainId } = useEthers()
+  const { library} = useEthers()
   const { id } = useParams()
 
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')

@@ -3,14 +3,13 @@ import Preview from './Preview'
 import UserPanel from './UserPanel'
 import AdminPanel from "./Admin"
 import { formatUnits } from 'ethers/lib/utils'
-import getAirdropInfo from 'hooks/useAirdropInfo'
-import useTokenInfo from 'hooks/useTokenInfo'
+import useAirdropInfo from 'hooks/useAirdropInfo'
 import { useParams } from 'react-router-dom'
-import { formatBigToNum } from '../../../utils/numberFormat'
 
 
 
-export default function AirdropPageBase({ status , airdrop, showModal, admin }) {
+
+export default function AirdropPageBase({ tokenInfo ,status , airdrop, showModal, admin }) {
   const [upcoming] = useState(true)
   const [whitelisted] = useState(false)
   const [totalAmount, setTotalAmount] = useState(0)
@@ -18,16 +17,10 @@ export default function AirdropPageBase({ status , airdrop, showModal, admin }) 
   const [time, setTime] = useState();
   const [remaining, setRemaining] = useState(0)
   const [filledPerc, setFilledPerc] = useState(0)
-  const [airdropInfo, setAirdropInfo] = useState(null)
   const { id } = useParams()
+  const airdropInfo = useAirdropInfo(id)
+  console.log("airdropInfo" ,airdropInfo)
 
-  useEffect(() => {
-    async function getInfo() {
-      const info = await getAirdropInfo(id)
-      setAirdropInfo(info)
-    }
-    getInfo()
-  }, [id])
 
 
   function handleSetRemaining(allocation){
@@ -35,9 +28,10 @@ export default function AirdropPageBase({ status , airdrop, showModal, admin }) 
     setRemaining(remaining - allocation);
     setFilledPerc(filledPercNum)
   }
+ 
   useEffect(() => {
-    console.log(airdropInfo, 'airdropInfo')
-    if (airdropInfo===null || airdropInfo === undefined) {
+   
+    if (typeof airdropInfo == "undefined") {
       return
     }
    
@@ -49,10 +43,7 @@ export default function AirdropPageBase({ status , airdrop, showModal, admin }) 
     setTotalDistributed(totalDistributedNumber)
     setRemaining(remainingNum)
     setFilledPerc(filledPercNum)
-    // console.log(totalAmountNumber, 'totalAmountNumber')
-    // console.log(totalDistributedNumber, 'totalDistributedNumber')
-    // console.log(remainingNum, 'remainingNum')
-    // console.log(filledPercNum, 'filledPercNum')
+
 
 
     
@@ -61,7 +52,7 @@ export default function AirdropPageBase({ status , airdrop, showModal, admin }) 
 
   useEffect(() => {
    
-    if (airdropInfo === null) {
+    if (typeof airdropInfo == "undefined") {
       return
     }
    
@@ -74,13 +65,32 @@ export default function AirdropPageBase({ status , airdrop, showModal, admin }) 
         formattedTime = 'Not started yet';
     }else{
       date = new Date(airdrop.info.startTime.toNumber() * 1000);
-      var hours = date.getHours();
-      
-      var minutes = "0" + date.getMinutes();
+     
+      const year = date.getFullYear(); // get year (e.g. 2021)
+      let month = date.getMonth() + 1; // get month (note: month is zero-indexed in JavaScript, so add 1 to get the correct month)
+      let day = date.getDate(); // get day of the month (e.g. 6)
+      let hours = date.getHours(); // get hours (e.g. 12)
+      let minutes = date.getMinutes(); // get minutes (e.g. 30)
 
-      var seconds = "0" + date.getSeconds();
+      if (minutes < 10) {
+        minutes = "0" + minutes; // prepend a '0' character if minutes is less than 10
+      }
 
-      formattedTime = hours + ':' + minutes.substr(-2) + ' ' + date.toDateString()
+      if (hours < 10) {
+        hours = "0" + hours; // prepend a '0' character if hours is less than 10
+      }
+
+      if (day < 10) {
+        day = "0" + day; // prepend a '0' character if hours is less than 10
+      }
+
+      if (month < 10) {
+        month = "0" + month; // prepend a '0' character if hours is less than 10
+      }
+
+
+
+      formattedTime = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ' ' + 'UTC'
       setTime(formattedTime)
     }
 
@@ -89,11 +99,10 @@ export default function AirdropPageBase({ status , airdrop, showModal, admin }) 
   }, [airdropInfo])
   
 
-  console.log(remaining, 'remainng page base')
   
 
   return (
-    airdrop && airdropInfo && (
+    airdrop && (
       <div className="w-full flex justify-center">
         <div className="w-full px-4 md:px-0 md:flex md:w-10/12 md:gap-7">
           <div className="w-full md:w-[65%] bg-white dark:bg-dark-1 rounded-[10px]">
@@ -115,8 +124,8 @@ export default function AirdropPageBase({ status , airdrop, showModal, admin }) 
           <div className="mt-14 md:mt-0 md:w-[35%] ">
         
             {
-              admin ? <AdminPanel airdrop={airdrop} whitelist_address={airdrop.info.numberWLAddresses.toNumber()} participants={airdrop.info.numberOfParticipants.toNumber()} amount={totalAmount} allocated={1} showModal={showModal} upcoming={upcoming} Private={airdrop.info.isPrivate} started = {airdrop.started}/> : 
-              <UserPanel handleSetRemaining={handleSetRemaining} amount={totalAmount} icon={airdrop.info.description[0]}
+              admin ? <AdminPanel symbol={tokenInfo.symbol} airdrop={airdrop} whitelist_address={airdrop.info.numberWLAddresses.toNumber()} participants={airdrop.info.numberOfParticipants.toNumber()} amount={totalAmount} allocated={1} showModal={showModal} upcoming={upcoming} Private={airdrop.info.isPrivate} started = {airdrop.started}/> : 
+              <UserPanel symbol={tokenInfo.symbol} handleSetRemaining={handleSetRemaining} amount={totalAmount} icon={airdrop.info.description[0]}
               min_allocation={airdrop.info[0].toNumber()} status={status}
               filled_percent={filledPerc} ends_on={airdrop.info[0].toNumber()}  
               whitelisted={whitelisted} whitelist_address={airdrop.info.numberWLAddresses.toNumber()} is_private={airdrop.info.isPrivate} remaining={remaining}/>

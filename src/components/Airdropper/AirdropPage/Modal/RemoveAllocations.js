@@ -9,7 +9,7 @@ import { useModal } from 'react-simple-modal-provider'
 export default function RemoveAllocations({ showModal}) {
   const [allocation, setAllocation] = useState("")
   const { id } = useParams()
-  const { account, library, chainId } = useEthers()   
+  const { library } = useEthers()   
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
 
   

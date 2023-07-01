@@ -1,7 +1,7 @@
 import React from 'react'
 import AirdropCard from 'components/Airdropper/AirdropPage/AirdropCard.js';
 
-export default function AirdropsBase({ endedList, timedList, liveList, activeTab }) {
+export default function AirdropsBase({ publicList, endedList, timedList, liveList, activeTab }) {
 
     
     return (

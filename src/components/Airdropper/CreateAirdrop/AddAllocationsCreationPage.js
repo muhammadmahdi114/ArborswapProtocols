@@ -5,31 +5,53 @@ import { useEthers} from '@usedapp/core';
 import { Contract } from '@ethersproject/contracts'
 import { useModal } from 'react-simple-modal-provider'
 import { parseUnits } from 'ethers/lib/utils'
+import { isAddress } from 'ethers/lib/utils';
 
 export default function AddAllocationsCreation({decimals, airdropAddress, showModal}) {
   const [allocation, setAllocation] = useState("")
+  const [error, setError] = useState()
   const [ready, setReady] = useState(false)
-  const { account, library, chainId } = useEthers()   
+  const {library } = useEthers()   
+  
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
 
   const handleSetAllocations = async () => {
     openLoadingModal()
+    const allocationString = allocation.trim();
+  
+    // Check if allocation string is in the correct format
+    const allocationRegex = /^0x[a-fA-F0-9]{40},\d+(\.\d+)?(\s*\n\s*0x[a-fA-F0-9]{40},\d+(\.\d+)?)*$/;
+    if (!allocationRegex.test(allocationString)) {
+      setError('Invalid input format');
+      closeLoadingModal();
+      return false;
+    }
+
+
     var allocationArray = allocation.split(/,|\n/);
 
     var addys = [],
         amounts = [],
         amountsBigNumber =[];
 
-    for(var i=0; i<allocationArray.length; i++)
-        (i % 2 == 0 ? addys : amounts).push(allocationArray[i]);
-
-    for(var i=0; i<amounts.length; i++){
-        var amount = parseUnits(amounts[i], decimals)
-        amountsBigNumber.push(amount);
-    }
-    console.log(addys, 'addys')
-    console.log(amounts, 'amounts')
-    console.log(amountsBigNumber, 'amountsBigNumber')       
+        for (let i = 0; i < allocationArray.length; i++) {
+          if (i % 2 === 0) {
+            // Check if address is valid
+            if (!isAddress(allocationArray[i])) {
+              setError(`Invalid Ethereum address: ${allocationArray[i]}`);
+              closeLoadingModal();
+              return false;
+            }
+            addys.push(allocationArray[i]);
+          } else {
+            amounts.push(allocationArray[i]);
+          }
+        }
+      
+        for (let i = 0; i < amounts.length; i++) {
+          const amount = parseUnits(amounts[i], decimals);
+          amountsBigNumber.push(amount);
+        }
 
     const contract = new Contract(airdropAddress, PrivateAirdropAbi, library.getSigner())
     try {
@@ -40,9 +62,11 @@ export default function AddAllocationsCreation({decimals, airdropAddress, showMo
           setAllocation('')
       }
       closeLoadingModal()
+      setError(undefined);
       //navigate(`/locked-assets`)
       return
     } catch (error) {
+      setError(error.reason);
       closeLoadingModal()
       return false
     }
@@ -81,7 +105,7 @@ export default function AddAllocationsCreation({decimals, airdropAddress, showMo
                         className="bg-transparent w-full px-5 py-4 font-gilroy placeholder:font-medium placeholder:text-dim-text font-semibold text-dark-text dark:text-light-text focus:outline-none"
                         value={allocation}
                         onChange={(e) => setAllocation(e.target.value)}
-                        placeholder={"0xk45930x0xk45930x0xk45930x0xk45930x0xk45930x0xk45930x0xk45930x"}
+                        placeholder={"0x5168C3d820A2a2521F907cD74F6E1DE43E95da22,1000"}
                     />
                 </div>
                 </div>
@@ -109,6 +133,9 @@ export default function AddAllocationsCreation({decimals, airdropAddress, showMo
           Proceed to Start
         </button>}
       </div>
+      {error && (
+        <p className="mt-4 text-red-500 text-center">{error}</p>
+      )}
     </div>
     </div>
   )

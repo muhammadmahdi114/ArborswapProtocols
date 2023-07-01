@@ -1,35 +1,40 @@
 import React, {useState, useMemo, useEffect} from 'react'
 import CalendarField from '../../../Launchpad/CreateSale/Subcomponents/CalendarField'
-import moment from 'moment'
+
 import PrivateAirdropAbi from 'config/abi/PrivateAirdropAbi.json';
 import ERCAbi from 'config/abi/ERC20.json';
 import { useEthers, useTokenAllowance, useTokenBalance} from '@usedapp/core';
 import { Contract } from '@ethersproject/contracts'
 import { useParams} from 'react-router-dom'
 import { useModal } from 'react-simple-modal-provider'
-import InputField from '../../CreateAirdrop/InputField.js'
+
 import { ethers } from 'ethers'
 import {getAirdropInfos} from 'utils/getAirdropList'
+import { useNavigate } from 'react-router-dom'
 
 
-export default function StartPrivateAirdrop({ showModal, modal }) {
+
+export default function StartPrivateAirdrop({ decimals,  tokenAddress, showModal, modal }) {
   const [date, setDate] = useState()
-  const [tokenAddress, setTokenAddress] = useState(0)
+  const [error, setError] = useState('')
   const [active, setActive] = useState(false)
   const [totalAmountToAirdrop, setTotalAmountToAirdrop] = useState()
-  const { id } = useParams()
-  const { account, library, chainId } = useEthers();
-  const {chk , setCheckedd} = useState(false);
+  const { account, library} = useEthers();
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
+  const [isChecked, setIsChecked] = useState(false);
+  const {id} = useParams();
+
+  const handleOnChangeCheckBox = () => {
+    setIsChecked(!isChecked);
+  };
 
 
   useEffect(() => {
-    console.log(date, 'dte')
-    if(tokenAddress === 0){
+   
+    if(!active){
       async function fetchData() {
         try{
           const info = await getAirdropInfos([id]);
-          setTokenAddress(info.data[0].info.token)
           setTotalAmountToAirdrop(info.data[0].info.totalAmountToAirdrop)
           setActive(true)
         }catch(error){
@@ -48,48 +53,53 @@ export default function StartPrivateAirdrop({ showModal, modal }) {
     refresh: 5,
   })
 
-  console.log(allowance, 'allowance')
-  console.log(balance, 'balance')
-  console.log(totalAmountToAirdrop, 'totalAmountToAirdrop')
-
   const needApprove = useMemo(() => {
-    
-      if (typeof allowance === 'undefined') {
-        return true
-      }
-      console.log(totalAmountToAirdrop.gt(allowance), 'lll')
-      return totalAmountToAirdrop.gt(allowance)
+    if(active){
+       if (typeof allowance === 'undefined') {
+           return true
+         }
+         return totalAmountToAirdrop.gt(allowance) 
+    }
+   
     
   }, [totalAmountToAirdrop, allowance])
 
   const isValid = useMemo(() => {
-    
-      if (typeof balance === 'undefined') {
-        return true
-      }
-  
-      return !needApprove && balance.gt(totalAmountToAirdrop)
-    
+    if(active){
+       if (typeof balance === 'undefined') {
+           return true
+         }
+       
+         return !needApprove && balance.gt(totalAmountToAirdrop)  
+    }
 
   }, [totalAmountToAirdrop, needApprove, balance])
 
-  console.log(needApprove, 'needApprove')
-  console.log(isValid, 'isValid')
 
 
 
   const handleApprove = async () => {
-    openLoadingModal()
-    const contractERC20 = new Contract(tokenAddress, ERCAbi, library.getSigner())
+
     try {
+      openLoadingModal()
+      const contractERC20 = new Contract(tokenAddress, ERCAbi, library.getSigner())
       const approval = await contractERC20.approve(id, ethers.constants.MaxUint256)
       await approval.wait()
-    } catch (error) {}
-    closeLoadingModal()
+      closeLoadingModal()
+      setError(undefined);
+    } catch (error) {
+      setError(error.reason);
+      closeLoadingModal()
+    }
   }
 
   const handleStartAirdrop = async() => {
-    if(date !== 'undefined'){
+    if(isChecked){
+        setDate(Math.floor(Date.now() / 1000) + 60)
+    }  
+
+
+    if(date !== undefined){
       try {
         openLoadingModal()
         const airdrop = new Contract(id, PrivateAirdropAbi, library.getSigner())
@@ -97,12 +107,15 @@ export default function StartPrivateAirdrop({ showModal, modal }) {
         await startAirdrop.wait()
         closeLoadingModal()
         showModal(0)
-        //navigate(`/locked-assets`)
         return
       } catch (error) {
+        setError(error.reason);
         closeLoadingModal()
         return false
       }
+    }else{
+      setError('Set The Start Date');
+      return false
     }
   }
 
@@ -121,21 +134,19 @@ export default function StartPrivateAirdrop({ showModal, modal }) {
         </div>
 
         <div className='mt-10'>
-            <div className="w-full">
-                <CalendarField heading={modal === 3 ? "Starts On (UTC)": "Ends On (UTC)"} setFunction={setDate}  />
-            </div>
-            {modal === 2 ?             
-            <div className="flex items-center mt-10">
-                <input id="default-checkbox" type="checkbox" value="" className="w-4 h-4 accent-primary-green bg-gray-100 border-gray-300 rounded dark:border-gray-600 focus:outline-none" />
-                <label for="default-checkbox" className="ml-3 text-sm font-medium text-dark-text dark:text-gray-300">End Now Instead</label>
-            </div> : 
-            <div className="flex items-center mt-10">
-                <input id="checkbox" type="checkbox" value={chk} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" /*onChange={handleChange}*//>
-                <label for="default-checkbox" className="ml-3 text-sm font-medium text-[#807373] dark:text-gray-500">Start Now Instead</label>
+            {!isChecked && <div className="w-full">
+                <CalendarField heading={"Starts On (UTC)"} setFunction={setDate}  />
             </div>}
 
+            <div className="flex items-center mt-10">
+                <input id="checkbox" type="checkbox" value="" checked={isChecked}
+                   onChange={handleOnChangeCheckBox} 
+                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                <label for="checkbox" className="ml-3 text-sm font-medium text-[#807373] dark:text-gray-500">Start Now Instead</label>
+            </div>
+
         </div>
-      {active && needApprove && totalAmountToAirdrop.toNumber() !== 0 && <div className="w-full max-w-[420px]  mt-10">
+      {active && needApprove &&  <div className="w-full max-w-[420px]  mt-10">
         <button
           className="w-full bg-primary-green text-white py-5 rounded-md font-gilroy font-bold text-xl"
           onClick={handleApprove}
@@ -145,10 +156,10 @@ export default function StartPrivateAirdrop({ showModal, modal }) {
       </div>
       }
 
-      {active && !needApprove && totalAmountToAirdrop.toNumber() !== 0 &&
+      {active && !needApprove  &&
         <div className="w-full max-w-[420px]  mt-10">
         <button
-          disabled={!isValid}
+          
           className="w-full bg-primary-green text-white py-5 rounded-md font-gilroy font-bold text-xl"
           onClick={handleStartAirdrop}
         >
@@ -157,17 +168,10 @@ export default function StartPrivateAirdrop({ showModal, modal }) {
       </div>
       }
 
-      {active && totalAmountToAirdrop.toNumber() === 0 &&
-        <div className="w-full max-w-[420px]  mt-10">
-        <button
-          disabled={true}
-          className="w-full bg-primary-green text-white py-5 rounded-md font-gilroy font-bold text-xl"
-          
-        >
-          Allocations are not set
-        </button>
-      </div>
-      }
+      {error && (
+        <p className="mt-4 text-red-500 text-center">{error}</p>
+      )}
+
 
 
 

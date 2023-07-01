@@ -10,7 +10,10 @@ import StartPublicAirdrop from '../../components/Airdropper/AirdropPage/Modal/St
 import { getAirdropInfos, getAirdropStatus } from 'utils/getAirdropList'
 import { useEthers} from '@usedapp/core'
 import useAirdropOwner from 'hooks/useAirdropOwner'
-import useTokenInfo from 'hooks/useTokenInfo'
+import useIsOwner from 'hooks/useIsOwner'
+import { getTokenInfo } from 'utils/tokenInfo'
+import { useDefaultChainId } from 'config/useDefaultChainId'
+
 
 
 
@@ -22,51 +25,48 @@ export default function PoolPage() {
   const [asset, setAsset] = useState(null)
   const [status, setStatus] = useState('k')
   const [ready, setReady] = useState(false)
+  const [token, setToken] = useState()
+  const [tokenInfo, setTokenInfo] = useState()
   const navigate = useNavigate();
-  const { active, account, library, chainId } = useEthers();
+  const { account} = useEthers();
+  const chainId = useDefaultChainId()
   
 
   const owner = useAirdropOwner(id)
+  const isOwner = useIsOwner(id, account);
+  
 
 
   useEffect(() => {
-    
-    if (typeof owner == "undefined") {
-      return
-    }
 
-    
-    
-    if(active && (account == owner[0])){
+    if(isOwner){
       setAdminMode(true)
+    }else{
+      setAdminMode(false)
     }
     
     
   }, [owner])
-  console.log("HAHAHA")
+
+
   useEffect(() => {
     let activated = true
     const handleFetch = async () => {
       setAsset(false)
       try {
-        console.log("here")
-        const info = await getAirdropInfos([id])
-        console.log(info, 'totalAmountto')
-        const statuses = await getAirdropStatus([id])
+        
+        const airdropInfo = await getAirdropInfos(chainId, [id])
+        if(airdropInfo.success){
+          setToken(airdropInfo.data[0].info.token)
+        }
+        const info = await getTokenInfo(chainId, airdropInfo.data[0].info.token)
+        if(info.success){
+          setTokenInfo(info.data)
+        }
+        const statuses = await getAirdropStatus(chainId, [id])
         const isStarted = statuses.data[0].airDropStarted;
         const isEmpty = statuses.data[0].isEmpty;
         const isCancelled = statuses.data[0].airdropCancelled;
-
-        console.log(isStarted, 'isStarted')
-        console.log(isEmpty, 'isEmpty')
-        console.log(isCancelled, 'isCancelled')
-        console.log(statuses.data[0], 'statuses.data[0]')
-
-        // if(active){
-        //   if(owner === account){
-        //     setAdminMode(true)
-        //   }
-        // }
 
         if(isStarted === true && (!isEmpty && !isCancelled)){
           setStatus('Live')
@@ -84,9 +84,10 @@ export default function PoolPage() {
         if (!activated) {
           return
         }
-        if (info.success) {
-          console.log(info.data[0], 'info.data[0]')
-          setAsset(info.data[0])
+        if (airdropInfo.success) {
+          setAsset(airdropInfo.data[0])
+
+          document.title = airdropInfo.data[0].info.description[7]
           setReady(true)
           return
         } else {
@@ -97,31 +98,31 @@ export default function PoolPage() {
           return
         }
       } catch (error) {
-        console.log(error.message)
-        console.log('message')
+        
+
       }
     }
     handleFetch(id)
+    
     
     return () => {
       activated = false
     }
   }, [id, navigate])
 
-  
   return (
     ready ? (
     <div className='w-full'>
       {modal !== 0 &&
         <div className="fixed z-50  top-0 left-0">
-          {modal === 1 && <AddAllocations showModal={showModal}/>} 
+          {modal === 1 && <AddAllocations decimals={tokenInfo.decimals} tokenAddress={token} showModal={showModal}/>} 
           {modal === 2 && <RemoveAllocations showModal={showModal}/>} 
-          {modal === 3 && <StartPrivateAirdrop showModal={showModal} modal={modal}/>}
-          {modal === 4 && <StartPublicAirdrop showModal={showModal} modal={modal}/>}
+          {modal === 3 && <StartPrivateAirdrop decimals={tokenInfo.decimals} tokenAddress={token}  showModal={showModal} modal={modal}/>}
+          {modal === 4 && <StartPublicAirdrop decimals={tokenInfo.decimals} tokenAddress={token}  showModal={showModal} modal={modal}/>}
         </div>
       }
-      <BaseLayout page_name={'Airdrops'} title={asset.name} subpage admin={adminMode} setAdminMode={setAdminMode}>
-        <AirdropPageBase status={status} airdrop={asset} showModal={showModal} admin={adminMode} owner={owner}/>
+      <BaseLayout page_name={'Airdrops'} title={asset.info.description[7]} subpage admin={adminMode} setAdminMode={setAdminMode}>
+        <AirdropPageBase tokenInfo={tokenInfo} status={status} airdrop={asset} showModal={showModal} admin={adminMode} owner={owner}/>
       </BaseLayout>
     </div>
     ) : (
