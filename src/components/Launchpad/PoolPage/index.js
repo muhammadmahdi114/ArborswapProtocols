@@ -93,7 +93,7 @@ export default function PoolPageBase({ pool, visible, showModal, admin,objId ,is
             {
               admin && (pool.status === 'Ended'|| visible===false) &&
               <div className='mt-[30px]'>
-                <FundRaised icon={pool.image} pool = {pool}/>
+                <FundRaised icon={pool.image} pool = {pool} status={pool.status} sale={pool}/>
               </div>
             }
             {pool.saleType !== 'private' && !admin && 

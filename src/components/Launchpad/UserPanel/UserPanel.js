@@ -14,6 +14,7 @@ import ConfirmModal from "../Admin/subComponents/ConfirmModal";
 import { useModal } from "react-simple-modal-provider";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Web3 from "web3";
 
 
 export default function SaleBox({ icon, sale, status, isFinished, isCancelled }) {
@@ -21,6 +22,7 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
   const [allocated, setAllocated] = useState(0);
   const [bought, setBought] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [tokensWithdrawn, setTokensWithdrawn] = useState(false);
   const participated = useParticipated(sale.saleAddress, account);
   const { open: openLoadingModal, close: closeLoadingModal } =
   useModal("LoadingModal");
@@ -34,9 +36,21 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
     setBought(formatBigToNum(userParticipation[0].toString(), 18, 4));
     setAllocated(formatBigToNum(userParticipation[1].toString(), 18, 4));
   };
+  async function getTokensWithdrawn() {
+    const web3 = new Web3(window.ethereum);
+    const contract = new web3.eth.Contract(PublicSaleAbi, sale.saleAddress);
+    const withdrawn = await contract.methods.areTokensWithdrawn().call();
+    setTokensWithdrawn(withdrawn);
+  }
+
   const withdrawTokens = async () => {
     openLoadingModal()
     setShowModal(false);
+    if (tokensWithdrawn) {
+      toast.error("Tokens already withdrawn");
+      closeLoadingModal()
+      return;
+    }
     if (participated[0] === false) {
       toast.error("You have not participated in this sale");
       return;
@@ -124,10 +138,11 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
     }
     closeLoadingModal()
   };
-
+  console.log(tokensWithdrawn, "tokensWithdrawn");
   useEffect(() => {
     if (sale) {
       getUserParticipation();
+      getTokensWithdrawn();
     }
   }, [sale]);
   return (

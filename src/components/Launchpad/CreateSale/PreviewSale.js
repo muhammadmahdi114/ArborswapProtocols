@@ -20,6 +20,7 @@ import {
 import axios from "axios";
 import { BACKEND_URL } from "config/constants/LaunchpadAddress";
 import getCalcMax from "utils/calcMax";
+import { useDefaultChainId } from "config/useDefaultChainId";
 
 export default function PreviewSale({
   token,
@@ -64,7 +65,7 @@ export default function PreviewSale({
   }, [max]);
 
   useEffect(() => {}, [startTime]);
-
+  const chainId = useDefaultChainId();
   useEffect(() => {
     setStartTime(new Date(saleObject.startDate * 1000));
     setEndTime(new Date(saleObject.endDate * 1000));
@@ -84,6 +85,7 @@ export default function PreviewSale({
           account,
           deploymentFee,
           saleData,
+          chainId,
           closeLoadingModal
         );
       } else {
@@ -94,6 +96,8 @@ export default function PreviewSale({
           account,
           deploymentFee,
           saleData,
+          chainId,
+
           closeLoadingModal
         );
       }
