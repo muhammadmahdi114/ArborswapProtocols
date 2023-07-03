@@ -6,7 +6,7 @@ export const Networkswitch = [
         status: true, 
         isActive: true
     },{
-        iconimg: "/images/headericons/EthereumChain.svg",
+        iconimg: "/images/headericons/BinanceSmartChainBadge.svg",
         title: "BSC Testnet", 
         subtitle: "Not Connected", 
         status: false, 
