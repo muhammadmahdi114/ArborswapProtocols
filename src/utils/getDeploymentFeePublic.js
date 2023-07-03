@@ -6,7 +6,6 @@ async function getDeploymentFeePublic() {
     const web3 = new Web3(window.ethereum);
     await window.ethereum.enable();
     const chainId = await web3.eth.getChainId();
-    console.log(chainId, "chainId")
     let contract = null;
     if (chainId === 56) {
         contract = new web3.eth.Contract(PublicAbi, BSC_PUBLIC_FACTORYADDRESS);

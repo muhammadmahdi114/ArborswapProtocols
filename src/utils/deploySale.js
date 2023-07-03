@@ -146,6 +146,7 @@ export const deployPublicSale = async (
       github: saleData.github,
       website: saleData.website,
       twitter: saleData.twitter,
+      chainId: chainId,
       linkedin: saleData.linkedin,
       discord: saleData.discord,
       telegram: saleData.telegram,
