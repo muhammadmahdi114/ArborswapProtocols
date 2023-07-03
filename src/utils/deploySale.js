@@ -23,6 +23,7 @@ import {
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { ethers, utils } from "ethers";
 import ERCAbi from "../config/abi/ERC20.json";
+import { useDefaultChainId } from "config/useDefaultChainId";
 
 export const approveTokens = async (library, token, factoryContractAddress) => {
   const contract = new Contract(
@@ -51,9 +52,8 @@ export const deployPublicSale = async (
   deploymentFee,
   saleData,
   closeLoadingModal,
+  chainId
 ) => {
-  const chainId = await library.getChainId();
-  console.log("chainId", chainId);
   let contract = null;
   if (chainId === 56) {
     contract = new Contract(
