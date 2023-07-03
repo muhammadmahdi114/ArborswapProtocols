@@ -18,6 +18,7 @@ import { useModal } from "react-simple-modal-provider";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PercentFilled from "../Pools/Subcomponents/PercentFilled";
+import Web3 from "web3";
 
 export default function AdminPanel({
   status,
@@ -63,86 +64,20 @@ export default function AdminPanel({
       setIsFinished(res);
     });
   }
+
+
   async function getSaleInfo() {
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
     });
   }
-  console.log(saleInfo, "saleInfo");
   useEffect(() => {
     getContributors();
     getFinished();
     getSaleInfo();
   }, []);
 
-  const withdrawEarnings = async () => {
-    setShowModal(false);
-    openLoadingModal();
-    if (isFinished[0] === false || !finished) {
-      toast.error("The sale is not finished yet");
-      setShowModal(false);
-      return;
-    }
-    let contract;
-    if (sale.currency.symbol === "BNB") {
-      if (sale.saleType === "standard") {
-        contract = new Contract(
-          sale.saleAddress,
-          PublicSaleAbi,
-          library.getSigner()
-        );
-      } else if (sale.saleType === "private") {
-        contract = new Contract(
-          sale.saleAddress,
-          PrivateSaleAbi,
-          library.getSigner()
-        );
-      } else if (sale.saleType === "fairlaunch") {
-        contract = new Contract(
-          sale.saleAddress,
-          FairLaunchAbi,
-          library.getSigner()
-        );
-      }
-    } else {
-      if (sale.saleType === "standard") {
-        contract = new Contract(
-          sale.saleAddress,
-          PublicSaleErcAbi,
-          library.getSigner()
-        );
-      } else if (sale.saleType === "private") {
-        contract = new Contract(
-          sale.saleAddress,
-          PrivateSaleErcAbi,
-          library.getSigner()
-        );
-      } else if (sale.saleType === "fairlaunch") {
-        contract = new Contract(
-          sale.saleAddress,
-          FairLaunchErcAbi,
-          library.getSigner()
-        );
-      }
-    }
-
-    try {
-      if (status === "Live") {
-        const tx = await contract.withdraw();
-        await tx.wait();
-        toast.success("Tokens withdrawn successfully");
-      } else {
-        const tx = await contract.withdrawEarnings();
-        await tx.wait();
-        toast.success("Earnings withdrawn successfully");
-      }
-      closeLoadingModal();
-    } catch (err) {
-      console.log(err);
-      toast.error("You Have Already Withdrawn Your Earnings");
-      closeLoadingModal();
-    }
-  };
+ 
 
   const finalizeSale = async () => {
     setShowModal(false);
@@ -212,12 +147,10 @@ export default function AdminPanel({
         const res = await axios.put(`${BACKEND_URL}/api/sale/${objId}`, {
           isCancelled: "true",
         });
-        console.log(res);
       } else {
         const res = await axios.put(`${BACKEND_URL}/api/sale/${objId}`, {
           isFinished: "true",
         });
-        console.log(res);
       }
       toast.success("Sale Finalized Successfully");
       window.location.reload();
@@ -255,7 +188,6 @@ export default function AdminPanel({
           ...sale.whiteListedAddresses,
           ...whiteListedAddresses,
         ];
-        console.log(updatedAddresses, "updatedAddresses");
         const finalSaleObject = {
           saleId: sale.saleId,
           saleAddress: sale.saleAddress,
@@ -293,7 +225,6 @@ export default function AdminPanel({
         const res = await axios.put(`${BACKEND_URL}/api/sale/${objId}`, {
           sale: finalSaleObject,
         });
-        console.log(res);
         toast.success("Address Added Successfully");
         closeLoadingModal();
         // window.location.reload();
@@ -308,13 +239,7 @@ export default function AdminPanel({
       toast.error("Something went wrong");
     }
   }
-  console.log(
-    saleInfo,
-    finished,
-    status,
-    cancelled,
-    "saleInfo === false && !finished && status !== Live && !cancelled"
-  );
+
   return (
     <>
       <div className="hidden md:block px-9 pb-9 bg-white dark:bg-dark-1 rounded-[20px]">
@@ -450,20 +375,7 @@ export default function AdminPanel({
             sale was cancelled{" "}
           </span>
         )}
-        {saleInfo === true && finished ? (
-          <div className="mt-7">
-            <button
-              onClick={() => setShowModal(true)}
-              className={`w-full ${
-                status === "Upcoming"
-                  ? "bg-light dark:bg-dark text-dark-text dark:text-light-text"
-                  : "bg-primary-green text-white"
-              } rounded-md font-bold py-4`}
-            >
-              {saleInfo === true ? "Withdraw your Earnings" : "Withdraw Tokens"}
-            </button>
-          </div>
-        ) : null}
+
       </div>
 
       {showModal && (
@@ -472,30 +384,16 @@ export default function AdminPanel({
 
         <ConfirmModal
           runFunction={
-            !cancelled && !finished
-              ? finalizeSale
-              : saleInfo != null && finished
-              ? saleInfo === true && finished
-                ? withdrawEarnings
-                : withdrawEarnings
-              : finalizeSale
+            finalizeSale
           }
           title={
             (status === "Live" || status === "Upcoming") && !finished
               ? "Cancel Sale"
-              : saleInfo != null && finished
-              ? saleInfo === true && finished
-                ? "Withdraw Earnings"
-                : "Withdraw Tokens"
               : "Finalize Sale"
           }
           description={
             (status === "Live" || status === "Upcoming") && !finished
               ? "Are you sure you want to cancel the sale?"
-              : saleInfo != null && finished
-              ? saleInfo === true && finished
-                ? "Are you sure you want to withdraw your earnings?"
-                : "Are you sure you want to withdraw tokens?"
               : "Are you sure you want to finalize the sale?"
           }
           setShowModal={setShowModal}

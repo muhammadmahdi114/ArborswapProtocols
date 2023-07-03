@@ -7,8 +7,8 @@ import { getTokenInfo } from "utils/tokenInfo";
 import { useEthers } from "@usedapp/core";
 import { useModal } from "react-simple-modal-provider";
 import { isAddress } from "ethers/lib/utils";
-import { formatBigToNum } from '../../../utils/numberFormat'
-
+import { formatBigToNum } from "../../../utils/numberFormat";
+import { useDefaultChainId } from "config/useDefaultChainId";
 
 export default function TokenInfo({
   setActive,
@@ -25,7 +25,10 @@ export default function TokenInfo({
   const { open: openLoadingModal, close: closeLoadingModal } =
     useModal("LoadingModal");
 
-  const handleChange = async(e) => {
+
+  const chainId = useDefaultChainId();
+
+  const handleChange = async (e) => {
     setFormStatus((prevState) => ({
       ...prevState,
       isError: false,
@@ -36,38 +39,38 @@ export default function TokenInfo({
 
     if (isAddress(e.target.value)) {
       openLoadingModal();
-      const tokenInfo = await getTokenInfo(e.target.value);
-      
+      const tokenInfo = await getTokenInfo(chainId,e.target.value);
+
       if (tokenInfo.success) {
         setSaleData((prevState) => ({
-            ...prevState,
-            name: tokenInfo.data.name,
-            tokenAddress: e.target.value,
-            tokenName: tokenInfo.data.name,
-            tokenSymbol: tokenInfo.data.symbol,
-            tokenDecimals: tokenInfo.data.decimals,
-            tokenSupply: tokenInfo.data.totalSupply,
-            showDetails: true,
-            isValid: true,
-            }));
+          ...prevState,
+          name: tokenInfo.data.name,
+          tokenAddress: e.target.value,
+          tokenName: tokenInfo.data.name,
+          tokenSymbol: tokenInfo.data.symbol,
+          tokenDecimals: tokenInfo.data.decimals,
+          tokenSupply: tokenInfo.data.totalSupply,
+          showDetails: true,
+          isValid: true,
+        }));
         setVisible(true);
         setEnable(true);
-        } else {
-            setFormStatus((prevState) => ({
-                ...prevState,
-                isError: true,
-                message: "Not Valid ERC20 Token",
-            }));
-        }
-        closeLoadingModal();
-    } else {
-        setSaleData((prevState) => ({
-            ...prevState,
-            showDetails: false,
-            isValid: false,
+      } else {
+        setFormStatus((prevState) => ({
+          ...prevState,
+          isError: true,
+          message: "Not Valid ERC20 Token",
         }));
+      }
+      closeLoadingModal();
+    } else {
+      setSaleData((prevState) => ({
+        ...prevState,
+        showDetails: false,
+        isValid: false,
+      }));
     }
-    };
+  };
   return (
     <div className="w-full">
       <HeadingTags name={"Token Address"} required />

@@ -6,6 +6,7 @@ import { Contract, Provider, setMulticallAddress } from 'ethers-multicall'
 const CHAIN_NUMBER = 56
 
 export const getTokenInfo = async (chainId, address) => {
+  console.log(chainId, address,"chainId, address")
 
   setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
   const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
