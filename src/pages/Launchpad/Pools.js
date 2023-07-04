@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "config/constants/LaunchpadAddress";
 import { useModal } from "react-simple-modal-provider";
+import { useEthers } from "@usedapp/core";
 
 const Tabs = [
   {
@@ -25,6 +26,7 @@ const Tabs = [
 ];
 
 export default function Pools() {
+  const {chainId} = useEthers();
   useDocumentTitle("Pools");
   const [activeTab, setActiveTab] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -41,8 +43,10 @@ export default function Pools() {
       setLoading(true);
       try {
         const res = await axios.get(`${BACKEND_URL}/api/sale`);
-        console.log(res.data)
-        const filteredPools = res.data.filter(
+        const poolsOfCurrentChain = res.data.filter(
+          (pool) => pool.sale.chainID === chainId
+        );
+        const filteredPools = poolsOfCurrentChain.filter(
           (pool) => pool.sale.status === Tabs[activeTab - 1].tabName
         );
         filteredPools.sort((a, b) => {

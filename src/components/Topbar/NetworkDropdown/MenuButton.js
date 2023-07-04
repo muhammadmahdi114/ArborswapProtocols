@@ -7,12 +7,25 @@ import { BSC, BSCTestnet} from '@usedapp/core'
 
 const MenuButton = () => {
     const {chainId, switchNetwork, account, activate, activateBrowserWallet } = useEthers()
-    
     const [toggle, setToggle] = useState(false)
     const [activeItem, setActiveItem] = useState({
         img: '/images/headericons/BinanceSmartChainBadge.svg',
         title: 'Binance Smart Chain'
     })
+
+    useEffect(()=>{
+        if(chainId === 97){
+            setActiveItem({
+                img: '/images/headericons/BinanceSmartChainBadge.svg',
+                title: 'BSC Testnet'
+            })
+        } else if(chainId === 56){
+            setActiveItem({
+                img: '/images/headericons/BinanceSmartChainBadge.svg',
+                title: 'Binance Smart Chain'
+            })
+        }
+    }, [])
 
 
     const [itemData, setItemData] = useState([])

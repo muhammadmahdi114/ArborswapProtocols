@@ -4,7 +4,9 @@ import NlistItem from './NlistItem'
 
 const Ndropdown = ({updateMenuItem, itemData}) => {
   
-  const selectItem = (index) => updateMenuItem( index )
+  const selectItem = (index) =>{
+    updateMenuItem(index)
+  }
 
   return (
 
