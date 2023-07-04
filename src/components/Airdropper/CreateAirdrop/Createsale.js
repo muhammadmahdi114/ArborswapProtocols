@@ -1,114 +1,188 @@
-import React, { useState } from 'react'
-import PreviewHeader from '../../Common/PreviewHeader'
-import BackArrowSVG from '../../../svgs/back_arrow'
-import PreviewDetails from '../../Common/PreviewDetails'
-import { useModal } from 'react-simple-modal-provider'
-import { useEthers } from '@usedapp/core'
-import { Contract } from '@ethersproject/contracts'
-import AirdropFactoryAbi from 'config/abi/AirdropFactory.json'
-import { formatBigToNum } from '../../../utils/numberFormat'
-import StartPublicAirdropCreationPage from '../AirdropPage/Modal/StartPublicAirdropCreationPgae'
-import StartPrivateAirdropCreation from '../AirdropPage/Modal/StartPrivateAirdropCreation'
-import AddAllocationsCreation from './AddAllocationsCreationPage'
-import { AIRDROP_FACTORY_ADDRESS } from 'config/constants/address'
+import React, { useState } from "react";
+import PreviewHeader from "../../Common/PreviewHeader";
+import BackArrowSVG from "../../../svgs/back_arrow";
+import PreviewDetails from "../../Common/PreviewDetails";
+import { useModal } from "react-simple-modal-provider";
+import { useEthers } from "@usedapp/core";
+import { Contract } from "@ethersproject/contracts";
+import AirdropFactoryAbi from "config/abi/AirdropFactory.json";
+import { formatBigToNum } from "../../../utils/numberFormat";
+import StartPublicAirdropCreationPage from "../AirdropPage/Modal/StartPublicAirdropCreationPgae";
+import StartPrivateAirdropCreation from "../AirdropPage/Modal/StartPrivateAirdropCreation";
+import AddAllocationsCreation from "./AddAllocationsCreationPage";
+import { AIRDROP_FACTORY_ADDRESS } from "config/constants/address";
+import axios from "axios";
+import { BACKEND_URL } from "config/constants/LaunchpadAddress";
 
-
-
-export default function Createsale({ setAirdropData, airdropData, token, setActive, amount }) {
-
-  const { library, chainId } = useEthers()
+export default function Createsale({
+  setAirdropData,
+  airdropData,
+  token,
+  setActive,
+  amount,
+}) {
+  const { library, chainId } = useEthers();
   const [modal, showModal] = useState(0);
   const [error, setError] = useState();
 
-  
-
-  const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
+  const { open: openLoadingModal, close: closeLoadingModal } =
+    useModal("LoadingModal");
 
   const handleCreateAirdrop = async () => {
-    openLoadingModal()
-    const contract = new Contract(AIRDROP_FACTORY_ADDRESS[chainId], AirdropFactoryAbi, library.getSigner())
+    openLoadingModal();
+    const contract = new Contract(
+      AIRDROP_FACTORY_ADDRESS[chainId],
+      AirdropFactoryAbi,
+      library.getSigner()
+    );
     const fee = await contract.fee();
     try {
-
-      const createAirdrop = await contract.deployAirdrop(airdropData.tokenAddress,
-        [airdropData.image,
-        airdropData.description,
-        airdropData.tags,
-        airdropData.website,
-        airdropData.twitter,
-        airdropData.linkedin,
-        airdropData.github,
-        airdropData.name], {
-        value: fee.privateFee
-      })
-      await createAirdrop.wait()
+      const createAirdrop = await contract.deployAirdrop(
+        airdropData.tokenAddress,
+        [
+          airdropData.image,
+          airdropData.description,
+          airdropData.tags,
+          airdropData.website,
+          airdropData.twitter,
+          airdropData.linkedin,
+          airdropData.github,
+          airdropData.name,
+        ],
+        {
+          value: fee.privateFee,
+        }
+      );
+      await createAirdrop.wait();
       const airdropAddress = await contract.getLastDeployedAirdrop();
       setAirdropData((prevState) => ({
         ...prevState,
-        airdropAddress: airdropAddress
-      }))
-      setError(undefined)
-      //navigate(`/airdropper/airdrops/${airdropAddress}`)
-      closeLoadingModal()
-      showModal(2)
-      return
+        airdropAddress: airdropAddress,
+      }));
+      setError(undefined);
+      try {
+        const res = await axios.post(
+          `${BACKEND_URL}/api/airdrop/`,
+          {
+            airdrop: airdropData,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+
+
+      }
+      catch (error) {
+        console.log(error);
+      }
+      closeLoadingModal();
+      showModal(2);
+      return;
     } catch (error) {
-      setError(error.reason)
-      closeLoadingModal()
-      return false
+      setError(error.reason);
+      closeLoadingModal();
+      return false;
     }
-  }
+  };
 
   const handleCreatePublicAirdrop = async () => {
-    openLoadingModal()
-    const contract = new Contract(AIRDROP_FACTORY_ADDRESS[chainId], AirdropFactoryAbi, library.getSigner())
+    openLoadingModal();
+    const contract = new Contract(
+      AIRDROP_FACTORY_ADDRESS[chainId],
+      AirdropFactoryAbi,
+      library.getSigner()
+    );
     const fee = await contract.fee();
-   // const publicFee = fee
+    // const publicFee = fee
+    console.log(contract)
 
     try {
+      const createAirdrop = await contract.deployPublicAirdrop(
+        airdropData.tokenAddress,
+        [
+          airdropData.image,
+          airdropData.description,
+          airdropData.tags,
+          airdropData.website,
+          airdropData.twitter,
+          airdropData.linkedin,
+          airdropData.github,
+          airdropData.name,
+        ],
+        {
+          value: fee.publicFee,
+        }
+      );
 
-      const createAirdrop = await contract.deployPublicAirdrop(airdropData.tokenAddress,
-        [airdropData.image,
-        airdropData.description,
-        airdropData.tags,
-        airdropData.website,
-        airdropData.twitter,
-        airdropData.linkedin,
-        airdropData.github,
-        airdropData.name], {
-        value: fee.publicFee,
-      })
-      
-      await createAirdrop.wait()
+      await createAirdrop.wait();
       const airdropAddress = await contract.getLastDeployedAirdrop();
       setAirdropData((prevState) => ({
         ...prevState,
-        airdropAddress: airdropAddress
-      }))
-      //navigate(`/airdropper/airdrops/${airdropAddress}`)
-      setError(undefined)
-      closeLoadingModal()
-      showModal(4)
-      return
-    } catch (error) {
-      setError(error.reason)
-      closeLoadingModal()
-      return false
-    }
-  }
+        airdropAddress: airdropAddress,
+      }));
+      setError(undefined);
+      try {
+        const res = await axios.post(
+          `${BACKEND_URL}/api/airdrop/`,
+          {
+            airdrop: airdropData,
+          },
+          {
+            withCredentials: true,
+          }
+        );
 
+
+      }
+      catch (error) {
+        console.log(error);
+      }
+      closeLoadingModal();
+      showModal(4);
+      return;
+    } catch (error) {
+      setError(error.reason);
+      closeLoadingModal();
+      return false;
+    }
+  };
 
   return (
     <div className="">
-      {modal !== 0 &&
+      {modal !== 0 && (
         <div className="fixed backdrop-blur-[7px] w-full h-full flex justify-center  z-50  top-0 left-0">
-          <div className='h-screen sticky top-0 w-full flex items-center'>
-            {modal === 2 && <AddAllocationsCreation decimals={airdropData.tokenDecimals} airdropAddress={airdropData.airdropAddress} tokenAddress={airdropData.tokenAddress} showModal={showModal} modal={modal} />}
-            {modal === 3 && <StartPrivateAirdropCreation decimals={airdropData.tokenDecimals} airdropAddress={airdropData.airdropAddress} tokenAddress={airdropData.tokenAddress} showModal={showModal} modal={modal} />}
-            {modal === 4 && <StartPublicAirdropCreationPage decimals={airdropData.tokenDecimals} tokenAddress={airdropData.tokenAddress} airdropAddress={airdropData.airdropAddress} showModal={showModal} modal={modal} />}
+          <div className="h-screen sticky top-0 w-full flex items-center">
+            {modal === 2 && (
+              <AddAllocationsCreation
+                decimals={airdropData.tokenDecimals}
+                airdropAddress={airdropData.airdropAddress}
+                tokenAddress={airdropData.tokenAddress}
+                showModal={showModal}
+                modal={modal}
+              />
+            )}
+            {modal === 3 && (
+              <StartPrivateAirdropCreation
+                decimals={airdropData.tokenDecimals}
+                airdropAddress={airdropData.airdropAddress}
+                tokenAddress={airdropData.tokenAddress}
+                showModal={showModal}
+                modal={modal}
+              />
+            )}
+            {modal === 4 && (
+              <StartPublicAirdropCreationPage
+                decimals={airdropData.tokenDecimals}
+                tokenAddress={airdropData.tokenAddress}
+                airdropAddress={airdropData.airdropAddress}
+                showModal={showModal}
+                modal={modal}
+              />
+            )}
           </div>
         </div>
-      }
+      )}
       {/* <div className="flex items-center">
         <img src={token.icon} alt={token.name} className="w-[54px] h-[54px]" />
 
@@ -129,7 +203,7 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
           </div>
         </div>
       </div> */}
-      <PreviewHeader heading={'Airdrop Info'} />
+      <PreviewHeader heading={"Airdrop Info"} />
 
       <PreviewDetails name="Description" value={airdropData.description} />
       <PreviewDetails name="Tags" value={airdropData.tags} />
@@ -138,41 +212,49 @@ export default function Createsale({ setAirdropData, airdropData, token, setActi
       <PreviewDetails name="Linkedin" value={airdropData.linkedin} />
       <PreviewDetails name="Github" value={airdropData.github} />
 
-
-      <PreviewHeader heading={'Token address Details'} />
+      <PreviewHeader heading={"Token address Details"} />
 
       <PreviewDetails name="Name" value={airdropData.tokenName} />
       <PreviewDetails name="Symbol" value={airdropData.tokenSymbol} />
       <PreviewDetails name="Decimals" value={airdropData.tokenDecimals} />
       <PreviewDetails
         name="Total Supply"
-        value={`${formatBigToNum(airdropData.tokenSupply, airdropData.tokenDecimals)} ${airdropData.tokenSymbol}`}
+        value={`${formatBigToNum(
+          airdropData.tokenSupply,
+          airdropData.tokenDecimals
+        )} ${airdropData.tokenSymbol}`}
       />
 
       <div className="mt-10">
         <div className="flex justify-end items-center mb-10">
           <button
             className="bg-white dark:bg-transparent mr-5 flex items-center gap-2 py-[10px] px-5"
-            onClick={() => setActive('Project Details')}
+            onClick={() => setActive("Project Details")}
           >
             <BackArrowSVG className="fill-dark-text dark:fill-light-text" />
-            <span className="font-gilroy font-medium text-sm text-dark-text dark:text-light-text">Go Back</span>
+            <span className="font-gilroy font-medium text-sm text-dark-text dark:text-light-text">
+              Go Back
+            </span>
           </button>
-
-
 
           <button
             className="bg-primary-green disabled:bg-light-text text-white font-gilroy font-bold px-8 py-3 rounded-md"
             // disabled={address.length < 5}
-            onClick={airdropData.type === 'private' ? handleCreateAirdrop : handleCreatePublicAirdrop}
+            onClick={
+              airdropData.type === "private"
+                ? handleCreateAirdrop
+                : handleCreatePublicAirdrop
+            }
           >
             Create Airdrop
           </button>
           {error && (
-             <p className="mt-4 text-red-500 text-center">{error.replace(/\b\w/g, (c) => c.toUpperCase())}</p>
-            )}
+            <p className="mt-4 text-red-500 text-center">
+              {error.replace(/\b\w/g, (c) => c.toUpperCase())}
+            </p>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }

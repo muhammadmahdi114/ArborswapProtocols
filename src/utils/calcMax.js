@@ -18,6 +18,7 @@ async function getCalcMax(saleObject, token, chainId) {
       parseEther(saleObject.hardCap.toString()).toString(),
       (saleObject.amountLiquidity * 100).toString(),
       parseUnits(saleObject.listing.toString(), token.tokenDecimals).toString(),
+      token.tokenDecimals.toString(),
     ).call();
     return calcMax;
   }

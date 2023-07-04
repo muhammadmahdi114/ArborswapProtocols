@@ -1,7 +1,7 @@
 import React from "react";
 import ModalField from "./ModalField";
 import { useEffect, useState } from "react";
-import { Contract, ethers } from "ethers";
+import { BigNumber, Contract, ethers } from "ethers";
 import { useEtherBalance, useEthers } from "@usedapp/core";
 import PublicSaleAbi from "../../../config/abi/PublicSale.json";
 import PublicSaleErcAbi from "../../../config/abi/PublicSaleErcAbi.json";
@@ -47,6 +47,7 @@ export default function Modal({
   let account = "";
   const [balanceBNB, setBalanceBNB] = useState(null);
   const [balance, setBalance] = useState(0);
+  const [acct, setAcct] = useState("");
   let bought = "";
 
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function Modal({
           // Wallet connected successfully
           // You can perform further actions here
           account = await web3.eth.getAccounts();
+          setAcct(account[0]);
           web3.eth.getBalance(account[0]).then((res) => {
             setBalanceBNB(res);
           });
@@ -82,7 +84,8 @@ export default function Modal({
   // }, []);
 
   useEffect(() => {
-
+    console.log("currenct address", sale.currency.address);
+    console.log(acct, "acct");
     if (sale.currency.symbol !== "BNB") {
       const contract = new Contract(
         sale.currency.address,
@@ -90,15 +93,19 @@ export default function Modal({
         library.getSigner()
       );
       const getBalance = async () => {
-        const balance = await contract.balanceOf(account);
+        try{
+        const balance = await contract.balanceOf(acct);
         setBalance(formatBigToNum(balance, 18, 4));
+        }catch(e){
+          console.log(e)
+        }
       };
       getBalance();
     } else {
       if (!balanceBNB) return;
       setBalance(formatEther(balanceBNB).substring(0, 6));
     }
-  }, [balanceBNB]);
+  }, [balanceBNB, acct]);
 
   // async function getPrice() {
   //   if (!saleInfoPublic) return;
@@ -255,11 +262,15 @@ export default function Modal({
           ERC20,
           library.getSigner()
         );
+        try{
         const approval = await approvalContract.approve(
           sale.saleAddress,
           ethers.constants.MaxUint256
         );
         await approval.wait();
+        }catch(err){
+          console.log(err)
+        }
       }
 
       if (sale.currency.symbol === "BNB") {
@@ -268,7 +279,8 @@ export default function Modal({
         });
         await tx.wait();
       } else {
-        const tx = await contract.participate(account, amountBuy);
+        console.log("acct", acct, amountBuy)
+        const tx = await contract.participate(acct,amountBuy);
         await tx.wait();
       }
       closeLoadingModal();
@@ -277,7 +289,7 @@ export default function Modal({
       showModal(false);
     } catch (err) {
       toast.error("Transaction failed");
-      // console.log(err);
+      console.log(err);
     }
     closeLoadingModal();
 
