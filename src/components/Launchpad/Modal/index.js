@@ -280,7 +280,7 @@ export default function Modal({
         await tx.wait();
       } else {
         console.log("acct", acct, amountBuy)
-        const tx = await contract.participate(acct,amountBuy);
+        const tx = await contract.participate(amountBuy);
         await tx.wait();
       }
       closeLoadingModal();
