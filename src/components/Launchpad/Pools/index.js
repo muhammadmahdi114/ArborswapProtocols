@@ -98,7 +98,7 @@ export default function PoolsBase({ pools, loading }) {
                     {/* <img src={pool.soft_cap_icon} alt="soft-icon" className='w-[18px] h-[18px]' /> */}
 
                     <span className="ml-2 font-bold text-dark-text dark:text-light-text">
-                      {pool.sale.softCap} BNB
+                      {pool.sale.softCap} {pool.sale.currency.symbol}
                     </span>
                   </div>
                 </div>
@@ -112,19 +112,19 @@ export default function PoolsBase({ pools, loading }) {
                     {/* <img src={pool.hard_cap_icon} alt="hard-icon" className='w-[18px] h-[18px]' /> */}
 
                     <span className="ml-2 font-bold text-dark-text dark:text-light-text">
-                      {pool.sale.hardCap} BNB
+                      {pool.sale.hardCap} {pool.sale.currency.symbol}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between mt-5">
                   <span className="text-xs  text-gray dark:text-gray-dark">
-                    {pool.sale.softCap.toLocaleString()} BNB
+                    {pool.sale.softCap.toLocaleString()} {pool.sale.currency.symbol}
                     {/* idk where to get filled perccentage */}
                   </span>
 
                   <span className="text-xs  text-dim-text dark:text-dim-text-dark">
-                    {pool.sale.hardCap} BNB
+                    {pool.sale.hardCap} {pool.sale.currency.symbol}
                   </span>
                 </div>
 

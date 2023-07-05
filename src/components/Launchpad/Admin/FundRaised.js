@@ -24,13 +24,14 @@ export default function FundRaised({ icon, pool, status, sale }) {
   const [earningsWithdrawn, setEarningsWithdrawn] = useState(false);
   const { open: openLoadingModal, close: closeLoadingModal } =
     useModal("LoadingModal");
-
+  console.log(earningsWithdrawn, "earningsWithdrawn");
   async function getWithdrawn() {
     const web3 = new Web3(window.ethereum);
     await window.ethereum.enable();
     const contract = new web3.eth.Contract(PublicSaleAbi, sale.saleAddress);
     const withdrawn = await contract.methods.earningsWithdrawn().call();
     setEarningsWithdrawn(withdrawn);
+
   }
   const withdrawEarnings = async () => {
     if (earningsWithdrawn) {
@@ -95,6 +96,7 @@ export default function FundRaised({ icon, pool, status, sale }) {
       closeLoadingModal();
     } catch (err) {
       console.log(err);
+      setEarningsWithdrawn(true);
       toast.error("You Have Already Withdrawn Your Earnings");
       closeLoadingModal();
     }
@@ -135,7 +137,7 @@ export default function FundRaised({ icon, pool, status, sale }) {
         <button
         disabled={earningsWithdrawn?true:false}
             onClick={withdrawEarnings}
-          className={`w-full bg-gradient-to-r from-primary-green to-[#C89211] rounded-md text-white font-bold py-4`}
+          className={`w-full bg-gradient-to-r from-primary-green to-[#C89211] rounded-md text-white font-bold py-4 ${earningsWithdrawn? "!bg-opacity-50":""}}`}
         >
           Claim
         </button>

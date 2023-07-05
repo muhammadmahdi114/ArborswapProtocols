@@ -46,9 +46,13 @@ export default function Pools() {
         const poolsOfCurrentChain = res.data.filter(
           (pool) => pool.sale.chainID === chainId
         );
+        console.log("poolsOfCurrentChain", poolsOfCurrentChain);
         const filteredPools = poolsOfCurrentChain.filter(
           (pool) => pool.sale.status === Tabs[activeTab - 1].tabName
         );
+        console.log(res.data);
+
+        console.log("filteredPools", filteredPools);
         filteredPools.sort((a, b) => {
           return (
             new Date(b.sale.startDate).getTime() -

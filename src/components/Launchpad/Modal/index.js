@@ -95,7 +95,8 @@ export default function Modal({
       const getBalance = async () => {
         try{
         const balance = await contract.balanceOf(acct);
-        setBalance(formatBigToNum(balance, 18, 4));
+        const balanceString = (formatBigToNum(balance, 18));
+        setBalance(parseFloat(balanceString.replace(/,/g, '')))
         }catch(e){
           console.log(e)
         }
@@ -326,7 +327,8 @@ export default function Modal({
       return;
     }
     //if balance is less than max allocation show error
-    if (parseFloat(balance) < parseFloat(sale.maxAllocation)) {
+    
+    if (parseInt(balance) < parseFloat(sale.maxAllocation)) {
       toast.error("Insufficient balance");
       return;
     }
@@ -373,7 +375,7 @@ export default function Modal({
               <span className="font-medium text-sm text-dim-text dark:text-dim-text-dark">
                 Balance:
                 <span className="text-dark-text dark:text-light-text">
-                  {balance && balance}
+                  {balance && balance.toLocaleString()}
                 </span>
               </span>
             </div>
