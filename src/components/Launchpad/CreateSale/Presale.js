@@ -27,7 +27,7 @@ import {
   FairLaunchErc_FACTORYADRESS,
   USDT_ADDRESS,
   RBA_ADDRESS,
-  GUSD_ADDRESS,
+  USDC_ADDRESS,
   BSC_PUBLIC_FACTORYADDRESS,
 } from "config/constants/LaunchpadAddress";
 
@@ -51,7 +51,7 @@ const currencies = [
     name: "USD Coin",
     symbol: "USDC",
     icon: "/images/cards/gusd.svg",
-    address: GUSD_ADDRESS,
+    address: USDC_ADDRESS,
   },
   {
     id: 4,
