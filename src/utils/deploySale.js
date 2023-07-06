@@ -51,8 +51,8 @@ export const deployPublicSale = async (
   account,
   deploymentFee,
   saleData,
-  closeLoadingModal,
-  chainId
+  chainId,
+  closeLoadingModal
 ) => {
   let contract = null;
   if (chainId === 56) {
@@ -62,12 +62,13 @@ export const deployPublicSale = async (
       library.getSigner()
     );
   } else {
-  contract = new Contract(
-    Public_FACTORYADRESS,
-    PublicAbi,
-    library.getSigner()
-  );
+    contract = new Contract(
+      Public_FACTORYADRESS,
+      PublicAbi,
+      library.getSigner()
+    );
   }
+  console.log(chainId, "chainId");
 
   const saleId = await contract.getNumberOfSalesDeployed();
   const routerAddress = ROUTER_ADDRESS;
@@ -76,38 +77,7 @@ export const deployPublicSale = async (
   let deployedAddress;
   let finalSaleObject;
   //console
-  console.log(
-    [
-      routerAddress,
-      adminAddress,
-      token.tokenAddress,
-      account
-    ],
-    [
-      parseEther(saleObject.minAllocation.toString()).toString(),
-      parseEther(saleObject.maxAllocation.toString()).toString(),
-      (saleObject.amountLiquidity * 100).toString(),
-      parseUnits(
-        saleObject.listing.toString(),
-        token.tokenDecimals
-      ).toString(),
-      (saleObject.lockup * 86400).toString(),
-      parseUnits(
-        saleObject.presalePrice.toString(),
-        token.tokenDecimals
-      ).toString(),
-      saleObject.endDate,
-      saleObject.startDate,
-      parseEther(saleObject.hardCap.toString()).toString(),
-      parseEther(saleObject.softCap.toString()).toString(),
-    ],
-    saleObject.unsoldToken === "Burn" ? true : false,
-    {
-      value: utils.parseEther(deploymentFee.toString()),
-      gasLimit: 5000000,
-    }
-  );
-  
+
   try {
     const tx = await contract.deployNormalSale(
       [routerAddress, adminAddress, token.tokenAddress, account],
@@ -189,7 +159,7 @@ export const deployPublicSale = async (
         const tx = await contract.setMultiplyAddressesWL(
           saleObject.whiteListedAddresses?.map((address) => address),
           true
-        )
+        );
         await tx.wait();
         alert("Whitelisting Done");
         return finalSaleObject;
@@ -198,12 +168,11 @@ export const deployPublicSale = async (
         alert("Whitelisting Failed");
         closeLoadingModal();
       }
-    }
-    else return finalSaleObject
+    } else return finalSaleObject;
   } catch (error) {
     console.log(error);
-    alert("Transaction Failed");
     closeLoadingModal();
+    alert("Transaction Failed");
   }
 };
 
@@ -217,11 +186,20 @@ export const deployPublicSaleERC = async (
   chainId,
   closeLoadingModal
 ) => {
-  const contract = new Contract(
-    PublicErc_FACTORYADRESS,
-    PublicErcAbi,
-    library.getSigner()
-  );
+  let contract = null;
+  if (chainId === 56) {
+    contract = new Contract(
+      BSC_PUBLIC_FACTORYADDRESS,
+      PublicErcAbi,
+      library.getSigner()
+    );
+  } else {
+    contract = new Contract(
+      Public_FACTORYADRESS,
+      PublicErcAbi,
+      library.getSigner()
+    );
+  }
   const saleId = await contract.getNumberOfSalesDeployed();
 
   const routerAddress = ROUTER_ADDRESS;
@@ -236,7 +214,7 @@ export const deployPublicSaleERC = async (
   }
 
   // 2nd - with uints [minParticipation, maxParticipation, lp%, dex listing rate,lpLockPeriod, saleEnd, saleStart, hardCap(tokens), softCap(bnb)]
-  console.log(PaymentToken, "PaymentToken")
+  console.log(PaymentToken, "PaymentToken");
   try {
     const tx = await contract.deployERC20Sale(
       [routerAddress, adminAddress, token.tokenAddress, account, PaymentToken],
