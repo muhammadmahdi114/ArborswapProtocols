@@ -188,14 +188,14 @@ export const deployPublicSaleERC = async (
 ) => {
   let contract = null;
   if (chainId === 56) {
-    contract = new Contract(
-      BSC_PUBLIC_FACTORYADDRESS,
-      PublicErcAbi,
-      library.getSigner()
-    );
+    // contract = new Contract(
+    //   BSC_PUBLIC_FACTORYADDRESS,
+    //   PublicErcAbi,
+    //   library.getSigner()
+    // );
   } else {
     contract = new Contract(
-      Public_FACTORYADRESS,
+      PublicErc_FACTORYADRESS,
       PublicErcAbi,
       library.getSigner()
     );
