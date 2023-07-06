@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PercentFilled from "../Pools/Subcomponents/PercentFilled";
 import Web3 from "web3";
+import getSaleInfo from "utils/getSaleInfo";
 
 export default function AdminPanel({
   status,
@@ -30,8 +31,10 @@ export default function AdminPanel({
   objId,
   cancelled,
 }) {
-  const { library } = useEthers();
+  console.log(status)
+  const { library, chainId } = useEthers();
   const [showModal, setShowModal] = useState(false);
+  const [showModalCancel, setShowModalCancel] = useState(false);
   const [isFinished, setIsFinished] = useState(null);
   const [saleInfo, setSaleInfo] = useState(null);
   const [contributors, setContributors] = useState(null);
@@ -62,11 +65,13 @@ export default function AdminPanel({
   async function getFinished() {
     const res = await getIsFinished(sale.saleAddress).then((res) => {
       setIsFinished(res);
+      console.log(res, "is Finished");
+
     });
   }
 
 
-  async function getSaleInfo() {
+  async function getCurrentSaleInfo() {
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
     });
@@ -74,15 +79,20 @@ export default function AdminPanel({
   useEffect(() => {
     getContributors();
     getFinished();
-    getSaleInfo();
+    getCurrentSaleInfo();
   }, []);
 
- 
+
 
   const finalizeSale = async () => {
+    if (chainId !== 56) {
+      alert("Please switch to BSC Mainnet")
+      return
+    }
     setShowModal(false);
     openLoadingModal();
     let contract;
+
     if (sale.currency.symbol === "BNB") {
       if (sale.saleType === "standard") {
         contract = new Contract(
@@ -124,35 +134,102 @@ export default function AdminPanel({
         );
       }
     }
-
+    console.log(contract)
     try {
-      if (status === "Live") {
-        const tx = await contract.cancelSale();
-        await tx.wait();
-        toast.success("Sale Cancelled Successfully");
-      } else {
-        const tx = await contract.finishSale();
-        await tx.wait();
-        toast.success("Sale Finalized Successfully");
-      }
+      const tx = await contract.finishSale();
+      await tx.wait();
+      toast.success("Sale Finalized Successfully");
     } catch (err) {
-      //      alert("Something went wrong");
+      alert("Something went wrong");
       closeLoadingModal();
       console.log(err);
+      return;
     }
 
     //update the isFinised in database
     try {
-      if (status === "Live" || status === "Upcoming") {
-        const res = await axios.put(`${BACKEND_URL}/api/sale/${objId}`, {
-          isCancelled: "true",
-        });
-      } else {
-        const res = await axios.put(`${BACKEND_URL}/api/sale/${objId}`, {
-          isFinished: "true",
-        });
-      }
+      const res = await axios.put(`${BACKEND_URL}/api/sale/${objId}`, {
+        isFinished: "true",
+      });
       toast.success("Sale Finalized Successfully");
+      window.location.reload();
+    } catch (err) {
+      console.log(err);
+      closeLoadingModal();
+    }
+    closeLoadingModal();
+  };
+
+  const cancelSale = async () => {
+    if (chainId !== 56) {
+      alert("Please switch to BSC Mainnet")
+      return
+    }
+    setShowModal(false);
+    openLoadingModal();
+    let contract;
+
+    if (sale.currency.symbol === "BNB") {
+      if (sale.saleType === "standard") {
+        contract = new Contract(
+          sale.saleAddress,
+          PublicSaleAbi,
+          library.getSigner()
+        );
+      } else if (sale.saleType === "private") {
+        contract = new Contract(
+          sale.saleAddress,
+          PrivateSaleAbi,
+          library.getSigner()
+        );
+      } else if (sale.saleType === "fairlaunch") {
+        contract = new Contract(
+          sale.saleAddress,
+          FairLaunchAbi,
+          library.getSigner()
+        );
+      }
+    } else {
+      if (sale.saleType === "standard") {
+        contract = new Contract(
+          sale.saleAddress,
+          PublicSaleErcAbi,
+          library.getSigner()
+        );
+      } else if (sale.saleType === "private") {
+        contract = new Contract(
+          sale.saleAddress,
+          PrivateSaleErcAbi,
+          library.getSigner()
+        );
+      } else if (sale.saleType === "fairlaunch") {
+        contract = new Contract(
+          sale.saleAddress,
+          FairLaunchErcAbi,
+          library.getSigner()
+        );
+      }
+    }
+    console.log(contract)
+    try {
+      console.log(status)
+      const tx = await contract.cancelSale();
+      await tx.wait();
+      toast.success("Sale Cancelled Successfully");
+    } catch (err) {
+      alert("Something went wrong");
+      closeLoadingModal();
+      console.log(err);
+      return;
+    }
+
+    //update the isFinised in database
+    try {
+      const res = await axios.put(`${BACKEND_URL}/api/sale/${objId}`, {
+        isCancelled: "true",
+      });
+
+      toast.success("Sale Cancelled Successfully");
       window.location.reload();
     } catch (err) {
       console.log(err);
@@ -340,11 +417,10 @@ export default function AdminPanel({
               onClick={() => {
                 setShowModal(true);
               }}
-              className={`w-full ${
-                status === "Upcoming"
+              className={`w-full ${status === "Upcoming"
                   ? "bg-light dark:bg-dark text-dark-text dark:text-light-text"
                   : "bg-primary-green text-white"
-              } rounded-md font-bold py-4`}
+                } rounded-md font-bold py-4`}
               disabled={status === "Upcoming" ? true : false}
             >
               {/* if sale is not finished then show manage adress too */}
@@ -354,17 +430,16 @@ export default function AdminPanel({
         )}
         {saleInfo === false &&
           !cancelled &&
-          (status === "Live" || status === "Upcoming") && (
+          (
             <div className="mt-7">
               <button
                 onClick={() => {
-                  setShowModal(true);
+                  setShowModalCancel(true);
                 }}
-                className={`w-full ${
-                  status === "Upcoming"
+                className={`w-full ${status === "Upcoming"
                     ? "bg-light dark:bg-dark text-dark-text dark:text-light-text"
-                    : "bg-primary-green text-white"
-                } rounded-md font-bold py-4`}
+                    : "dark:bg-dark text-white"
+                  } rounded-md font-bold py-4`}
               >
                 Cancel Sale
               </button>
@@ -387,16 +462,29 @@ export default function AdminPanel({
             finalizeSale
           }
           title={
-            (status === "Live" || status === "Upcoming") && !finished
-              ? "Cancel Sale"
-              : "Finalize Sale"
+            "Finalize Sale"
           }
           description={
-            (status === "Live" || status === "Upcoming") && !finished
-              ? "Are you sure you want to cancel the sale?"
-              : "Are you sure you want to finalize the sale?"
+            "Are you sure you want to finalize the sale?"
           }
           setShowModal={setShowModal}
+        />
+      )}
+      {showModalCancel && (
+        // in this pass withdrawEarnings function if saleInfo is not null and true
+        // else pass finalizeSale function
+
+        <ConfirmModal
+          runFunction={
+            cancelSale
+          }
+          title={
+            "Cancel Sale"
+          }
+          description={
+            "Are you sure you want to cancel the sale?"
+          }
+          setShowModal={setShowModalCancel}
         />
       )}
     </>

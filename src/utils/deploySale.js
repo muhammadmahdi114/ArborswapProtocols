@@ -10,6 +10,7 @@ import {
   Public_FACTORYADRESS,
   BSC_PUBLIC_FACTORYADDRESS,
   ROUTER_ADDRESS,
+  BSC_ROUTER_ADDRESS,
   ADMIN_ADDRESS,
   Private_FACTORYADRESS,
   FairLaunch_FACTORYADRESS,
@@ -71,7 +72,15 @@ export const deployPublicSale = async (
   console.log(chainId, "chainId");
 
   const saleId = await contract.getNumberOfSalesDeployed();
-  const routerAddress = ROUTER_ADDRESS;
+  let routerAddress;
+  if (chainId === 56) {
+    routerAddress = BSC_ROUTER_ADDRESS;
+  }
+  else if (chainId === 97) {
+    routerAddress = ROUTER_ADDRESS;
+  }
+
+  console.log(routerAddress, "routerAddress");
   const adminAddress = ADMIN_ADDRESS;
   // 2nd - with uints [minParticipation, maxParticipation, lp%, dex listing rate,lpLockPeriod, saleEnd, saleStart, hardCap(tokens), softCap(bnb)]
   let deployedAddress;
