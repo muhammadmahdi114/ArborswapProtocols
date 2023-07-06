@@ -14,7 +14,7 @@ import {
   Private_FACTORYADRESS,
   FairLaunch_FACTORYADRESS,
   USDT_ADDRESS,
-  GUSD_ADDRESS,
+  USDC_ADDRESS,
   RBA_ADDRESS,
   PublicErc_FACTORYADRESS,
   PrivateErc_FACTORYADRESS,
@@ -116,7 +116,7 @@ export const deployPublicSale = async (
       github: saleData.github,
       website: saleData.website,
       twitter: saleData.twitter,
-      chainId: chainId,
+      chainID: chainId,
       linkedin: saleData.linkedin,
       discord: saleData.discord,
       telegram: saleData.telegram,
@@ -207,8 +207,8 @@ export const deployPublicSaleERC = async (
   let PaymentToken = "";
   if (saleObject.currency.name === "Tether") {
     PaymentToken = USDT_ADDRESS;
-  } else if (saleObject.currency.name === "Gnosis") {
-    PaymentToken = GUSD_ADDRESS;
+  } else if (saleObject.currency.name === "USD Coin") {
+    PaymentToken = USDC_ADDRESS;
   } else if (saleObject.currency.name === "Roburna") {
     PaymentToken = RBA_ADDRESS;
   }
@@ -251,6 +251,7 @@ export const deployPublicSaleERC = async (
       saleAddress: deployedAddress,
       saleType: saleData.type,
       github: saleData.github,
+      chainID: chainId,
       website: saleData.website,
       twitter: saleData.twitter,
       linkedin: saleData.linkedin,
@@ -379,7 +380,7 @@ export const deployPrivateErSale = async (
   if (saleObject.currency.name === "Tether") {
     PaymentToken = USDT_ADDRESS;
   } else if (saleObject.currency.name === "Gnosis") {
-    PaymentToken = GUSD_ADDRESS;
+    PaymentToken = USDC_ADDRESS;
   } else if (saleObject.currency.name === "Roburna") {
     PaymentToken = RBA_ADDRESS;
   }
@@ -532,7 +533,7 @@ export const deployFairLaunchSaleERC20 = async (
   if (saleObject.currency.name === "Tether") {
     PaymentToken = USDT_ADDRESS;
   } else if (saleObject.currency.name === "Gnosis") {
-    PaymentToken = GUSD_ADDRESS;
+    PaymentToken = USDC_ADDRESS;
   } else if (saleObject.currency.name === "Roburna") {
     PaymentToken = RBA_ADDRESS;
   }

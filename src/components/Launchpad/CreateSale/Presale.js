@@ -27,7 +27,7 @@ import {
   FairLaunchErc_FACTORYADRESS,
   USDT_ADDRESS,
   RBA_ADDRESS,
-  GUSD_ADDRESS,
+  USDC_ADDRESS,
   BSC_PUBLIC_FACTORYADDRESS,
 } from "config/constants/LaunchpadAddress";
 
@@ -51,7 +51,7 @@ const currencies = [
     name: "USD Coin",
     symbol: "USDC",
     icon: "/images/cards/gusd.svg",
-    address: GUSD_ADDRESS,
+    address: USDC_ADDRESS,
   },
   {
     id: 4,
@@ -317,7 +317,7 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
 
   //use effect in which we will set required token if hardcap, softcap, listing price, amount liquidity, presale price changes
   useEffect(() => {
-    if (hardCap > 0 && presalePrice > 0 && saleType === "standard") {
+    if (hardCap > 0 && presalePrice > 0 && listing > 0 && saleType === "standard") {
       const reqTokens = hardCap * presalePrice;
       const reqTokens2 = (listing * (amountLiquidity / 100)) * hardCap;
       console.log(reqTokens, reqTokens2);

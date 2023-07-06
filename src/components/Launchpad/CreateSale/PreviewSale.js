@@ -97,7 +97,6 @@ export default function PreviewSale({
           deploymentFee,
           saleData,
           chainId,
-
           closeLoadingModal
         );
       }
