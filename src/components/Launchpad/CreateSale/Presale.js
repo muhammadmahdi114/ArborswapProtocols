@@ -555,7 +555,7 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
               <div className="w-full">
                 <div className="hidden md:block">
                   <Input
-                    heading={"Amount for Liquidity"}
+                    heading={"% for Liquidity"}
                     changeState={setAmountLiquidity}
                     tooltip={
                       "Ready availability of assets for seamless and hassle-free decentralized financial transactions and activities."
