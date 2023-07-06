@@ -215,6 +215,7 @@ export const deployPublicSaleERC = async (
 
   // 2nd - with uints [minParticipation, maxParticipation, lp%, dex listing rate,lpLockPeriod, saleEnd, saleStart, hardCap(tokens), softCap(bnb)]
   console.log(PaymentToken, "PaymentToken");
+  console.log(saleObject, "saleObject");
   try {
     const tx = await contract.deployERC20Sale(
       [routerAddress, adminAddress, token.tokenAddress, account, PaymentToken],
@@ -285,7 +286,9 @@ export const deployPublicSaleERC = async (
   } catch (error) {
     console.log(error);
     alert("Transaction Failed");
-    closeLoadingModal();
+    if (closeLoadingModal) {
+      closeLoadingModal();
+    }
   }
 };
 

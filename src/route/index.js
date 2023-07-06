@@ -11,6 +11,7 @@ import LockedAsset from '../pages/Locker/LockedAsset'
 import Locker from '../pages/Locker/Locker'
 import LpLocker from '../pages/Locker/LpLocker'
 import TokenLocker from '../pages/Locker/TokenLocker'
+import CreateSaleTest from 'pages/Tests/LaunchpadTests/CreateSaleTest'
 
 
 
@@ -28,6 +29,7 @@ export default function WebRouter() {
     { path: '/airdropper/airdrops', element: <Airdrops />},
     { path: '/airdropper/airdrops/:id', element: <AirdropsPage />},
     { path: '/airdropper/create-airdrop', element: <CreateAirdrop />},
+    { path: '/tests/create-sales', element: <CreateSaleTest />},
     { path: '*', element: <Error /> },
   ])
   return routes

@@ -34,7 +34,7 @@ export function useDefaultChainId() {
         }
       }
 
-      window.location.reload()
+      //window.location.reload()
     }
 
     window.addEventListener('storage', handleStorageChange)
