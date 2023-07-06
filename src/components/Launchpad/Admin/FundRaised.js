@@ -24,13 +24,14 @@ export default function FundRaised({ icon, pool, status, sale }) {
   const [earningsWithdrawn, setEarningsWithdrawn] = useState(false);
   const { open: openLoadingModal, close: closeLoadingModal } =
     useModal("LoadingModal");
-  console.log(earningsWithdrawn, "earningsWithdrawn");
   async function getWithdrawn() {
-    const web3 = new Web3(window.ethereum);
-    await window.ethereum.enable();
-    const contract = new web3.eth.Contract(PublicSaleAbi, sale.saleAddress);
-    const withdrawn = await contract.methods.earningsWithdrawn().call();
-    setEarningsWithdrawn(withdrawn);
+    try{
+    const saleInfo = await getSaleInfo(sale.saleAddress);
+    setEarningsWithdrawn(saleInfo.earningsWithdrawn);
+    console.log(saleInfo.earningsWithdrawn, "earningsWithdrawn");
+    } catch (err) {
+      console.log(err);
+    }
 
   }
   const withdrawEarnings = async () => {
@@ -110,7 +111,6 @@ export default function FundRaised({ icon, pool, status, sale }) {
     const newPercent = formatBigToNum(percents.toString(),0,1);
     setRaised(newPercent);
   }
-  console.log("earningsWithdrawn", earningsWithdrawn)
   useEffect(() => {
     getInfo();
     getWithdrawn();
@@ -137,7 +137,7 @@ export default function FundRaised({ icon, pool, status, sale }) {
         <button
         disabled={earningsWithdrawn?true:false}
             onClick={withdrawEarnings}
-          className={`w-full bg-gradient-to-r from-primary-green to-[#C89211] rounded-md text-white font-bold py-4 ${earningsWithdrawn? "!bg-opacity-50":""}}`}
+          className={`w-full rounded-md text-white font-bold py-4 ${earningsWithdrawn? "bg-gray-dark":"bg-gradient-to-r from-primary-green to-[#C89211]" }`}
         >
           Claim
         </button>

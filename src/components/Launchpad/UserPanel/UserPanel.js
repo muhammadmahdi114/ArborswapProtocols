@@ -15,6 +15,7 @@ import { useModal } from "react-simple-modal-provider";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Web3 from "web3";
+import getSaleInfo from "utils/getSaleInfo";
 
 
 export default function SaleBox({ icon, sale, status, isFinished, isCancelled }) {
@@ -36,12 +37,11 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
     setBought(formatBigToNum(userParticipation[0].toString(), 18, 4));
     setAllocated(formatBigToNum(userParticipation[1].toString(), 18, 4));
   };
-  async function getTokensWithdrawn() {
-    const web3 = new Web3(window.ethereum);
-    const contract = new web3.eth.Contract(PublicSaleAbi, sale.saleAddress);
-    const withdrawn = await contract.methods.areTokensWithdrawn().call();
-    setTokensWithdrawn(withdrawn);
-  }
+  // async function getTokensWithdrawn() {
+  //   const mySaleInfo = await getSaleInfo(sale.saleAddress);
+  //   console.log(mySaleInfo.tokensWithdrawn, "tokensWithdrawn");
+  //   setTokensWithdrawn(mySaleInfo.tokensWithdrawn);
+  // }
 
   const withdrawTokens = async () => {
     openLoadingModal()
@@ -142,7 +142,7 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
   useEffect(() => {
     if (sale) {
       getUserParticipation();
-      getTokensWithdrawn();
+     // getTokensWithdrawn();
     }
   }, [sale]);
   return (
