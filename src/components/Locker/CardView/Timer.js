@@ -1,52 +1,41 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 
-const Timer = ({ date }) => {
-  const [months, setMonths] = useState(0)
-  const [days, setDays] = useState(0)
-
-  let countDownDate = new Date(date)
+export default function Timer({ date }) {
+  const [days, setDays] = useState(0);
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
-    var updateTime = setInterval(() => {
-      var now = new Date().getTime()
-
-      var difference = countDownDate - now
-      var newMonths = Math.floor(difference / (1000 * 60 * 60 * 24 * 30))
-      var newDays = Math.floor(difference / (1000 * 60 * 60 * 24))
-
-      if (newMonths > 0) {
-        newDays = newDays % 30
+    const updateTime = setInterval(() => {
+      const time = date - Date.parse(new Date());
+      if (time < 0) {
+        clearInterval(updateTime);
+        setDays(0);
+        setHours(0);
+        setMinutes(0);
+        setSeconds(0);
+      } else {
+        const seconds = Math.floor((time / 1000) % 60);
+        const minutes = Math.floor((time / 1000 / 60) % 60);
+        const hours = Math.floor((time / (1000 * 60 * 60)) % 24);
+        const days = Math.floor(time / (1000 * 60 * 60 * 24));
+        setDays(days);
+        setHours(hours);
+        setMinutes(minutes);
+        setSeconds(seconds);
       }
+    }, 1000);
 
-      setMonths(newMonths)
-      setDays(newDays)
-
-      if (difference <= 0) {
-        clearInterval(updateTime)
-        setMonths(0)
-        setDays(0)
-      }
-    })
-
-    return () => {
-      clearInterval(updateTime)
-    }
-  })
+    return () => clearInterval(updateTime);
+  }, [date]);
 
   return (
-    <div>
-      <div className="flex items-center justify-between text-gray dark:text-gray-dark font-bold ">
-        <span>{months.toString().padStart(2, '0')}</span>
-
-        <span className="mx-[14px]">:</span>
-        <span>{days}</span>
-      </div>
-      <div className="flex justify-between gap-5">
-        <span className="text-dim-text dark:text-dim-text-dark text-[10px] font-medium">Months</span>
-        <span className="text-dim-text dark:text-dim-text-dark text-[10px] font-medium">Days</span>
-      </div>
+    <div className="text-[#C89211] text-sm">
+      {days?.toString().padStart(2, "0")}d :
+      {hours?.toString().padStart(2, "0")}h :
+      {minutes?.toString().padStart(2, "0")}m :
+      {seconds?.toString().padStart(2, "0")}s
     </div>
-  )
+  );
 }
-
-export default Timer

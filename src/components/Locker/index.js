@@ -5,14 +5,13 @@ import List from './ListView/List'
 
 export default function LockerBase({ cardFormat, itemSelected, tokenList, liquidityList }) {
   useDocumentTitle('Locker')
-  console.log(liquidityList, "liquidityList")
   return cardFormat === 'grid' ? (
     <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 mt-7">
-      {itemSelected === 'liquidity' &&
+      {itemSelected === 'liquidity' && liquidityList &&
         liquidityList.map((liquidity, index) => <Card key={index} data={liquidity} token={true} />)}
 
-      {itemSelected === 'token' &&
-        tokenList.map((tokenList, index) => <Card key={index} data={tokenList} token={true} />)}
+      {itemSelected === 'token' && tokenList &&
+        tokenList.map((token, index) => <Card key={index} data={token} token={true} />)}
     </div>
   ) : (
     <div className="w-full grid grid-cols-2 gap-5 mt-7">

@@ -1,5 +1,5 @@
-import { useToken } from '@usedapp/core'
-import { formatUnits } from 'ethers/lib/utils'
+import ERC20Abi from '../../../config/abi/ERC20.json'
+import { formatUnits, parseEther } from 'ethers/lib/utils'
 import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import CardInfo from './CardInfo'
@@ -7,38 +7,42 @@ import Timer from './Timer'
 import moment from 'moment'
 import { getLpInfo } from 'utils/lpInfo'
 import TokenImage from 'components/Common/TokenImage'
-import { formatBigToNum } from 'utils/numberFormat'
+import Web3 from 'web3'
 
 export default function Card({ data, token = false }) {
-  const [lpSymbol, setLpSymbol] = useState('')
   const [tokenData, setTokenData] = useState(null)
-
-  const tokenInfo = useToken(data?.info?.token, {
-    refresh: 0,
-  }) 
-
-  const amount = useMemo(() => {
-    return tokenInfo ? formatUnits(data.info.amount, tokenInfo.decimals) : 0
-  }, [data, tokenInfo])
-
-  const symbol = useMemo(() => {
-    return tokenInfo ? tokenInfo?.symbol : ''
-  }, [tokenInfo])
+  const [date, setDate] = useState(null)
+  const [amount, setAmount] = useState(0)
 
   const getTokenData = async () => {
     const tempData = await getLpInfo(data.info.token)
     setTokenData(tempData.data)
   }
 
+  const fetchAmount = async () => {
+    await window.ethereum.enable();
+    const web3 = new Web3(window.ethereum);
+    
+    const contract = new web3.eth.Contract(ERC20Abi, data.info.token);
+    const decimals = await contract.methods.decimals().call();
+
+    const amount = parseEther(data.info.amount, decimals);
+    console.log(amount);
+    setAmount(amount);
+  }
+
+
+
   useEffect(() => {
-    if (token) {
+    if (token && data) {
+      fetchAmount();;
       getTokenData()
     }
   }, [data, token])
 
 
   const unlockDate = useMemo(() => {
-    console.log(formatBigToNum(data.info.unlockDate, 18, 4))
+    setDate(moment.unix(data.info.unlockDate.toNumber()))
     return moment.unix(data.info.unlockDate.toNumber()).format('YYYY-MM-DD')
   }, [data])
 
@@ -82,8 +86,9 @@ export default function Card({ data, token = false }) {
       <div className="bg-[#FAF8F5] dark:bg-dark-2 rounded-b-[20px] py-5 px-7 mt-5 ">
         <div className="flex justify-between items-center">
           <span className="font-medium text-xs text-gray dark:text-gray-dark">Unlocks In</span>
-
-          <Timer date={data.info.unlockDate.toNumber() * 1000} />
+          {date &&
+          <Timer date={new Date(date)} />
+          }
         </div>
       </div>
     </div>
