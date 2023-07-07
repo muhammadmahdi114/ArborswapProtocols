@@ -122,6 +122,7 @@ export const getTokenLockList = async () => {
       data: token,
     }
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       data: {},
@@ -182,6 +183,7 @@ export const getTotalLock = async () => {
   await ethcallProvider.init()
 
   const tokenContract = new Contract(FACTORY_ADDRESS[CHAIN_NUMBER], LockFactoryAbi)
+  console.log(FACTORY_ADDRESS[CHAIN_NUMBER])
   let calls = []
   try {
     calls.push(tokenContract.getTotalTokenLock())
@@ -193,6 +195,7 @@ export const getTotalLock = async () => {
       data: { token: token.toNumber(), liquidity: liquidity.toNumber() },
     }
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       data: { token: 0, liquidity: 0 },
