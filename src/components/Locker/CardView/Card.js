@@ -7,10 +7,15 @@ import Timer from './Timer'
 import moment from 'moment'
 import { getLpInfo } from 'utils/lpInfo'
 import TokenImage from 'components/Common/TokenImage'
+import { formatBigToNum } from 'utils/numberFormat'
 
 export default function Card({ data, token = false }) {
   const [lpSymbol, setLpSymbol] = useState('')
-  const [tokenInfo, setTokenInfo] = useState(null) 
+  const [tokenData, setTokenData] = useState(null)
+
+  const tokenInfo = useToken(data?.info?.token, {
+    refresh: 0,
+  }) 
 
   const amount = useMemo(() => {
     return tokenInfo ? formatUnits(data.info.amount, tokenInfo.decimals) : 0
@@ -20,27 +25,20 @@ export default function Card({ data, token = false }) {
     return tokenInfo ? tokenInfo?.symbol : ''
   }, [tokenInfo])
 
-  useEffect(() => {
-    if (!token) {
-      getLpInfo(data.info.token).then((info) => {
-        setLpSymbol(`${info.data.token0.symbol}/${info.data.token1.symbol}`)
-      })
-    }
-  }, [data, token])
-
-  const LoadTokenInfo = async () => {
-    const tempTokenInfo = useToken(data?.info?.token, {
-      refresh: 0,
-    })
-    setTokenInfo(tempTokenInfo)
+  const getTokenData = async () => {
+    const tempData = await getLpInfo(data.info.token)
+    setTokenData(tempData.data)
   }
 
   useEffect(() => {
-    LoadTokenInfo();
-  }, [data])
-    
+    if (token) {
+      getTokenData()
+    }
+  }, [data, token])
+
 
   const unlockDate = useMemo(() => {
+    console.log(formatBigToNum(data.info.unlockDate, 18, 4))
     return moment.unix(data.info.unlockDate.toNumber()).format('YYYY-MM-DD')
   }, [data])
 
@@ -58,9 +56,9 @@ export default function Card({ data, token = false }) {
                 token ? 'ml-[10px]' : 'ml-0'
               }`}
             >
-              <span>{token ? symbol : lpSymbol}</span>
+              <span>{tokenData ? tokenData.token0?.name + "/" + tokenData.token1?.symbol : ''}</span>
               <span className="text-xs font-medium text-dim-text dark:text-dim-text-dark">
-                {token ? tokenInfo?.name : ''}
+                {tokenData ?  tokenData.token0?.symbol + "/" + tokenData.token1?.symbol: ''}
               </span>
             </div>
           </div>
@@ -73,8 +71,10 @@ export default function Card({ data, token = false }) {
         </div>
 
         <div className="flex flex-col justify-between">
-          <CardInfo heading={'Amount'} value={amount.toString().toLocaleString()} />
-          <CardInfo heading={'Amount ($)'} value={0} />
+        {amount &&
+          <CardInfo heading={'Amount'} value={(amount.toString().toLocaleString().substring(0,8))} />
+        }
+          {/* <CardInfo heading={'Amount ($)'} value={0} /> */}
           <CardInfo heading={'Unlock date'} value={unlockDate} />
         </div>
       </div>

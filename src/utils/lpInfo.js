@@ -3,29 +3,30 @@ import PairAbi from '../config/abi/Pair.json'
 import { ethers } from 'ethers'
 import { Contract, Provider, setMulticallAddress } from 'ethers-multicall'
 import { getTokenSymbolInfo } from './tokenInfo'
+import Web3 from 'web3'
 
-const CHAIN_NUMBER = 97
+const CHAIN_NUMBER = 56
 
 export const getLpInfo = async (address) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
-  const ethcallProvider = new Provider(provider)
-  await ethcallProvider.init()
-  const pairContract = new Contract(address, PairAbi)
-  let calls = []
+  // setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
+  // const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+  // const ethcallProvider = new Provider(provider)
+  // await ethcallProvider.init()
+
+  await window.ethereum.enable();
+  const web3 = new Web3(window.ethereum);
+  const pairContract = new web3.eth.Contract(PairAbi,address)
   try {
-    calls.push(pairContract.name())
-    calls.push(pairContract.symbol())
-    calls.push(pairContract.decimals())
-    calls.push(pairContract.totalSupply())
-    calls.push(pairContract.token0())
-    calls.push(pairContract.token1())
-    calls.push(pairContract.factory())
-
-    const [name, symbol, decimals, totalSupply, token0, token1, factory] = await ethcallProvider.all(calls)
-
-    const [token0data, token1data] = await Promise.all([getTokenSymbolInfo(token0), getTokenSymbolInfo(token1)])
-
+    const name = await pairContract.methods.name().call();
+    const symbol = await pairContract.methods.symbol().call();
+    const decimals = await pairContract.methods.decimals().call();
+    const totalSupply = await pairContract.methods.totalSupply().call();
+    const token0 = await pairContract.methods.token0().call();
+    const token1 = await pairContract.methods.token1().call();
+    const factory = await pairContract.methods.factory().call();
+      
+    const token0data = await getTokenSymbolInfo(token0)
+    const token1data = await getTokenSymbolInfo(token1)
     return {
       success: true,
       data: {
