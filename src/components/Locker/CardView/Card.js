@@ -12,8 +12,8 @@ import Web3 from 'web3'
 export default function Card({ data, token = false }) {
   const [tokenData, setTokenData] = useState(null)
   const [date, setDate] = useState(null)
-  const [amount, setAmount] = useState(0)
-
+  const [amount, setAmount] = useState(null)
+  console.log(data)
   const getTokenData = async () => {
     const tempData = await getLpInfo(data.info.token)
     setTokenData(tempData.data)
@@ -22,19 +22,17 @@ export default function Card({ data, token = false }) {
   const fetchAmount = async () => {
     await window.ethereum.enable();
     const web3 = new Web3(window.ethereum);
-    
     const contract = new web3.eth.Contract(ERC20Abi, data.info.token);
     const decimals = await contract.methods.decimals().call();
 
-    const amount = parseEther(data.info.amount, decimals);
-    console.log(amount);
+    const amount = formatUnits(data.info.amount, decimals);
     setAmount(amount);
   }
 
 
 
   useEffect(() => {
-    if (token && data) {
+    if (!token && data) {
       fetchAmount();;
       getTokenData()
     }
@@ -52,7 +50,12 @@ export default function Card({ data, token = false }) {
         <div className="flex justify-between items-center border-b border-dim-text dark:border-dim-text-dark border-dashed border-opacity-30 mt-3 py-5">
           <div className="flex items-center">
             <div className="flex items-center">
-              {token && <TokenImage className="w-10 h-10" src={data.info.logoImage} alt="BLANK" />}
+            
+              <TokenImage className="w-10 h-10 relative z-10" src={data.info.logoImage} alt="BLANK" />
+              {tokenData && tokenData.token1.symbol === "WBNB" ? 
+                <img className="w-8 h-8 -ml-5 mr-3 relative z-0" src="/images/cards/bnb.svg" alt="BNB" />
+                : null
+              }
             </div>
 
             <div

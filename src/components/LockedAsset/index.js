@@ -13,19 +13,22 @@ export default function LockedAssetBase({ asset, type }) {
 
   useEffect(() => {
     if (chainId) {
-    getLpInfo(chainId, asset.info.token).then((info) => {
-      setLpInfo(info.data)
-    })
 
-   
-      getTokenInfo(chainId, asset.info.token).then((info) => {
-        setTokenInfo(info.data)
-      })
+        getLpInfo(asset.info.token).then((info) => {
+          setLpInfo(info.data)
+        })
+
+        getTokenInfo(chainId, asset.info.token).then((info) => {
+          setTokenInfo(info.data)
+        })
+      
     }
   }, [asset, chainId])
 
   useEffect(() => {
     if (typeof lpInfo !== 'undefined' && typeof tokenInfo !== 'undefined') {
+      console.log('lpInfo', lpInfo)
+      console.log('tokenInfo', tokenInfo)
       setReady(true)
       return
     }

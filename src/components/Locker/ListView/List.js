@@ -1,72 +1,67 @@
-import React, { useState, useMemo, useEffect } from 'react'
-import { useToken } from '@usedapp/core'
+import React, { useState, useEffect } from 'react'
 import { formatUnits } from 'ethers/lib/utils'
 import { Link } from 'react-router-dom'
 import ListInfo from './ListInfo'
-import moment from 'moment'
 import { getLpInfo } from 'utils/lpInfo'
 import TokenImage from 'components/Common/TokenImage'
+import Web3 from 'web3'
+import ERC20Abi from '../../../config/abi/ERC20.json'
 
 export default function List({ data, token = false }) {
-  const [lpSymbol, setLpSymbol] = useState('');
-  const [tokenInfo, setTokenInfo] = useState(null) 
-
-  const LoadTokenInfo = async () => {
-    const tempTokenInfo = useToken(data?.info?.token, {
-      refresh: 0,
-    })
-    setTokenInfo(tempTokenInfo)
+  const [tokenData, setTokenData] = useState(null)
+  const [date, setDate] = useState(null)
+  const [amount, setAmount] = useState(null)
+  console.log(data)
+  const getTokenData = async () => {
+    const tempData = await getLpInfo(data.info.token)
+    setTokenData(tempData.data)
   }
 
+  const fetchAmount = async () => {
+    await window.ethereum.enable();
+    const web3 = new Web3(window.ethereum);
+    const contract = new web3.eth.Contract(ERC20Abi, data.info.token);
+    const decimals = await contract.methods.decimals().call();
+
+    const amount = formatUnits(data.info.amount, decimals);
+    setAmount(amount);
+  }
+
+
+
   useEffect(() => {
-    LoadTokenInfo();
-  }, [data])
-
-  const amount = useMemo(() => {
-    return tokenInfo ? formatUnits(data.info.amount, tokenInfo.decimals) : 0
-  }, [data, tokenInfo])
-
-  const symbol = useMemo(() => {
-    return tokenInfo ? tokenInfo?.symbol : ''
-  }, [tokenInfo])
-
-  useEffect(() => {
-    if (typeof data?.info?.token === 'undefined') {
-      return
+    if (!token && data) {
+      fetchAmount();;
+      getTokenData()
     }
-    let isFetch = true
-    getLpInfo(data?.info?.token).then((info) => {
-      if (isFetch) {
-        setLpSymbol(`${info.data.token0.symbol}/${info.data.token1.symbol}`)
-      }
-    })
-    return () => {
-      isFetch = false
-    }
-  }, [data])
+  }, [data, token])
 
-  const unlockDate = useMemo(() => {
-    return moment.unix(data.info.unlockDate.toNumber()).format('YYYY-MM-DD')
-  }, [data])
 
   return (
     <div className="w-full flex items-center justify-between bg-white dark:bg-dark-1 rounded-[10px] py-5 px-6">
       <div className="flex items-center">
-        {token && <TokenImage className="w-10 h-10" src={data.info.logoImage} alt="" />}
-      </div>
+            
+            <TokenImage className="w-10 h-10 relative z-10" src={data.info.logoImage} alt="BLANK" />
+            {tokenData && tokenData.token1.symbol === "WBNB" ? 
+              <img className="w-8 h-8 -ml-5 mr-3 relative z-0" src="/images/cards/bnb.svg" alt="BNB" />
+              : null
+            }
+          </div>
 
       <div
         className={`flex flex-col justify-center font-bold font-gilroy text-dark-text dark:text-light-text ${
-          token ? 'ml-[10px]' : 'ml-0'
+          tokenData ? 'ml-[10px]' : 'ml-0'
         }`}
       >
-        <span>{token ? symbol : lpSymbol}</span>
+        <span>{tokenData ? tokenData.token0.symbol + "/" + tokenData.token1.symbol : ''}</span>
         <span className="text-xs font-medium text-dim-text dark:text-dim-text-dark">{token}</span>
       </div>
-
-      <ListInfo heading={'Amount'} value={amount.toLocaleString()} />
-      <ListInfo heading={'Unlocks on'} value={unlockDate} />
-
+        {amount && 
+      <ListInfo heading={'Amount'} value={(amount.toString().toLocaleString().substring(0,8))} />
+        }
+        {date && 
+      <ListInfo heading={'Unlocks on'} value={new Date(date)} />
+        }
       <div className="flex items-center">
         <Link to={`/locked-assets/${token ? 'token' : 'lp-token'}/${data.address}`}>
           <img className="rotate-180" src="/images/sidebar/arrow-left.svg" alt="arrow-right" />

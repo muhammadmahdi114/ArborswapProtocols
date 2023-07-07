@@ -8,7 +8,7 @@ const TokenImage = ({ src, alt, className }) => {
   }
 
   if (isUndefined) {
-    return <img className={className} src="/images/fallback.png" alt={alt} />
+    return <span className={"text-[36px] top-[2px] z-10 relative"}>🧐</span>
   }
 
   return <img src={src} alt={alt} className={className} onError={onError} />

@@ -6,9 +6,9 @@ import List from './ListView/List'
 export default function LockerBase({ cardFormat, itemSelected, tokenList, liquidityList }) {
   useDocumentTitle('Locker')
   return cardFormat === 'grid' ? (
-    <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 mt-7">
+    <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3 mt-7">
       {itemSelected === 'liquidity' && liquidityList &&
-        liquidityList.map((liquidity, index) => <Card key={index} data={liquidity} token={true} />)}
+        liquidityList.map((liquidity, index) => <Card key={index} data={liquidity} token={false} />)}
 
       {itemSelected === 'token' && tokenList &&
         tokenList.map((token, index) => <Card key={index} data={token} token={true} />)}
