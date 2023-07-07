@@ -3,20 +3,26 @@ import Amount from './Amount'
 import Preview from './Preview/Preview'
 import { getLpInfo } from 'utils/lpInfo'
 import { getTokenInfo } from 'utils/tokenInfo'
+import { useEthers } from '@usedapp/core'
 
 export default function LockedAssetBase({ asset, type }) {
+  const { chainId } = useEthers()
   const [lpInfo, setLpInfo] = useState()
   const [tokenInfo, setTokenInfo] = useState()
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    getLpInfo(asset.info.token).then((info) => {
+    if (chainId) {
+    getLpInfo(chainId, asset.info.token).then((info) => {
       setLpInfo(info.data)
     })
-    getTokenInfo(asset.info.token).then((info) => {
-      setTokenInfo(info.data)
-    })
-  }, [asset])
+
+   
+      getTokenInfo(chainId, asset.info.token).then((info) => {
+        setTokenInfo(info.data)
+      })
+    }
+  }, [asset, chainId])
 
   useEffect(() => {
     if (typeof lpInfo !== 'undefined' && typeof tokenInfo !== 'undefined') {
@@ -24,6 +30,7 @@ export default function LockedAssetBase({ asset, type }) {
       return
     }
   }, [lpInfo, tokenInfo])
+
   return (
     <div className="w-full flex justify-center">
       <div className="w-full px-4 md:px-0 md:flex md:w-10/12 md:gap-7">

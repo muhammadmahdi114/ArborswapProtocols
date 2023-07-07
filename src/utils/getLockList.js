@@ -4,6 +4,7 @@ import LockFactoryAbi from '../config/abi/LockFactory.json'
 import { ethers } from 'ethers'
 import { Contract, Provider, setMulticallAddress } from 'ethers-multicall'
 import { DEFAULT_CHAIN, TOTAL_DATA_DISPLAY } from 'config/constants/misc'
+import Web3 from 'web3'
 
 const CHAIN_NUMBER = DEFAULT_CHAIN
 
@@ -78,6 +79,7 @@ export const getLpLockInfos = async (address) => {
       data: result,
     }
   } catch (error) {
+    console.log('error', error)
     return {
       success: false,
       data: result,
@@ -90,7 +92,6 @@ export const getTokenLockList = async () => {
     END = 0
   try {
     const totalData = await getTotalLock()
-
     if (totalData.success) {
       if (totalData.data.token < TOTAL_DATA_DISPLAY) {
         START = 0
@@ -100,29 +101,39 @@ export const getTokenLockList = async () => {
         START = totalData.data.token >= TOTAL_DATA_DISPLAY ? totalData.data.token - TOTAL_DATA_DISPLAY : 0
       }
     }
+    console.log(totalData);
   } catch (error) {
     return {
       success: false,
       data: {},
     }
   }
-
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
-  const ethcallProvider = new Provider(provider)
-  await ethcallProvider.init()
-
-  const tokenContract = new Contract(FACTORY_ADDRESS[CHAIN_NUMBER], LockFactoryAbi)
-  let calls = []
+  if(START === 0 && END === 0) {
+    return {
+      success: true,
+      data: [],
+    }
+  }
+  // setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
+  // const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+  // const ethcallProvider = new Provider(provider)
+  // await ethcallProvider.init()
+  await window.ethereum.enable();
+  const web3 = new Web3(window.ethereum);
+  const tokenContract = new web3.eth.Contract(LockFactoryAbi, FACTORY_ADDRESS[CHAIN_NUMBER])
+  console.log('tokenContract', tokenContract)
   try {
-    calls.push(tokenContract.getTokenLock(START, END))
-    const [token] = await ethcallProvider.all(calls)
+    // calls.push(tokenContract.getTokenLock(START, END))
+    // const [token] = await ethcallProvider.all(calls)
+    console.log(START, END)
+    const token = await tokenContract.methods.getTokenLock(START, END).call()
+    console.log('token', token)
     return {
       success: true,
       data: token,
     }
   } catch (error) {
-    console.log(error)
+    console.log('error', error)
     return {
       success: false,
       data: {},

@@ -8,10 +8,19 @@ import { getLpInfo } from 'utils/lpInfo'
 import TokenImage from 'components/Common/TokenImage'
 
 export default function List({ data, token = false }) {
-  const [lpSymbol, setLpSymbol] = useState('')
-  const tokenInfo = useToken(data.info.token, {
-    refresh: 0,
-  })
+  const [lpSymbol, setLpSymbol] = useState('');
+  const [tokenInfo, setTokenInfo] = useState(null) 
+
+  const LoadTokenInfo = async () => {
+    const tempTokenInfo = useToken(data?.info?.token, {
+      refresh: 0,
+    })
+    setTokenInfo(tempTokenInfo)
+  }
+
+  useEffect(() => {
+    LoadTokenInfo();
+  }, [data])
 
   const amount = useMemo(() => {
     return tokenInfo ? formatUnits(data.info.amount, tokenInfo.decimals) : 0

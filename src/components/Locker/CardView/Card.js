@@ -10,9 +10,7 @@ import TokenImage from 'components/Common/TokenImage'
 
 export default function Card({ data, token = false }) {
   const [lpSymbol, setLpSymbol] = useState('')
-  const tokenInfo = useToken(data?.info?.token, {
-    refresh: 0,
-  })
+  const [tokenInfo, setTokenInfo] = useState(null) 
 
   const amount = useMemo(() => {
     return tokenInfo ? formatUnits(data.info.amount, tokenInfo.decimals) : 0
@@ -29,6 +27,18 @@ export default function Card({ data, token = false }) {
       })
     }
   }, [data, token])
+
+  const LoadTokenInfo = async () => {
+    const tempTokenInfo = useToken(data?.info?.token, {
+      refresh: 0,
+    })
+    setTokenInfo(tempTokenInfo)
+  }
+
+  useEffect(() => {
+    LoadTokenInfo();
+  }, [data])
+    
 
   const unlockDate = useMemo(() => {
     return moment.unix(data.info.unlockDate.toNumber()).format('YYYY-MM-DD')

@@ -184,11 +184,8 @@ export default function CreateSaleTest() {
           Deploying sale with following parameters...
           {JSON.stringify(saleToken)}
         </div> 
-        
-        
         :
         <div>
-
           <input
             className='w-80 border p-2 m-5 border-black'
             placeholder='Enter Contract Address'
@@ -205,7 +202,6 @@ export default function CreateSaleTest() {
           <div className='m-5'>
             Currency Selected: {saleCurrency ? saleCurrency.symbol : 'None'}
           </div>
-
           <div className='m-5'>
             {currencies.map((currency) => (
               <button className='bg-primary-green p-2 text-white m-2 rounded-md'
