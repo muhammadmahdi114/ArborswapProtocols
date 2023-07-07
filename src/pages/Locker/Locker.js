@@ -16,6 +16,7 @@ export default function Locker() {
     setReady(false)
     try {
       const [token, liquidity] = await Promise.all([getTokenLockList(), getLiquidityLockList()])
+      console.log(token, liquidity)
       if (token.success) {
         const info = await getTokenLockInfos(token.data)
         if (info.success) {

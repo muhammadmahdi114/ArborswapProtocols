@@ -36,12 +36,8 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
     const userParticipation = await contract.userToParticipation(account);
     setBought(formatBigToNum(userParticipation[0].toString(), 18, 4));
     setAllocated(formatBigToNum(userParticipation[1].toString(), 18, 4));
+    setTokensWithdrawn(userParticipation[2]);
   };
-  // async function getTokensWithdrawn() {
-  //   const mySaleInfo = await getSaleInfo(sale.saleAddress);
-  //   console.log(mySaleInfo.tokensWithdrawn, "tokensWithdrawn");
-  //   setTokensWithdrawn(mySaleInfo.tokensWithdrawn);
-  // }
 
   const withdrawTokens = async () => {
     openLoadingModal()
@@ -178,8 +174,9 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
         {(status === "Ended" || isFinished) && (
           <div className="mt-7">
             <button
+            disabled={tokensWithdrawn}
               onClick={() => setShowModal(true)}
-              className="w-full bg-primary-green rounded-md text-white font-bold py-4"
+              className="w-full bg-primary-green rounded-md text-white font-bold py-4 disabled:bg-dim-text "
             >
               Withdraw
             </button>

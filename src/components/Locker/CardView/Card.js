@@ -10,7 +10,7 @@ import TokenImage from 'components/Common/TokenImage'
 
 export default function Card({ data, token = false }) {
   const [lpSymbol, setLpSymbol] = useState('')
-  const tokenInfo = useToken(data.info.token, {
+  const tokenInfo = useToken(data?.info?.token, {
     refresh: 0,
   })
 
