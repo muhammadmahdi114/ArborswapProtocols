@@ -28,6 +28,5 @@ export const FACTORY_ADDRESS = {
 
 export const AIRDROP_FACTORY_ADDRESS = {
   [BSC.chainId]: '0x7442c5433e34Ddf0088d60BeFFefB1536d421904',
-
-
+  [BSCTestnet.chainId]:'0x4F0Fcf99e7BE47a962599b42dcE3412A613D87FF'
 }
