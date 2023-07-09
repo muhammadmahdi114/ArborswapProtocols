@@ -15,8 +15,8 @@ export default function Locker() {
   const handleFetch = async () => {
     setReady(false)
     try {
-      const [token, liquidity] = await Promise.all([getTokenLockList(), getLiquidityLockList()])
-      console.log(token, liquidity)
+      const token = await getTokenLockList()
+      const liquidity = await getLiquidityLockList()
       if (token.success) {
         const info = await getTokenLockInfos(token.data)
         if (info.success) {
@@ -32,7 +32,9 @@ export default function Locker() {
       }
       setReady(true)
       
-    } catch (error) {}
+    } catch (error) {
+      console.log('error', error)
+    }
   }
 
   useEffect(() => {

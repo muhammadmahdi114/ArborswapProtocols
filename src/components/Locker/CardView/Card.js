@@ -1,5 +1,5 @@
-import { useToken } from '@usedapp/core'
-import { formatUnits } from 'ethers/lib/utils'
+import ERC20Abi from '../../../config/abi/ERC20.json'
+import { formatUnits, parseEther } from 'ethers/lib/utils'
 import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import CardInfo from './CardInfo'
@@ -7,30 +7,40 @@ import Timer from './Timer'
 import moment from 'moment'
 import { getLpInfo } from 'utils/lpInfo'
 import TokenImage from 'components/Common/TokenImage'
+import Web3 from 'web3'
 
 export default function Card({ data, token = false }) {
-  const [lpSymbol, setLpSymbol] = useState('')
-  const tokenInfo = useToken(data?.info?.token, {
-    refresh: 0,
-  })
+  const [tokenData, setTokenData] = useState(null)
+  const [date, setDate] = useState(null)
+  const [amount, setAmount] = useState(null)
+  console.log(data)
+  const getTokenData = async () => {
+    const tempData = await getLpInfo(data.info.token)
+    setTokenData(tempData.data)
+  }
 
-  const amount = useMemo(() => {
-    return tokenInfo ? formatUnits(data.info.amount, tokenInfo.decimals) : 0
-  }, [data, tokenInfo])
+  const fetchAmount = async () => {
+    await window.ethereum.enable();
+    const web3 = new Web3(window.ethereum);
+    const contract = new web3.eth.Contract(ERC20Abi, data.info.token);
+    const decimals = await contract.methods.decimals().call();
 
-  const symbol = useMemo(() => {
-    return tokenInfo ? tokenInfo?.symbol : ''
-  }, [tokenInfo])
+    const amount = formatUnits(data.info.amount, decimals);
+    setAmount(amount);
+  }
+
+
 
   useEffect(() => {
-    if (!token) {
-      getLpInfo(data.info.token).then((info) => {
-        setLpSymbol(`${info.data.token0.symbol}/${info.data.token1.symbol}`)
-      })
+    if (!token && data) {
+      fetchAmount();;
+      getTokenData()
     }
   }, [data, token])
 
+
   const unlockDate = useMemo(() => {
+    setDate(moment.unix(data.info.unlockDate.toNumber()))
     return moment.unix(data.info.unlockDate.toNumber()).format('YYYY-MM-DD')
   }, [data])
 
@@ -40,7 +50,12 @@ export default function Card({ data, token = false }) {
         <div className="flex justify-between items-center border-b border-dim-text dark:border-dim-text-dark border-dashed border-opacity-30 mt-3 py-5">
           <div className="flex items-center">
             <div className="flex items-center">
-              {token && <TokenImage className="w-10 h-10" src={data.info.logoImage} alt="BLANK" />}
+            
+              <TokenImage className="w-10 h-10 relative z-10" src={data.info.logoImage} alt="BLANK" />
+              {tokenData && tokenData.token1.symbol === "WBNB" ? 
+                <img className="w-8 h-8 -ml-5 mr-3 relative z-0" src="/images/cards/bnb.svg" alt="BNB" />
+                : null
+              }
             </div>
 
             <div
@@ -48,9 +63,9 @@ export default function Card({ data, token = false }) {
                 token ? 'ml-[10px]' : 'ml-0'
               }`}
             >
-              <span>{token ? symbol : lpSymbol}</span>
+              <span>{tokenData ? tokenData.token0?.name + "/" + tokenData.token1?.symbol : ''}</span>
               <span className="text-xs font-medium text-dim-text dark:text-dim-text-dark">
-                {token ? tokenInfo?.name : ''}
+                {tokenData ?  tokenData.token0?.symbol + "/" + tokenData.token1?.symbol: ''}
               </span>
             </div>
           </div>
@@ -63,8 +78,10 @@ export default function Card({ data, token = false }) {
         </div>
 
         <div className="flex flex-col justify-between">
-          <CardInfo heading={'Amount'} value={amount.toString().toLocaleString()} />
-          <CardInfo heading={'Amount ($)'} value={0} />
+        {amount &&
+          <CardInfo heading={'Amount'} value={(amount.toString().toLocaleString().substring(0,8))} />
+        }
+          {/* <CardInfo heading={'Amount ($)'} value={0} /> */}
           <CardInfo heading={'Unlock date'} value={unlockDate} />
         </div>
       </div>
@@ -72,8 +89,9 @@ export default function Card({ data, token = false }) {
       <div className="bg-[#FAF8F5] dark:bg-dark-2 rounded-b-[20px] py-5 px-7 mt-5 ">
         <div className="flex justify-between items-center">
           <span className="font-medium text-xs text-gray dark:text-gray-dark">Unlocks In</span>
-
-          <Timer date={data.info.unlockDate.toNumber() * 1000} />
+          {date &&
+          <Timer date={new Date(date)} />
+          }
         </div>
       </div>
     </div>
