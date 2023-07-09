@@ -24,7 +24,7 @@ export default function Preview({ locker, setActive, lockData }) {
   const { account, library, chainId } = useEthers()
 
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
-  
+    
   const allowance = useTokenAllowance(lockData.tokenAddress, account, FACTORY_ADDRESS[chainId], {
     refresh: 5,
   })
@@ -40,7 +40,7 @@ export default function Preview({ locker, setActive, lockData }) {
 
   useEffect(() => {
     async function fetchData() {
-      const info = await getFeeInfo()
+      const info = await getFeeInfo(chainId)
       setFeeInfo(info)
     }
     fetchData()

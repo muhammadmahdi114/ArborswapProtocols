@@ -4,6 +4,7 @@ import BaseLayout from '../../components/BaseLayout/BaseLayout'
 import HomeLayout from '../../components/HomeLayout'
 import LockerBase from '../../components/Locker'
 import SheildSecuritySVG from '../../svgs/Sidebar/shield_security'
+import { useDefaultChainId } from 'config/useDefaultChainId'
 
 export default function Locker() {
   const [cardFormat, setCardFormat] = useState('grid')
@@ -12,20 +13,23 @@ export default function Locker() {
   const [tokenList, setTokenList] = useState([])
   const [liquidityList, setLiquidityList] = useState([])
 
+  const chainId=useDefaultChainId()
+  console.log('chainId',chainId)
+
   const handleFetch = async () => {
     setReady(false)
     try {
-      const token = await getTokenLockList()
-      const liquidity = await getLiquidityLockList()
+      const token = await getTokenLockList(chainId)
+      const liquidity = await getLiquidityLockList(chainId)
       if (token.success) {
-        const info = await getTokenLockInfos(token.data)
+        const info = await getTokenLockInfos(token.data,chainId)
         if (info.success) {
           setTokenList(info.data)
           
         }
       }
       if (liquidity.success) {
-        const infoLp = await getLpLockInfos(liquidity.data)
+        const infoLp = await getLpLockInfos(liquidity.data,chainId)
         if (infoLp.success) {
           setLiquidityList(infoLp.data)
         }
@@ -39,7 +43,7 @@ export default function Locker() {
 
   useEffect(() => {
     handleFetch()
-  }, [])
+  }, [chainId])
   return (
     <BaseLayout
       title={'Locker'}

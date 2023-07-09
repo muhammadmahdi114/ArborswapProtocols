@@ -4,6 +4,7 @@ import { getTokenLockInfos, getLpLockInfos } from 'utils/getLockList'
 import { useNavigate, useParams } from 'react-router-dom'
 import BaseLayout from '../../components/BaseLayout/BaseLayout'
 import LockedAssetBase from '../../components/LockedAsset'
+import { useDefaultChainId } from 'config/useDefaultChainId'
 
 export default function LockedAsset({ type }) {
 
@@ -11,6 +12,8 @@ export default function LockedAsset({ type }) {
   const [asset, setAsset] = useState(null)
   const [ready, setReady] = useState(false)
   const navigate = useNavigate()
+
+  const chainId=useDefaultChainId()
 
   useEffect(() => {
     let active = true
@@ -20,7 +23,7 @@ export default function LockedAsset({ type }) {
 
       try {
         if (type === 'token') {
-          const info = await getTokenLockInfos([id])
+          const info = await getTokenLockInfos([id],chainId)
           if (!active) {
             return
           }
@@ -33,7 +36,7 @@ export default function LockedAsset({ type }) {
           }
         }
         if (type === 'lp-token') {
-          const infoLp = await getLpLockInfos([id])
+          const infoLp = await getLpLockInfos([id],chainId)
           if (!active) {
             return
           }
@@ -55,7 +58,7 @@ export default function LockedAsset({ type }) {
     return () => {
       active = false
     }
-  }, [type, id, navigate])
+  }, [type, id, navigate,chainId])
 
   return ready ? (
     // <BaseLayout title={asset && `${asset.name1}/${asset.name2}`} page_name={'Locked Assets'} subpage>
