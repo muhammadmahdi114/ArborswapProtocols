@@ -107,6 +107,7 @@ export default function PreviewSale({
         }
       } else {
         if(chainId === 56) {
+          console.log("mainnet",chainId)
         finalSaleObject = await deployPublicSaleERCMainnet(
           token,
           saleObject,
@@ -119,6 +120,7 @@ export default function PreviewSale({
         );
         }
         else {
+          console.log("testnet",chainId)
           finalSaleObject = await deployPublicSaleERCTestnet(
             token,
             saleObject,

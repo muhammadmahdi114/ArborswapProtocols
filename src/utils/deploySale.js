@@ -76,7 +76,31 @@ export const deployPublicSaleMainnet = async (
   let deployedAddress;
   let finalSaleObject;
   //console
-
+  console.log((
+    [routerAddress, adminAddress, token.tokenAddress, account],
+    [
+      parseEther(saleObject.minAllocation.toString()).toString(),
+      parseEther(saleObject.maxAllocation.toString()).toString(),
+      (saleObject.amountLiquidity * 100).toString(),
+      parseUnits(
+        saleObject.listing.toString(),
+        token.tokenDecimals
+      ).toString(),
+      (saleObject.lockup * 86400).toString(),
+      parseUnits(
+        saleObject.presalePrice.toString(),
+        token.tokenDecimals
+      ).toString(),
+      saleObject.endDate,
+      saleObject.startDate,
+      parseEther(saleObject.hardCap.toString()).toString(),
+      parseEther(saleObject.softCap.toString()).toString(),
+    ],
+    saleObject.unsoldToken === "Burn" ? true : false,
+    {
+      value: utils.parseEther(deploymentFee.toString()),
+    }
+  ));
   try {
     const tx = await contract.deployNormalSale(
       [routerAddress, adminAddress, token.tokenAddress, account],
@@ -205,9 +229,40 @@ export const deployPublicSaleTestnet = async (
   let deployedAddress;
   let finalSaleObject;
   //console
-
+  console.log((
+    [routerAddress, adminAddress, token.tokenAddress, account]
+  ),"first array");
+  console.log((
+    [
+      parseEther(saleObject.minAllocation.toString()).toString(),
+      parseEther(saleObject.maxAllocation.toString()).toString(),
+      (saleObject.amountLiquidity * 100).toString(),
+      parseUnits(
+        saleObject.listing.toString(),
+        token.tokenDecimals
+      ).toString(),
+      (saleObject.lockup * 86400).toString(),
+      parseUnits(
+        saleObject.presalePrice.toString(),
+        token.tokenDecimals
+      ).toString(),
+      saleObject.endDate,
+      saleObject.startDate,
+      parseEther(saleObject.hardCap.toString()).toString(),
+      parseEther(saleObject.softCap.toString()).toString(),
+    ]
+  ),"second array");
+  console.log((
+    saleObject.unsoldToken === "Burn" ? true : false
+  ),"third array");
+  console.log((
+    {
+      value: utils.parseEther(deploymentFee.toString()),
+      gasLimit: 5000000,
+    }
+  ),"fourth array");
   try {
-    const tx = await contract.deployNormalSaleTestnet(
+    const tx = await contract.deployNormalSale(
       [routerAddress, adminAddress, token.tokenAddress, account],
       [
         parseEther(saleObject.minAllocation.toString()).toString(),

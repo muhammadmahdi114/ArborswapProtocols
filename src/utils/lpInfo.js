@@ -38,7 +38,7 @@ export const getLpInfo = async (address) => {
       },
     }
   } catch (error) {
-    alert("Please ensure you are on the Binance Smart Chain network")
+    // alert("Please ensure you are on the Binance Smart Chain network")
     console.log(error, 'error')
     return {
       success: false,
