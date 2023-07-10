@@ -9,10 +9,7 @@ const CHAIN_NUMBER = 56
 
 export const getLpInfo = async (address) => {
   console.log("getLpInfo", address)
-  // setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  // const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
-  // const ethcallProvider = new Provider(provider)
-  // await ethcallProvider.init()
+
 
   await window.ethereum.enable();
   const web3 = new Web3(window.ethereum);

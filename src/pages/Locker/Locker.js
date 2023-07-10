@@ -21,8 +21,10 @@ export default function Locker() {
     try {
       const token = await getTokenLockList(chainId)
       const liquidity = await getLiquidityLockList(chainId)
+      console.log(liquidity,"liquidity")
       if (token.success) {
         const info = await getTokenLockInfos(token.data,chainId)
+        console.log("tokenInfo",info)
         if (info.success) {
           setTokenList(info.data)
           
@@ -30,6 +32,7 @@ export default function Locker() {
       }
       if (liquidity.success) {
         const infoLp = await getLpLockInfos(liquidity.data,chainId)
+        console.log("liquidityInfo",infoLp)
         if (infoLp.success) {
           setLiquidityList(infoLp.data)
         }

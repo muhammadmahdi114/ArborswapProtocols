@@ -94,7 +94,7 @@ export const getTokenLockList = async (chainId) => {
   let START = 0,
     END = 0
   try {
-    const totalData = await getTotalLock()
+    const totalData = await getTotalLock(chainId)
     if (totalData.success) {
       if (totalData.data.token < TOTAL_DATA_DISPLAY) {
         START = 0
@@ -104,7 +104,6 @@ export const getTokenLockList = async (chainId) => {
         START = totalData.data.token >= TOTAL_DATA_DISPLAY ? totalData.data.token - TOTAL_DATA_DISPLAY : 0
       }
     }
-    console.log(totalData);
   } catch (error) {
     console.log('error', error)
     return {
@@ -129,9 +128,7 @@ export const getTokenLockList = async (chainId) => {
   try {
     // calls.push(tokenContract.getTokenLock(START, END))
     // const [token] = await ethcallProvider.all(calls)
-    console.log(START, END)
     const token = await tokenContract.methods.getTokenLock(START, END).call()
-    console.log('token', token)
     return {
       success: true,
       data: token,
@@ -163,28 +160,31 @@ export const getLiquidityLockList = async (chainId) => {
       }
     }
   } catch (error) {
+    console.log('errorLiquiciditiyiit', error)
     return {
       success: false,
       data: {},
     }
   }
-
-  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
-  const ethcallProvider = new Provider(provider)
-  await ethcallProvider.init()
-
-  const tokenContract = new Contract(FACTORY_ADDRESS[chainId], LockFactoryAbi)
-  let calls = []
+  if(START === 0 && END === 0) {
+    return {
+      success: true,
+      data: [],
+    }
+  }
+  await window.ethereum.enable();
+  const web3 = new Web3(window.ethereum);
+  const tokenContract = new web3.eth.Contract(LockFactoryAbi, FACTORY_ADDRESS[chainId])
+  console.log('tokenContract', tokenContract)
   try {
-    calls.push(tokenContract.getLiquidityLock(START, END))
 
-    const [liquidity] = await ethcallProvider.all(calls)
+    const liquidity = await tokenContract.methods.getLiquidityLock(START, END).call()
     return {
       success: true,
       data: liquidity,
     }
   } catch (error) {
+    console.log('error', error)
     return {
       success: false,
       data: {},

@@ -13,7 +13,7 @@ export default function Card({ data, token = false }) {
   const [tokenData, setTokenData] = useState(null)
   const [date, setDate] = useState(null)
   const [amount, setAmount] = useState(null)
-  console.log(data)
+  console.log(data,"CARD component locker" )
   const getTokenData = async () => {
     const tempData = await getLpInfo(data.info.token)
     setTokenData(tempData.data)
@@ -52,7 +52,7 @@ export default function Card({ data, token = false }) {
             <div className="flex items-center">
             
               <TokenImage className="w-10 h-10 relative z-10" src={data.info.logoImage} alt="BLANK" />
-              {tokenData && tokenData.token1.symbol === "WBNB" ? 
+              {tokenData && tokenData.token1?.symbol === "WBNB" ? 
                 <img className="w-8 h-8 -ml-5 mr-3 relative z-0" src="/images/cards/bnb.svg" alt="BNB" />
                 : null
               }
