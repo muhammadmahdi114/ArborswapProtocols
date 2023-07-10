@@ -24,7 +24,7 @@ export default function Preview({ locker, setActive, lockData }) {
   const { account, library, chainId } = useEthers()
 
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
-    
+  console.log("Use token allowance", lockData.tokenAddress, account, FACTORY_ADDRESS[chainId],chainId, "chainId")
   const allowance = useTokenAllowance(lockData.tokenAddress, account, FACTORY_ADDRESS[chainId], {
     refresh: 5,
   })
@@ -71,6 +71,7 @@ export default function Preview({ locker, setActive, lockData }) {
     openLoadingModal()
     const contract = new Contract(lockData.tokenAddress, ERCAbi, library.getSigner())
     try {
+      console.log("Approve", FACTORY_ADDRESS[chainId],chainId, "chainId")
       const approval = await contract.approve(FACTORY_ADDRESS[chainId], ethers.constants.MaxUint256)
       await approval.wait()
     } catch (error) {}
@@ -80,6 +81,7 @@ export default function Preview({ locker, setActive, lockData }) {
   const handleLockToken = async () => {
     openLoadingModal()
     const contract = new Contract(FACTORY_ADDRESS[chainId], LockFactoryAbi, library.getSigner())
+    console.log("Lock token", FACTORY_ADDRESS[chainId],chainId, "chainId")
     try {
       const createLock = await contract.createTokenLock(
         account,
@@ -104,6 +106,7 @@ export default function Preview({ locker, setActive, lockData }) {
   const handleLockLP = async () => {
     openLoadingModal()
     const contract = new Contract(FACTORY_ADDRESS[chainId], LockFactoryAbi, library.getSigner())
+    console.log("Lock LP", FACTORY_ADDRESS[chainId],chainId, "chainId")
     try {
       const createLock = await contract.createLiquidityLock(
         account,

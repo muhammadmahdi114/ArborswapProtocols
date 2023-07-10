@@ -8,6 +8,7 @@ export default function FeeText({ type }) {
   const chainId = useDefaultChainId()
   useEffect(() => {
     async function fetchData() {
+      console.log("Fee text chainId", chainId)
       const info = await getFeeInfo(chainId)
       setFeeInfo(info)
     }

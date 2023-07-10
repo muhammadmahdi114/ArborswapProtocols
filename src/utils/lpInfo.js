@@ -8,6 +8,7 @@ import Web3 from 'web3'
 const CHAIN_NUMBER = 56
 
 export const getLpInfo = async (address) => {
+  console.log("getLpInfo", address)
   // setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
   // const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
   // const ethcallProvider = new Provider(provider)
