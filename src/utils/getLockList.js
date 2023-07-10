@@ -8,9 +8,10 @@ import Web3 from 'web3'
 
 const CHAIN_NUMBER = DEFAULT_CHAIN
 
-export const getTokenLockInfos = async (address) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getTokenLockInfos = async (address,chainId) => {
+  console.log('chainId getTokenlock infos,', chainId,address)
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -47,9 +48,10 @@ export const getTokenLockInfos = async (address) => {
   }
 }
 
-export const getLpLockInfos = async (address) => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getLpLockInfos = async (address,chainId) => {
+  console.log('chainId getLpLockInfos,', chainId,address)
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
   let calls = []
@@ -87,11 +89,12 @@ export const getLpLockInfos = async (address) => {
   }
 }
 
-export const getTokenLockList = async () => {
+export const getTokenLockList = async (chainId) => {
+  console.log('chainId getTokenlock list', chainId)
   let START = 0,
     END = 0
   try {
-    const totalData = await getTotalLock()
+    const totalData = await getTotalLock(chainId)
     if (totalData.success) {
       if (totalData.data.token < TOTAL_DATA_DISPLAY) {
         START = 0
@@ -101,8 +104,8 @@ export const getTokenLockList = async () => {
         START = totalData.data.token >= TOTAL_DATA_DISPLAY ? totalData.data.token - TOTAL_DATA_DISPLAY : 0
       }
     }
-    console.log(totalData);
   } catch (error) {
+    console.log('error', error)
     return {
       success: false,
       data: {},
@@ -120,14 +123,12 @@ export const getTokenLockList = async () => {
   // await ethcallProvider.init()
   await window.ethereum.enable();
   const web3 = new Web3(window.ethereum);
-  const tokenContract = new web3.eth.Contract(LockFactoryAbi, FACTORY_ADDRESS[CHAIN_NUMBER])
+  const tokenContract = new web3.eth.Contract(LockFactoryAbi, FACTORY_ADDRESS[chainId])
   console.log('tokenContract', tokenContract)
   try {
     // calls.push(tokenContract.getTokenLock(START, END))
     // const [token] = await ethcallProvider.all(calls)
-    console.log(START, END)
     const token = await tokenContract.methods.getTokenLock(START, END).call()
-    console.log('token', token)
     return {
       success: true,
       data: token,
@@ -141,12 +142,13 @@ export const getTokenLockList = async () => {
   }
 }
 
-export const getLiquidityLockList = async () => {
+export const getLiquidityLockList = async (chainId) => {
+  console.log('chainId getLiquidityLockList', chainId)
   let START = 0,
     END = 0
 
   try {
-    const totalData = await getTotalLock()
+    const totalData = await getTotalLock(chainId)
 
     if (totalData.success) {
       if (totalData.data.liquidity < TOTAL_DATA_DISPLAY) {
@@ -158,28 +160,31 @@ export const getLiquidityLockList = async () => {
       }
     }
   } catch (error) {
+    console.log('errorLiquiciditiyiit', error)
     return {
       success: false,
       data: {},
     }
   }
-
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
-  const ethcallProvider = new Provider(provider)
-  await ethcallProvider.init()
-
-  const tokenContract = new Contract(FACTORY_ADDRESS[CHAIN_NUMBER], LockFactoryAbi)
-  let calls = []
+  if(START === 0 && END === 0) {
+    return {
+      success: true,
+      data: [],
+    }
+  }
+  await window.ethereum.enable();
+  const web3 = new Web3(window.ethereum);
+  const tokenContract = new web3.eth.Contract(LockFactoryAbi, FACTORY_ADDRESS[chainId])
+  console.log('tokenContract', tokenContract)
   try {
-    calls.push(tokenContract.getLiquidityLock(START, END))
 
-    const [liquidity] = await ethcallProvider.all(calls)
+    const liquidity = await tokenContract.methods.getLiquidityLock(START, END).call()
     return {
       success: true,
       data: liquidity,
     }
   } catch (error) {
+    console.log('error', error)
     return {
       success: false,
       data: {},
@@ -187,14 +192,15 @@ export const getLiquidityLockList = async () => {
   }
 }
 
-export const getTotalLock = async () => {
-  setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
+export const getTotalLock = async (chainId) => {
+  console.log('chainId getTotalLock', chainId)
+  setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
   await ethcallProvider.init()
 
-  const tokenContract = new Contract(FACTORY_ADDRESS[CHAIN_NUMBER], LockFactoryAbi)
-  console.log(FACTORY_ADDRESS[CHAIN_NUMBER])
+  const tokenContract = new Contract(FACTORY_ADDRESS[chainId], LockFactoryAbi)
+  console.log(FACTORY_ADDRESS[chainId])
   let calls = []
   try {
     calls.push(tokenContract.getTotalTokenLock())

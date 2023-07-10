@@ -11,11 +11,13 @@ import { useEffect } from "react";
 import { useModal } from "react-simple-modal-provider";
 import {
   deployPrivateSale,
-  deployPublicSale,
+  deployPublicSaleMainnet,
   deployFairLaunchSale,
-  deployPublicSaleERC,
+  deployPublicSaleERCMainnet,
   deployFairLaunchSaleERC20,
   deployPrivateErSale,
+  deployPublicSaleTestnet,
+  deployPublicSaleERCTestnet,
 } from "utils/deploySale";
 import axios from "axios";
 import { BACKEND_URL } from "config/constants/LaunchpadAddress";
@@ -78,7 +80,8 @@ export default function PreviewSale({
     if (saleType === "standard") {
       let finalSaleObject;
       if (saleObject.currency.name === "Binance") {
-        finalSaleObject = await deployPublicSale(
+        if(chainId === 56) {
+        finalSaleObject = await deployPublicSaleMainnet(
           token,
           saleObject,
           library,
@@ -88,8 +91,24 @@ export default function PreviewSale({
           chainId,
           closeLoadingModal
         );
+        }
+        else {
+          finalSaleObject = await deployPublicSaleTestnet(
+            token,
+            saleObject,
+            library,
+            account,
+            deploymentFee,
+            saleData,
+            chainId,
+            closeLoadingModal
+          );
+
+        }
       } else {
-        finalSaleObject = await deployPublicSaleERC(
+        if(chainId === 56) {
+          console.log("mainnet",chainId)
+        finalSaleObject = await deployPublicSaleERCMainnet(
           token,
           saleObject,
           library,
@@ -99,6 +118,21 @@ export default function PreviewSale({
           chainId,
           closeLoadingModal
         );
+        }
+        else {
+          console.log("testnet",chainId)
+          finalSaleObject = await deployPublicSaleERCTestnet(
+            token,
+            saleObject,
+            library,
+            account,
+            deploymentFee,
+            saleData,
+            chainId,
+            closeLoadingModal
+          );
+
+        }
       }
 
       await axios.post(

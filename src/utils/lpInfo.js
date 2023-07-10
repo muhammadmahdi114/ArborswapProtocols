@@ -8,10 +8,8 @@ import Web3 from 'web3'
 const CHAIN_NUMBER = 56
 
 export const getLpInfo = async (address) => {
-  // setMulticallAddress(CHAIN_NUMBER, MULTICALL_ADDRESS[CHAIN_NUMBER])
-  // const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[CHAIN_NUMBER])
-  // const ethcallProvider = new Provider(provider)
-  // await ethcallProvider.init()
+  console.log("getLpInfo", address)
+
 
   await window.ethereum.enable();
   const web3 = new Web3(window.ethereum);
@@ -40,7 +38,7 @@ export const getLpInfo = async (address) => {
       },
     }
   } catch (error) {
-    alert("Please ensure you are on the Binance Smart Chain network")
+    // alert("Please ensure you are on the Binance Smart Chain network")
     console.log(error, 'error')
     return {
       success: false,

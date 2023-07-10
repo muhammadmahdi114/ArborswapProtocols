@@ -7,7 +7,7 @@ import Web3 from 'web3'
 const CHAIN_NUMBER = 56
 
 export const getTokenInfo = async (chainId, address) => {
-
+  console.log('chainId getTokenInfo,', chainId,address)
   setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
   const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
@@ -31,7 +31,7 @@ export const getTokenInfo = async (chainId, address) => {
       },
     }
   } catch (error) {
-    
+    console.log(error, "error")
     return {
       success: false,
       data: {},

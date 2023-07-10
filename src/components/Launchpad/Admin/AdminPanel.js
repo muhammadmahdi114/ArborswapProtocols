@@ -70,7 +70,7 @@ export default function AdminPanel({
     });
   }
 
-
+  console.log(sale.chainID,"finalize sale")
   async function getCurrentSaleInfo() {
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
@@ -85,8 +85,8 @@ export default function AdminPanel({
 
 
   const finalizeSale = async () => {
-    if (chainId !== 56) {
-      alert("Please switch to BSC Mainnet")
+    if (chainId !== sale.chainID) {
+      toast.error("Please switch to appropriate network")
       return
     }
     setShowModal(false);
@@ -161,8 +161,8 @@ export default function AdminPanel({
   };
 
   const cancelSale = async () => {
-    if (chainId !== 56) {
-      alert("Please switch to BSC Mainnet")
+    if (chainId !== sale.chainID) {
+      toast.error("Please switch to appropriate network")
       return
     }
     setShowModal(false);

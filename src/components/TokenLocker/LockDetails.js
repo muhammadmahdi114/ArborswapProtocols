@@ -15,6 +15,7 @@ import { getTokenBalance } from '../../utils/getTokenBalance'
 import { BigNumber } from 'ethers'
 import ErrorTags from './Subcomponents/ErrorTags'
 import { getLpInfo } from 'utils/lpInfo'
+import { useDefaultChainId } from 'config/useDefaultChainId'
 
 export default function LockDetails({ setActive, setLockData, lockData, locker, initLockState }) {
   const [visible, setVisible] = useState(lockData.showDetails)
@@ -29,6 +30,7 @@ export default function LockDetails({ setActive, setLockData, lockData, locker, 
 
   const { open: openAmountModal } = useModal('AmountModal')
   const { open: openLoadingModal, close: closeLoadingModal } = useModal('LoadingModal')
+  const chainId = useDefaultChainId()
 
   const handleAddress = async (e) => {
     if (lockData.type === 'lptoken') {
@@ -54,7 +56,8 @@ export default function LockDetails({ setActive, setLockData, lockData, locker, 
     console.log(e.target.value, isAddress(e.target.value))
     if (isAddress(e.target.value)) {
       openLoadingModal()
-      const tokenInfo = await getTokenInfo(e.target.value)
+      console.log('chainId',chainId)
+      const tokenInfo = await getTokenInfo(chainId,e.target.value)
       if (tokenInfo.success) {
         setLockData((prevState) => ({
           ...prevState,
@@ -103,7 +106,7 @@ export default function LockDetails({ setActive, setLockData, lockData, locker, 
 
     if (isAddress(e.target.value)) {
       openLoadingModal()
-      const tokenInfo = await getLpInfo(e.target.value)
+      const tokenInfo = await getLpInfo(e.target.value,chainId)
       if (tokenInfo.success) {
         setLockData((prevState) => ({
           ...prevState,
@@ -162,7 +165,7 @@ export default function LockDetails({ setActive, setLockData, lockData, locker, 
   }
 
   useEffect(() => {
-    getTokenBalance(account, lockData.tokenAddress).then((value) => {
+    getTokenBalance(account, lockData.tokenAddress,chainId).then((value) => {
       setLockData((prevState) => ({
         ...prevState,
         userBalance: value,

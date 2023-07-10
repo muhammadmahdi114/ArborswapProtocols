@@ -1,17 +1,19 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { formatEther } from 'ethers/lib/utils'
 import getFeeInfo from 'hooks/useFeeInfo'
+import { useDefaultChainId } from 'config/useDefaultChainId'
 
 export default function FeeText({ type }) {
   const [feeInfo, setFeeInfo] = useState(null)
-
+  const chainId = useDefaultChainId()
   useEffect(() => {
     async function fetchData() {
-      const info = await getFeeInfo()
+      console.log("Fee text chainId", chainId)
+      const info = await getFeeInfo(chainId)
       setFeeInfo(info)
     }
     fetchData()
-  }, [])
+  }, [chainId])
   
 
   const selectedFee = useMemo(() => {

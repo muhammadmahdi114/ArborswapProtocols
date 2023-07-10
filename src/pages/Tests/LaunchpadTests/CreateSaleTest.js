@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { approveTokens, deployPublicSaleERC } from 'utils/deploySale';
+import { approveTokens, deployPublicSaleERCMainnet } from 'utils/deploySale';
 import { BACKEND_URL, PublicErc_FACTORYADRESS, RBA_ADDRESS, USDC_ADDRESS, USDT_ADDRESS } from "config/constants/LaunchpadAddress";
 import axios from 'axios';
 import getDeploymentFeePublic from 'utils/getDeploymentFeePublic';
@@ -138,7 +138,7 @@ export default function CreateSaleTest() {
     const res = await approveTokens(library, token, PublicErc_FACTORYADRESS);
 
     if (res) {
-      const finalSaleObject = await deployPublicSaleERC(
+      const finalSaleObject = await deployPublicSaleERCMainnet(
         token,
         saleObject,
         library,
