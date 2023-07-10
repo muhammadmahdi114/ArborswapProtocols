@@ -29,6 +29,7 @@ export default function ConnectionModal({ children }) {
   }
 
   const onMetamask = async () => {
+    alert()
     try {
       activateBrowserWallet()
       if(chainId !== BSC.chainId){
@@ -38,6 +39,7 @@ export default function ConnectionModal({ children }) {
       console.error(error)
     }
   }
+
   useEffect(() => {
     if (account) {
       setOpen(false)

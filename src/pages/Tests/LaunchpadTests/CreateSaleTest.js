@@ -134,6 +134,7 @@ export default function CreateSaleTest() {
       tokenDecimals: tokenInfo.data.decimals,
       tokenSupply: tokenInfo.data.totalSupply,
     }
+    
     const res = await approveTokens(library, token, PublicErc_FACTORYADRESS);
 
     if (res) {
