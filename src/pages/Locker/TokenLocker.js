@@ -25,7 +25,7 @@ export default function TokenLocker() {
   }
   const [lockData, setLockData] = useState({ ...initLockState, showLanding: true, showDetails: false })
   const { account, error } = useEthers()
-
+  
   useEffect(() => {
     if (error && account) {
       return
