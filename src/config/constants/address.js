@@ -22,7 +22,7 @@ export const ADMIN_ADDRESS = {
 
 export const FACTORY_ADDRESS = {
   [BSC.chainId]: '0x35beffc0713034a91bB0aA45B9BC15C0a7AE24cA',
-  [BSCTestnet.chainId]: '0xCB33f39bB655019d3abdBF5489A4DABD00759943',
+  [BSCTestnet.chainId]: '0x4e6EaABE9F57C6c757a6Fc3F1e97Cb2d0f05C6B9',
   [RbaChain.chainId]: '0xB503BA98dF8B35121df3034Bb319A6f71c502D98',
 }
 
