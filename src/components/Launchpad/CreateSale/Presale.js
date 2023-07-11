@@ -302,6 +302,7 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
       }
       return false;
     } catch (error) {
+      console.log(error)
       return false;
     }
   };
