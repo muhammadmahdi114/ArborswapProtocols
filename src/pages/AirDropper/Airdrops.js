@@ -44,7 +44,11 @@ export default function Airdrops() {
   const chainId = useDefaultChainId();
 
   const getAirdropListFromBackend = async () => {
-    const response = await axios.get(`${BACKEND_URL}/api/airdrop/`);
+    const response = await axios.get(`${BACKEND_URL}/api/airdrop/`, {
+      params: {
+        chainId: chainId,
+      },
+    });
     console.log(response,"response")
     return response;
   };

@@ -55,16 +55,19 @@ console.log(airdropData, "airdropData")
       );
       await createAirdrop.wait();
       const airdropAddress = await contract.getLastDeployedAirdrop();
-      setAirdropData((prevState) => ({
-        ...prevState,
+      const updatedAirdropData = {
+        ...airdropData,
         airdropAddress: airdropAddress,
-      }));
+      };
+    
+      setAirdropData(updatedAirdropData);
       setError(undefined);
       try {
         const res = await axios.post(
           `${BACKEND_URL}/api/airdrop/`,
           {
-            airdrop: airdropData,
+            airdrop: updatedAirdropData,
+            chainId: chainId,
           },
           {
             withCredentials: true,
@@ -129,6 +132,7 @@ console.log(airdropData, "airdropData")
           `${BACKEND_URL}/api/airdrop/`,
           {
             airdrop: updatedAirdropData,
+            chainId: chainId,
           },
           {
             withCredentials: true,

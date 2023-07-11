@@ -148,7 +148,8 @@ export default function AdminPanel({
           console.log(lockObject, "lockObject")
           const res = await axios.post(`${BACKEND_URL}/api/lock`, {
             Lock: lockObject,
-            liquidity:true
+            liquidity:true,
+            chainId: chainId,
           });
         }
       } catch (err) {
