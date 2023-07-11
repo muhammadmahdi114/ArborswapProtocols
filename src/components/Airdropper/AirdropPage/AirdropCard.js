@@ -9,6 +9,7 @@ import { useDefaultChainId } from 'config/useDefaultChainId'
 
 export default function AirdropCard({ data, status,  privateCard }) {
   const [numberOfClaims, setNumberOfclaims] = useState(0)
+  console.log(data,"card air drop data")
   const chainId = useDefaultChainId()
   if (privateCard === false) {
     (async () => {

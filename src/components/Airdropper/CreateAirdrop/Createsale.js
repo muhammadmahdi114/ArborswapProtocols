@@ -27,7 +27,7 @@ export default function Createsale({
 
   const { open: openLoadingModal, close: closeLoadingModal } =
     useModal("LoadingModal");
-
+console.log(airdropData, "airdropData")
   const handleCreateAirdrop = async () => {
     openLoadingModal();
     const contract = new Contract(
@@ -55,16 +55,19 @@ export default function Createsale({
       );
       await createAirdrop.wait();
       const airdropAddress = await contract.getLastDeployedAirdrop();
-      setAirdropData((prevState) => ({
-        ...prevState,
+      const updatedAirdropData = {
+        ...airdropData,
         airdropAddress: airdropAddress,
-      }));
+      };
+    
+      setAirdropData(updatedAirdropData);
       setError(undefined);
       try {
         const res = await axios.post(
           `${BACKEND_URL}/api/airdrop/`,
           {
-            airdrop: airdropData,
+            airdrop: updatedAirdropData,
+            chainId: chainId,
           },
           {
             withCredentials: true,
@@ -117,16 +120,19 @@ export default function Createsale({
 
       await createAirdrop.wait();
       const airdropAddress = await contract.getLastDeployedAirdrop();
-      setAirdropData((prevState) => ({
-        ...prevState,
+      const updatedAirdropData = {
+        ...airdropData,
         airdropAddress: airdropAddress,
-      }));
+      };
+    
+      setAirdropData(updatedAirdropData);
       setError(undefined);
       try {
         const res = await axios.post(
           `${BACKEND_URL}/api/airdrop/`,
           {
-            airdrop: airdropData,
+            airdrop: updatedAirdropData,
+            chainId: chainId,
           },
           {
             withCredentials: true,

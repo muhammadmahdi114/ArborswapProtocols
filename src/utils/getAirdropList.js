@@ -267,6 +267,7 @@ export const getPublicAirdrops = async (chainId, address) => {
       data: publicAirdrops,
     }
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       data: result,

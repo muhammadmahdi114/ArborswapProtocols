@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useModal } from 'react-simple-modal-provider'
 import { useNavigate } from 'react-router-dom'
-
+import { parseEther } from 'ethers/lib/utils'
 import BackArrowSVG from '../../svgs/back_arrow'
 import PreviewDetails from '../Common/PreviewDetails'
 import PreviewHeader from '../Common/PreviewHeader'
@@ -74,7 +74,9 @@ export default function Preview({ locker, setActive, lockData }) {
       console.log("Approve", FACTORY_ADDRESS[chainId],chainId, "chainId")
       const approval = await contract.approve(FACTORY_ADDRESS[chainId], ethers.constants.MaxUint256)
       await approval.wait()
-    } catch (error) {}
+    } catch (error) {
+      console.log(error, "error")
+    }
     closeLoadingModal()
   }
 
@@ -82,6 +84,8 @@ export default function Preview({ locker, setActive, lockData }) {
     openLoadingModal()
     const contract = new Contract(FACTORY_ADDRESS[chainId], LockFactoryAbi, library.getSigner())
     console.log("Lock token", FACTORY_ADDRESS[chainId],chainId, "chainId")
+    console.log(parseEther(ethers.utils.formatEther(feeInfo.normalFee).toString()))
+    console.log(account, lockData.tokenAddress, amountLock, lockData.unlockDate, lockData.image, "lockData")
     try {
       const createLock = await contract.createTokenLock(
         account,
@@ -90,7 +94,8 @@ export default function Preview({ locker, setActive, lockData }) {
         lockData.unlockDate,
         lockData.image,
         {
-          value: feeInfo.normalFee,
+          value: parseEther(feeInfo.normalFee),
+
         },
       )
       await createLock.wait()
@@ -98,6 +103,7 @@ export default function Preview({ locker, setActive, lockData }) {
       navigate(`/locked-assets`)
       return
     } catch (error) {
+      console.log(error, "error")
       closeLoadingModal()
       return false
     }
