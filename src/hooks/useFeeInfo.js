@@ -1,5 +1,5 @@
 import { Contract } from 'ethers'
-import LockFactoryAbi from 'config/abi/LockFactory.json'
+import LockFactoryAbi from '../config/abi/LockFactory.json'
 
 import { FACTORY_ADDRESS } from 'config/constants/address'
 import Web3 from 'web3'

@@ -7,8 +7,10 @@ import Web3 from 'web3'
 import ERC20Abi from '../../../config/abi/ERC20.json'
 import { formatUnits } from 'ethers/lib/utils'
 import TokenImage from 'components/Common/TokenImage'
+import LockDetails from 'components/TokenLocker/LockDetails'
+import LpLogoUpdate from 'pages/Locker/LpLogoUpdate'
 
-export default function Preview({ type, asset, tokenInfo, lpInfo }) {
+export default function Preview({ type, asset, tokenInfo, lpInfo,setEdit }) {
   const [amount, setAmount] = useState(null)
   const title = useMemo(() => {
     if (type === 'token') {
@@ -52,7 +54,11 @@ export default function Preview({ type, asset, tokenInfo, lpInfo }) {
     return moment.unix(asset?.info?.unlockDate?.toNumber()).format('YYYY-MM-DD')
   }, [asset])
 
+  const handleEdit = () => {
+    setEdit(true)
+  }
   return (
+    <div>
     <div className="preview px-9  py-9 my-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
@@ -72,7 +78,7 @@ export default function Preview({ type, asset, tokenInfo, lpInfo }) {
           </div>
         </div>
 
-        <Options width={'w-7'} height={'h-7'} color={'[#FAF8F5]'} dark_color={'dark-2'} />
+        <Options width={'w-7'} height={'h-7'} color={'[#FAF8F5]'} dark_color={'dark-2'} setEdit={handleEdit}/>
       </div>
 
       <PreviewHeader heading={'Lock Details'} />
@@ -116,5 +122,8 @@ export default function Preview({ type, asset, tokenInfo, lpInfo }) {
         )}
       </div>
     </div>
+  
+    </div>
+
   )
 }

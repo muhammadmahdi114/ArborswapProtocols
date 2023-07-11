@@ -20,6 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PercentFilled from "../Pools/Subcomponents/PercentFilled";
 import Web3 from "web3";
 import getSaleInfo from "utils/getSaleInfo";
+import { getLiquidityLockList } from "utils/getLockList";
 
 export default function AdminPanel({
   status,
@@ -31,7 +32,7 @@ export default function AdminPanel({
   objId,
   cancelled,
 }) {
-  console.log(status)
+  console.log(status);
   const { library, chainId } = useEthers();
   const [showModal, setShowModal] = useState(false);
   const [showModalCancel, setShowModalCancel] = useState(false);
@@ -66,11 +67,10 @@ export default function AdminPanel({
     const res = await getIsFinished(sale.saleAddress).then((res) => {
       setIsFinished(res);
       console.log(res, "is Finished");
-
     });
   }
 
-  console.log(sale.chainID,"finalize sale")
+  console.log(sale.chainID, "finalize sale");
   async function getCurrentSaleInfo() {
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
@@ -82,12 +82,10 @@ export default function AdminPanel({
     getCurrentSaleInfo();
   }, []);
 
-
-
   const finalizeSale = async () => {
     if (chainId !== sale.chainID) {
-      toast.error("Please switch to appropriate network")
-      return
+      toast.error("Please switch to appropriate network");
+      return;
     }
     setShowModal(false);
     openLoadingModal();
@@ -134,10 +132,29 @@ export default function AdminPanel({
         );
       }
     }
-    console.log(contract)
+    console.log(contract);
     try {
       const tx = await contract.finishSale();
       await tx.wait();
+      try {
+        const token = await getLiquidityLockList(chainId);
+        console.log(token);
+        if (token) {
+          //put last token in token array in object
+          const lockObject = {
+            name: sale.name,
+            lockAddress: token.data[token.data.length - 1],
+          };
+          console.log(lockObject, "lockObject")
+          const res = await axios.post(`${BACKEND_URL}/api/lock`, {
+            Lock: lockObject,
+            liquidity:true,
+            chainId: chainId,
+          });
+        }
+      } catch (err) {
+        console.log(err);
+      }
       toast.success("Sale Finalized Successfully");
     } catch (err) {
       alert("Something went wrong");
@@ -152,18 +169,18 @@ export default function AdminPanel({
         isFinished: "true",
       });
       toast.success("Sale Finalized Successfully");
-      window.location.reload();
+      // window.location.reload();
     } catch (err) {
       console.log(err);
       closeLoadingModal();
     }
     closeLoadingModal();
   };
-
+  console.log(sale.name, "sale name");
   const cancelSale = async () => {
     if (chainId !== sale.chainID) {
-      toast.error("Please switch to appropriate network")
-      return
+      toast.error("Please switch to appropriate network");
+      return;
     }
     setShowModal(false);
     openLoadingModal();
@@ -210,9 +227,9 @@ export default function AdminPanel({
         );
       }
     }
-    console.log(contract)
+    console.log(contract);
     try {
-      console.log(status)
+      console.log(status);
       const tx = await contract.cancelSale();
       await tx.wait();
       toast.success("Sale Cancelled Successfully");
@@ -417,10 +434,11 @@ export default function AdminPanel({
               onClick={() => {
                 setShowModal(true);
               }}
-              className={`w-full ${status === "Upcoming"
+              className={`w-full ${
+                status === "Upcoming"
                   ? "bg-light dark:bg-dark text-dark-text dark:text-light-text"
                   : "bg-primary-green text-white"
-                } rounded-md font-bold py-4`}
+              } rounded-md font-bold py-4`}
               disabled={status === "Upcoming" ? true : false}
             >
               {/* if sale is not finished then show manage adress too */}
@@ -428,29 +446,27 @@ export default function AdminPanel({
             </button>
           </div>
         )}
-        {saleInfo === false &&
-          !cancelled &&
-          (
-            <div className="mt-7">
-              <button
-                onClick={() => {
-                  setShowModalCancel(true);
-                }}
-                className={`w-full ${status === "Upcoming"
-                    ? "bg-light dark:bg-dark text-dark-text dark:text-light-text"
-                    : "dark:bg-dark text-white"
-                  } rounded-md font-bold py-4`}
-              >
-                Cancel Sale
-              </button>
-            </div>
-          )}
+        {saleInfo === false && !cancelled && (
+          <div className="mt-7">
+            <button
+              onClick={() => {
+                setShowModalCancel(true);
+              }}
+              className={`w-full ${
+                status === "Upcoming"
+                  ? "bg-light dark:bg-dark text-dark-text dark:text-light-text"
+                  : "dark:bg-dark text-white"
+              } rounded-md font-bold py-4`}
+            >
+              Cancel Sale
+            </button>
+          </div>
+        )}
         {cancelled && (
           <span className="text-sm font-medium text-gray dark:text-gray-dark">
             sale was cancelled{" "}
           </span>
         )}
-
       </div>
 
       {showModal && (
@@ -458,15 +474,9 @@ export default function AdminPanel({
         // else pass finalizeSale function
 
         <ConfirmModal
-          runFunction={
-            finalizeSale
-          }
-          title={
-            "Finalize Sale"
-          }
-          description={
-            "Are you sure you want to finalize the sale?"
-          }
+          runFunction={finalizeSale}
+          title={"Finalize Sale"}
+          description={"Are you sure you want to finalize the sale?"}
           setShowModal={setShowModal}
         />
       )}
@@ -475,15 +485,9 @@ export default function AdminPanel({
         // else pass finalizeSale function
 
         <ConfirmModal
-          runFunction={
-            cancelSale
-          }
-          title={
-            "Cancel Sale"
-          }
-          description={
-            "Are you sure you want to cancel the sale?"
-          }
+          runFunction={cancelSale}
+          title={"Cancel Sale"}
+          description={"Are you sure you want to cancel the sale?"}
           setShowModal={setShowModalCancel}
         />
       )}
