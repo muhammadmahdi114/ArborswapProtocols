@@ -5,7 +5,7 @@ import HomeLayout from '../../components/HomeLayout'
 import LockerBase from '../../components/Locker'
 import SheildSecuritySVG from '../../svgs/Sidebar/shield_security'
 import { useDefaultChainId } from 'config/useDefaultChainId'
-
+import { useModal } from 'react-simple-modal-provider'
 export default function Locker() {
   const [cardFormat, setCardFormat] = useState('grid')
   const [itemSelected, setItemSelected] = useState('liquidity')
@@ -15,9 +15,11 @@ export default function Locker() {
 
   const chainId=useDefaultChainId()
   console.log('chainId',chainId)
-
+  const { open: openLoadingModal, close: closeLoadingModal } =
+  useModal("LoadingModal");
   const handleFetch = async () => {
     setReady(false)
+    openLoadingModal()
     try {
       const token = await getTokenLockList(chainId)
       const liquidity = await getLiquidityLockList(chainId)
@@ -37,6 +39,7 @@ export default function Locker() {
           setLiquidityList(infoLp.data)
         }
       }
+      closeLoadingModal()
       setReady(true)
       
     } catch (error) {

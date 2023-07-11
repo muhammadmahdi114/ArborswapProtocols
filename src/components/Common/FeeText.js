@@ -10,6 +10,7 @@ export default function FeeText({ type }) {
     async function fetchData() {
       console.log("Fee text chainId", chainId)
       const info = await getFeeInfo(chainId)
+      console.log("Fee text info", info)
       setFeeInfo(info)
     }
     fetchData()
@@ -20,10 +21,10 @@ export default function FeeText({ type }) {
     if (feeInfo === null) {
       return ''
     }
-    let fee = feeInfo.normalFee
+    let fee = feeInfo?.normalFee
 
     if (type === 'lptoken') {
-      fee = feeInfo.normalFee
+      fee = feeInfo?.normalFee
     }
     return (formatEther(fee) * 1).toLocaleString()
   }, [feeInfo, type])
