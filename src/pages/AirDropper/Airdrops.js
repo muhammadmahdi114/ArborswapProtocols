@@ -13,7 +13,8 @@ import HomeLayout from "../../components/HomeLayout";
 import { useDocumentTitle } from "../../hooks/setDocumentTitle";
 import AirplaneSVG from "../../svgs/Sidebar/airplane";
 import { useModal } from "react-simple-modal-provider";
-
+import { BACKEND_URL } from "config/constants/LaunchpadAddress";
+import axios from "axios";
 const Tabs = [
   {
     id: 1,
@@ -42,11 +43,19 @@ export default function Airdrops() {
   const [publicList, setPublicList] = useState([]);
   const chainId = useDefaultChainId();
 
+  const getAirdropListFromBackend = async () => {
+    const response = await axios.get(`${BACKEND_URL}/api/airdrop/`);
+    console.log(response,"response")
+    return response;
+  };
   const handleFetch = async () => {
     setReady(false);
     openLoadingModal();
     try {
-      const airdrops = await getAirdropList(chainId);
+      const airdrops = await getAirdropListFromBackend();
+      // console.log("airdropsBack", airdropsBack);
+      // const airdropsBack = await getAirdropList(chainId);
+      // console.log("airdrops", airdrops.data,airdropsBack.data)
       const publicAirdrops = await getPublicAirdrops(chainId, airdrops.data);
       const sortedAirdrops = await sortAirdrops(chainId, airdrops.data);
       let timed = sortedAirdrops.data.timed;
@@ -55,7 +64,7 @@ export default function Airdrops() {
       if (publicAirdrops.success) {
         setPublicList(publicAirdrops.data);
       }
-      if (airdrops.success) {
+      if (airdrops) {
         const infoTimed = await getAirdropInfos(chainId, timed);
         const infoLive = await getAirdropInfos(chainId, live);
         const infoEnded = await getAirdropInfos(chainId, ended);
@@ -72,7 +81,9 @@ export default function Airdrops() {
       }
       closeLoadingModal();
       setReady(true);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {

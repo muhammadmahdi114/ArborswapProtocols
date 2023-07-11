@@ -22,6 +22,7 @@ export default function Locker() {
     openLoadingModal()
     try {
       const token = await getTokenLockList(chainId)
+      console.log(token,"token")
       const liquidity = await getLiquidityLockList(chainId)
       console.log(liquidity,"liquidity")
       if (token.success) {
