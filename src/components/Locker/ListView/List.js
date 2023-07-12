@@ -12,17 +12,17 @@ export default function List({ data, token = false }) {
   const [date, setDate] = useState(null)
   const [amount, setAmount] = useState(null)
   const getTokenData = async () => {
-    const tempData = await getLpInfo(data.info.token)
+    const tempData = await getLpInfo(data.token)
     setTokenData(tempData.data)
   }
 
   const fetchAmount = async () => {
     await window.ethereum.enable();
     const web3 = new Web3(window.ethereum);
-    const contract = new web3.eth.Contract(ERC20Abi, data.info.token);
+    const contract = new web3.eth.Contract(ERC20Abi, data.token);
     const decimals = await contract.methods.decimals().call();
 
-    const amount = formatUnits(data.info.amount, decimals);
+    const amount = formatUnits(data.amount, decimals);
     setAmount(amount);
   }
 
@@ -40,7 +40,7 @@ export default function List({ data, token = false }) {
     <div className="w-full flex items-center justify-between bg-white dark:bg-dark-1 rounded-[10px] py-5 px-6">
       <div className="flex items-center">
             
-            <TokenImage className="w-10 h-10 relative z-10" src={data.info.logoImage} alt="BLANK" />
+            <TokenImage className="w-10 h-10 relative z-10" src={data.logoImage} alt="BLANK" />
             {tokenData && tokenData.token1.symbol === "WBNB" ? 
               <img className="w-8 h-8 -ml-5 mr-3 relative z-0" src="/images/cards/bnb.svg" alt="BNB" />
               : null

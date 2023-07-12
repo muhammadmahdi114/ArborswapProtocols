@@ -76,9 +76,10 @@ export default function AdminPanel({
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
     });
-    const lockInfo = await getLpLockInfos(["0xcfceFed2Aa9f9cF07FEA452d0E99a5B69cC6091E"],chainId);
-    setLock(lockInfo);
+    // const lockInfo = await getLpLockInfos(["0x60B092c02336017bFac85A60d84D8d65EEcebD0D"],chainId);
+    // setLock(lockInfo);
   }
+  // console.log(lock, "lock")
   useEffect(() => {
     getContributors();
     getFinished();
@@ -147,7 +148,7 @@ export default function AdminPanel({
           const lockInfo = await getLpLockInfos([token.data[token.data.length - 1]],chainId);
           console.log(lockInfo, "lockInfo")
           const lockObject = {
-            address:lockInfo.data[0].info[0],
+            address:token.data[token.data.length - 1],
             first:lockInfo.data[0].info[1],
             second:lockInfo.data[0].info[2],
             third:lockInfo.data[0].info[3],
