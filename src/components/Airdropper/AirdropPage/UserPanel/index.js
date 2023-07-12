@@ -138,7 +138,7 @@ export default function UserPanel({symbol, handleSetRemaining, is_private, amoun
                     Whitelisted address
                 </span>
                 <span className='font-bold text-sm text-dark-text dark:text-light-text'>
-                    {whitelist_address.toLocaleString()}
+                    {/* {whitelist_address.toLocaleString()} */}
                 </span>
             </div>}
 

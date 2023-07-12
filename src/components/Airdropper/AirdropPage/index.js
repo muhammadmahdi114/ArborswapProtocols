@@ -3,9 +3,9 @@ import Preview from "./Preview";
 import UserPanel from "./UserPanel";
 import AdminPanel from "./Admin";
 import { formatUnits } from "ethers/lib/utils";
-import useAirdropInfo from "hooks/useAirdropInfo";
+import getAirdropInfo from "hooks/useAirdropInfo";
 import { useParams } from "react-router-dom";
-import { getTokenInfo } from "utils/tokenInfo";
+// import { getTokenInfo } from "utils/tokenInfo";
 import { useEthers } from "@usedapp/core";
 import { getAirdropInfos } from "utils/getAirdropList";
 
@@ -25,16 +25,22 @@ export default function AirdropPageBase({
   const [remaining, setRemaining] = useState(0);
   const [filledPerc, setFilledPerc] = useState(0);
   const[tokenInfo, setTokenInfo] = useState();
+  const [airdropInfo, setAirdropInfo] = useState();
   const { chainId } = useEthers();
-  const airdropInfo = useAirdropInfo(airdrop.airdropAddress);
-  console.log("airdropInfo", airdropInfo);
 
   function handleSetRemaining(allocation) {
     let filledPercNum = ((remaining - allocation) / totalAmount) * 100;
     setRemaining(remaining - allocation);
     setFilledPerc(filledPercNum);
   }
-
+  async function getAirdrop(){
+    const airdropInfo = await getAirdropInfo(airdrop.airdropAddress);
+    console.log(airdropInfo,"airdropInfoOwnnnn")
+    setAirdropInfo(airdropInfo);
+  }
+  useEffect(() => {
+    getAirdrop();
+  }, [airdrop]);
   useEffect(() => {
     if (typeof airdropInfo == "undefined") {
       return;
@@ -114,6 +120,7 @@ export default function AirdropPageBase({
       setTime(formattedTime);
     }
   }, [airdropInfo]);
+  console.log(airdrop,"airdropinindex")
   return (
     airdrop && (
       <div className="w-full flex justify-center">
@@ -150,17 +157,17 @@ export default function AirdropPageBase({
               />
             ) : (
               <UserPanel
-                symbol={tokenInfo.symbol}
+                symbol={airdrop.tokenSymbol}
                 handleSetRemaining={handleSetRemaining}
                 amount={totalAmount}
-                icon={airdrop.info.description[0]}
-                min_allocation={airdrop.info[0].toNumber()}
+                icon={airdrop.image}
+                // min_allocation={airdrop.info[0].toNumber()}
                 status={status}
                 filled_percent={filledPerc}
-                ends_on={airdrop.info[0].toNumber()}
+                // ends_on={airdrop.info[0].toNumber()}
                 whitelisted={whitelisted}
-                whitelist_address={airdrop.info.numberWLAddresses.toNumber()}
-                is_private={airdrop.info.isPrivate}
+                // whitelist_address={airdrop.info.numberWLAddresses.toNumber()}
+                is_private={airdrop.type === "private"}
                 remaining={remaining}
               />
             )}
