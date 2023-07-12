@@ -217,6 +217,7 @@ export const deployPublicSaleTestnet = async (
     PublicAbi,
     library.getSigner()
   );
+  console.log(contract)
   console.log(chainId, "chainId");
 
   const saleId = await contract.getNumberOfSalesDeployed();

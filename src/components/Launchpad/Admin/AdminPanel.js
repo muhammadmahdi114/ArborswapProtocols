@@ -38,6 +38,7 @@ export default function AdminPanel({
   const [showModalCancel, setShowModalCancel] = useState(false);
   const [isFinished, setIsFinished] = useState(null);
   const [saleInfo, setSaleInfo] = useState(null);
+  const[lock, setLock] = useState(null);
   const [contributors, setContributors] = useState(null);
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [whiteListedAddresses, setWhiteListedAddresses] = useState([""]);
@@ -75,13 +76,15 @@ export default function AdminPanel({
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
     });
+    const lockInfo = await getLpLockInfos(["0xcfceFed2Aa9f9cF07FEA452d0E99a5B69cC6091E"],chainId);
+    setLock(lockInfo);
   }
   useEffect(() => {
     getContributors();
     getFinished();
     getCurrentSaleInfo();
+    
   }, []);
-
   const finalizeSale = async () => {
     if (chainId !== sale.chainID) {
       toast.error("Please switch to appropriate network");
@@ -143,8 +146,25 @@ export default function AdminPanel({
           //put last token in token array in object
           const lockInfo = await getLpLockInfos([token.data[token.data.length - 1]],chainId);
           console.log(lockInfo, "lockInfo")
+          const lockObject = {
+            address:lockInfo.data[0].info[0],
+            first:lockInfo.data[0].info[1],
+            second:lockInfo.data[0].info[2],
+            third:lockInfo.data[0].info[3],
+            fourth:lockInfo.data[0].info[4],
+            fifth:lockInfo.data[0].info[5],
+            sixth:lockInfo.data[0].info[6],
+            amount: lockInfo.data[0].info.amount,
+            isVesting: lockInfo.data[0].info.isVesting,
+            isWithdrawn: lockInfo.data[0].info.isWithdrawn,
+            lockDate: lockInfo.data[0].info.lockDate,
+            logoImage: lockInfo.data[0].info.logoImage,
+            token: lockInfo.data[0].info.token,
+            unlockDate: lockInfo.data[0].info.unlockDate,
+          }
+
           await axios.post(`${BACKEND_URL}/api/lock`, {
-            Lock: lockInfo,
+            Lock: lockObject,
             liquidity:true,
             chainId: chainId,
           });

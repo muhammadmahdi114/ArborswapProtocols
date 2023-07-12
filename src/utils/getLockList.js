@@ -56,6 +56,7 @@ export const getLpLockInfos = async (address,chainId) => {
   await ethcallProvider.init()
   let calls = []
   for (let i = 0; i < address.length; i++) {
+    console.log(address[i], "address[i]")
     const tokenContract = new Contract(address[i], TokenLockAbi)
     calls.push(tokenContract.lockInfo())
     calls.push(tokenContract.owner())
