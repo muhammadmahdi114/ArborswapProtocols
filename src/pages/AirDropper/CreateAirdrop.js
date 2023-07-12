@@ -4,9 +4,11 @@ import AirdropPanel from '../../components/Airdropper/CreateAirdrop/AirdropPanel
 import BaseLayout from '../../components/BaseLayout/BaseLayout'
 import { useDocumentTitle } from '../../hooks/setDocumentTitle'
 import AirplaneSVG from '../../svgs/Sidebar/airplane'
+import { useEthers } from '@usedapp/core'
 
 export default function CreateAirdrop() {
     useDocumentTitle('Create Airdrop')
+    const {account}=useEthers()
     const initAirdropState = {
         name: '',
         isValid: false,
@@ -26,6 +28,7 @@ export default function CreateAirdrop() {
         github: '',
         userBalance: '',
         userAllowance: '0',
+        owner : account,
     }
     const [airdropData, setAirdropData] = useState({ ...initAirdropState, showLanding: true, showDetails: false })
     return (

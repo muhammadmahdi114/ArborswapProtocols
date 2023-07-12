@@ -5,13 +5,17 @@ import AdminPanel from "./Admin";
 import { formatUnits } from "ethers/lib/utils";
 import useAirdropInfo from "hooks/useAirdropInfo";
 import { useParams } from "react-router-dom";
+import { getTokenInfo } from "utils/tokenInfo";
+import { useEthers } from "@usedapp/core";
+import { getAirdropInfos } from "utils/getAirdropList";
 
 export default function AirdropPageBase({
-  tokenInfo,
+  // tokenInfo,
   status,
   airdrop,
   showModal,
   admin,
+  info,
 }) {
   const [upcoming] = useState(true);
   const [whitelisted] = useState(false);
@@ -20,9 +24,9 @@ export default function AirdropPageBase({
   const [time, setTime] = useState();
   const [remaining, setRemaining] = useState(0);
   const [filledPerc, setFilledPerc] = useState(0);
-  const { id } = useParams();
-  
-  const airdropInfo = useAirdropInfo(id);
+  const[tokenInfo, setTokenInfo] = useState();
+  const { chainId } = useEthers();
+  const airdropInfo = useAirdropInfo(airdrop.airdropAddress);
   console.log("airdropInfo", airdropInfo);
 
   function handleSetRemaining(allocation) {
@@ -35,12 +39,21 @@ export default function AirdropPageBase({
     if (typeof airdropInfo == "undefined") {
       return;
     }
-
+    async function getTokenInfo() {
+      const tokenInfos = await getAirdropInfos(chainId, [
+        airdrop.airdropAddress,
+      ]);
+      setTokenInfo(tokenInfos);
+    }
+    getTokenInfo();
+    if(!tokenInfo){
+      return;
+    }
     let totalAmountNumber = Number(
-      formatUnits(airdropInfo.totalAmountToAirdrop, 18)
+      formatUnits(tokenInfo.data[0].info.totalAmountToAirdrop, 18)
     );
     let totalDistributedNumber = Number(
-      formatUnits(airdropInfo.totalAmountDistributed, 18)
+      formatUnits(tokenInfo.data[0].info.totalAmountDistributed, 18)
     );
     let remainingNum = totalAmountNumber - totalDistributedNumber;
     let filledPercNum = (remainingNum / totalAmountNumber) * 100;
@@ -48,7 +61,7 @@ export default function AirdropPageBase({
     setTotalDistributed(totalDistributedNumber);
     setRemaining(remainingNum);
     setFilledPerc(filledPercNum);
-  }, [airdropInfo]);
+  }, [airdropInfo,tokenInfo]);
 
   useEffect(() => {
     if (typeof airdropInfo == "undefined") {
@@ -58,11 +71,11 @@ export default function AirdropPageBase({
     var date;
     var formattedTime;
 
-    if (airdropInfo.startTime.toNumber() === 0) {
+    if (info.createdAt===0) {
       date = "";
       formattedTime = "Not started yet";
     } else {
-      date = new Date(airdrop.info.startTime.toNumber() * 1000);
+      date = new Date(info.createdAt);
 
       const year = date.getFullYear(); // get year (e.g. 2021)
       let month = date.getMonth() + 1; // get month (note: month is zero-indexed in JavaScript, so add 1 to get the correct month)
@@ -101,23 +114,22 @@ export default function AirdropPageBase({
       setTime(formattedTime);
     }
   }, [airdropInfo]);
-
   return (
     airdrop && (
       <div className="w-full flex justify-center">
         <div className="w-full px-4 md:px-0 md:flex md:w-10/12 md:gap-7">
           <div className="w-full md:w-[65%] bg-white dark:bg-dark-1 rounded-[10px]">
             <Preview
-              name={airdrop.info.description[7]}
-              icon={airdrop.info.description[0]}
-              is_private={airdrop.info.isPrivate}
+              name={airdrop.name}
+              icon={airdrop.image}
+              is_private={airdrop.type === "private"}
               airdrop={airdrop}
-              tags={["Web3", "nn"]}
-              description={airdrop.info.description[1]}
+              tags={airdrop.tags.split(",")}
+              description={airdrop.description}
               address={airdrop.address}
-              tokenAddress={airdrop.info.token}
+              tokenAddress={airdrop.tokenAddress}
               starts_on={time}
-              ends_on={airdrop.info.startTime.toNumber()}
+              ends_on={info.createdAt}
               admin={admin}
             />
           </div>
@@ -125,16 +137,16 @@ export default function AirdropPageBase({
           <div className="mt-14 md:mt-0 md:w-[35%] ">
             {admin ? (
               <AdminPanel
-                symbol={tokenInfo.symbol}
+                symbol={airdrop.tokenSymbol}
                 airdrop={airdrop}
-                whitelist_address={airdrop.info.numberWLAddresses.toNumber()}
-                participants={airdrop.info.numberOfParticipants.toNumber()}
+                // whitelist_address={airdrop.info.numberWLAddresses.toNumber()}
+                // participants={airdrop.info.numberOfParticipants.toNumber()}
                 amount={totalAmount}
                 allocated={1}
                 showModal={showModal}
                 upcoming={upcoming}
-                Private={airdrop.info.isPrivate}
-                started={airdrop.started}
+                Private={airdrop.type === "private"}
+                // started={airdrop.started}
               />
             ) : (
               <UserPanel

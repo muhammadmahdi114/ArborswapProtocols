@@ -24,14 +24,14 @@ export default function Info({ icon, name, is_private, tags, admin, airdrop }) {
           </div>
 
           <div className="flex items-center mt-2">
-            {/* {tags.map((tag) => (
+            {tags.map((tag) => (
               <div
-                key={tag.id}
+                key={tag}
                 className="bg-[#F5F1EB] dark:bg-dark-3 mr-[6px] py-[2px] px-[10px] rounded text-xs text-gray dark:text-gray-dark font-medium"
               >
-                {tag.name}
+                {tag}
               </div>
-            ))} */}
+            ))}
           </div>
         </div>
       </div>
@@ -46,8 +46,8 @@ export default function Info({ icon, name, is_private, tags, admin, airdrop }) {
         :
         <div className="flex items-center gap-5">
           {
-            airdrop.info.description[3] !== "" &&
-            <a href={airdrop.info.description[3]} target="_blank" className='hidden md:block'>
+            airdrop.linkedin !== "" &&
+            <a href={airdrop.linkedin} target="_blank" className='hidden md:block'>
               <LinkedinSVG
                 className="w-5 h-5"
                 outer={`${theme === "dark" ? "#fff" : "#464754"}`}
@@ -55,18 +55,18 @@ export default function Info({ icon, name, is_private, tags, admin, airdrop }) {
               />            
               </a>
           }
-          {airdrop.info.description[4] !== "" &&
-            <a href={airdrop.info.description[4]} target="_blank">
+          {airdrop.twitter !== "" &&
+            <a href={airdrop.twitter} target="_blank">
               <TwitterSVG className="fill-dark-text dark:fill-light-text hidden md:block" />
             </a>
           }
-          {airdrop.info.description[5] !== "" &&
-            <a href={airdrop.info.description[5]} target="_blank">
+          {airdrop.dribble &&
+            <a href={airdrop.dribble} target="_blank">
               <DribbleSVG className="fill-dark-text dark:fill-light-text hidden md:block" />
             </a>
           }
-          {airdrop.info.description[6] !== "" &&
-            <a href={airdrop.info.description[6]} target="_blank" className='hidden md:block'>
+          {airdrop.github !== "" &&
+            <a href={airdrop.github} target="_blank" className='hidden md:block'>
               <GithubSVG
                 className="w-5 h-5"
                 outer={`${theme === "dark" ? "#fff" : "#464754"}`}

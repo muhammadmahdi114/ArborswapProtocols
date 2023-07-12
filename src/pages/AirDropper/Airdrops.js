@@ -41,6 +41,7 @@ export default function Airdrops() {
   const [timedList, setTimedList] = useState([]);
   const [liveList, setLiveList] = useState([]);
   const [publicList, setPublicList] = useState([]);
+  const [filteredAirdrops, setFilteredAirdrops] = useState([]);
   const chainId = useDefaultChainId();
 
   const getAirdropListFromBackend = async () => {
@@ -57,31 +58,11 @@ export default function Airdrops() {
     openLoadingModal();
     try {
       const airdrops = await getAirdropListFromBackend();
-      // console.log("airdropsBack", airdropsBack);
-      // const airdropsBack = await getAirdropList(chainId);
-      // console.log("airdrops", airdrops.data,airdropsBack.data)
-      const publicAirdrops = await getPublicAirdrops(chainId, airdrops.data);
-      const sortedAirdrops = await sortAirdrops(chainId, airdrops.data);
-      let timed = sortedAirdrops.data.timed;
-      let live = sortedAirdrops.data.live;
-      let ended = sortedAirdrops.data.ended;
-      if (publicAirdrops.success) {
-        setPublicList(publicAirdrops.data);
-      }
+ 
+  
+ 
       if (airdrops) {
-        const infoTimed = await getAirdropInfos(chainId, timed);
-        const infoLive = await getAirdropInfos(chainId, live);
-        const infoEnded = await getAirdropInfos(chainId, ended);
-
-        if (infoTimed.success) {
-          setTimedList(infoTimed.data);
-        }
-        if (infoLive.success) {
-          setLiveList(infoLive.data);
-        }
-        if (infoEnded.success) {
-          setEndedList(infoEnded.data);
-        }
+        setLiveList(airdrops.data)
       }
       closeLoadingModal();
       setReady(true);
@@ -109,10 +90,10 @@ export default function Airdrops() {
       >
         {ready ? (
           <AirdropsBase
-            publicList={publicList}
             timedList={timedList}
-            endedList={endedList}
             liveList={liveList}
+            endedList={endedList}
+            publicList={publicList}
             activeTab={activeTab}
           />
         ) : (

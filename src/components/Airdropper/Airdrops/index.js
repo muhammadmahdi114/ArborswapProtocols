@@ -3,7 +3,7 @@ import AirdropCard from 'components/Airdropper/AirdropPage/AirdropCard.js';
 
 export default function AirdropsBase({ publicList, endedList, timedList, liveList, activeTab }) {
 
-    
+    console.log(liveList, "liveList inairdropbase")
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
             {activeTab === 3 &&
@@ -13,7 +13,7 @@ export default function AirdropsBase({ publicList, endedList, timedList, liveLis
                 timedList.map((airdrop, index) => <AirdropCard key={index} data={airdrop} status={activeTab} privateCard={airdrop.info.isPrivate}/>)}   
 
             {activeTab === 1 &&
-                liveList.map((airdrop, index) => <AirdropCard key={index} data={airdrop} status={activeTab} privateCard={airdrop.info.isPrivate}/>)} 
+                liveList.map((airdrop, index) => <AirdropCard key={index} data={airdrop.airdrop} status={activeTab} privateCard={airdrop.airdrop.type==="Private"}id={airdrop._id}/>)} 
         </div>
     )
 }
