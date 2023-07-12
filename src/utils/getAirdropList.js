@@ -96,6 +96,7 @@ export const getAirdropStatus = async (chainId, address) => {
       data: result,
     }
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       data: result,

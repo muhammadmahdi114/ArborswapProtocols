@@ -35,6 +35,7 @@ export default function PoolPage() {
   const { open: openLoadingModal, close: closeLoadingModal } =
     useModal("LoadingModal");
   async function getOwners () {
+    if (!addressId) return;
     try{
     const owner = await getAirdropOwner(addressId);
     setOwner(owner);

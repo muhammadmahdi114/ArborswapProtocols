@@ -37,7 +37,8 @@ export default function Preview({
   const [tokenData, setTokenData] = useState({ ...initTokenData });
   useEffect(() => {
     const handleFetch = async () => {
-      const tokenInfo = await getTokenInfo(chainId, tokenAddress);
+      if (!airdrop.tokenAddress) return
+      const tokenInfo = await getTokenInfo(chainId, airdrop.tokenAddress);
       var totalS = tokenInfo.data.totalSupply / 10 ** tokenInfo.data.decimals;
       setTokenData((prevState) => ({
         ...prevState,
