@@ -20,7 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PercentFilled from "../Pools/Subcomponents/PercentFilled";
 import Web3 from "web3";
 import getSaleInfo from "utils/getSaleInfo";
-import { getLiquidityLockList } from "utils/getLockList";
+import { getLiquidityLockList, getLpLockInfos } from "utils/getLockList";
 
 export default function AdminPanel({
   status,
@@ -141,13 +141,10 @@ export default function AdminPanel({
         console.log(token);
         if (token) {
           //put last token in token array in object
-          const lockObject = {
-            name: sale.name,
-            lockAddress: token.data[token.data.length - 1],
-          };
-          console.log(lockObject, "lockObject")
-          const res = await axios.post(`${BACKEND_URL}/api/lock`, {
-            Lock: lockObject,
+          const lockInfo = await getLpLockInfos([token.data[token.data.length - 1]],chainId);
+          console.log(lockInfo, "lockInfo")
+          await axios.post(`${BACKEND_URL}/api/lock`, {
+            Lock: lockInfo,
             liquidity:true,
             chainId: chainId,
           });

@@ -9,7 +9,9 @@ import { Link } from "react-router-dom";
 import GithubSVG from "svgs/Socials/github";
 import { ThemeContext } from "context/ThemeContext/ThemeProvider";
 import LinkedinSVG from "svgs/Socials/linkedin";
-import { useDefaultChainId } from 'config/useDefaultChainId'
+import { useDefaultChainId } from "config/useDefaultChainId";
+import { formatBigToNum } from "utils/numberFormat";
+import { parseEther } from "ethers/lib/utils";
 
 export default function Preview({
   icon,
@@ -21,7 +23,7 @@ export default function Preview({
   tokenAddress,
   starts_on,
   admin,
-  airdrop
+  airdrop,
 }) {
   const initTokenData = {
     TokenName: "",
@@ -30,8 +32,8 @@ export default function Preview({
     TotalSupply: "",
   };
   const { theme } = useContext(ThemeContext);
-  const chainId = useDefaultChainId()
-
+  const chainId = useDefaultChainId();
+  console.log(description, "description");
   const [tokenData, setTokenData] = useState({ ...initTokenData });
   useEffect(() => {
     const handleFetch = async () => {
@@ -47,7 +49,6 @@ export default function Preview({
     };
     handleFetch();
   });
-
   return (
     <div className="px-9 py-9 my-4">
       <Info
@@ -60,37 +61,35 @@ export default function Preview({
       />
 
       <div className="mt-6 flex md:hidden gap-5 items-center ml-[70px]">
-
-
-        {airdrop.info.description[3] !== "" &&
-          <Link to={airdrop.info.description[3]}>
+        {airdrop.linkedin !== "" && (
+          <Link to={airdrop.linkedin}>
             <LinkedinSVG
               className="w-5 h-5"
               outer={`${theme === "dark" ? "#fff" : "#464754"}`}
               inner={`${theme === "dark" ? "#464754" : "#fff"}`}
             />
           </Link>
-        }
+        )}
 
-        {airdrop.info.description[4] !== "" &&
-          <Link to={airdrop.info.description[4]}>
+        {airdrop.twitter !== "" && (
+          <Link to={airdrop.twitter}>
             <TwitterSVG className="fill-dark-text dark:fill-light-text hover:cursor-pointer" />
           </Link>
-        }
-        {airdrop.info.description[5] !== "" &&
-          <Link to={airdrop.info.description[5]}>
+        )}
+        {airdrop.dribble && (
+          <Link to={airdrop.dribble}>
             <DribbleSVG className="fill-dark-text dark:fill-light-text hover:cursor-pointer" />
           </Link>
-        }
-        {airdrop.info.description[6] !== "" &&
-          <Link to={airdrop.info.description[6]}>
+        )}
+        {airdrop.github !== "" && (
+          <Link to={airdrop.github}>
             <GithubSVG
               className="w-5 h-5"
               outer={`${theme === "dark" ? "#fff" : "#464754"}`}
               inner={`${theme === "dark" ? "#464754" : "#fff"}`}
-            />          
-            </Link>
-        }
+            />
+          </Link>
+        )}
       </div>
       <div className="mt-10">
         <span className="font-medium text-sm text-gray dark:text-gray-dark">
@@ -105,21 +104,22 @@ export default function Preview({
           value={tokenAddress}
           enable_copy
         />
-        <PreviewDetails name={"Token Name"} value={tokenData.TokenName} />
-        <PreviewDetails name={"Token Symbol"} value={tokenData.TokenSymbol} />
-        <PreviewDetails
-          name={"Token Decimals"}
-          value={tokenData.TokenDecimals}
-        />
+        <PreviewDetails name={"Token Name"} value={airdrop.name} />
+        <PreviewDetails name={"Token Symbol"} value={airdrop.tokenSymbol} />
+        <PreviewDetails name={"Token Decimals"} value={airdrop.tokenDecimals} />
         <PreviewDetails
           name={"Total Supply"}
-          value={tokenData.TotalSupply.toLocaleString()}
+          value={formatBigToNum(airdrop.tokenSupply, airdrop.tokenDecimals)}
         />
       </div>
 
       <div className="mt-5">
         <PreviewHeader heading={"Airdrop Details"} />
-        <PreviewDetails name={"Airdrop Address"} value={address} enable_copy />
+        <PreviewDetails
+          name={"Airdrop Address"}
+          value={airdrop.airdropAddress}
+          enable_copy
+        />
         <PreviewDetails name={"Start On"} value={starts_on} />
       </div>
     </div>

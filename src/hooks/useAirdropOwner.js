@@ -4,26 +4,15 @@ import { Contract } from '@ethersproject/contracts'
 
 
 import { useCall} from "@usedapp/core"
+import Web3 from 'web3'
 
 
-function useAirdropOwner(airdropAddress) {
-
-  const { value, error } =
-    useCall(
-      {
-        contract: new Contract(airdropAddress, PublicAirdropAbi),
-        method: "owner",
-        args: [],
-      },
-      {
-        refresh: "never",
-      }
-    ) ?? {}
-  if (error) {
-    
-    return error
-  }
-  return value
+async function getAirdropOwner(airdropAddress) {
+  await window.ethereum.enable();
+  const web3 = new Web3(window.ethereum);
+  const contract = new web3.eth.Contract(PublicAirdropAbi, airdropAddress);
+  const owner = await contract.methods.owner().call();
+  return owner;
 }
 
-export default useAirdropOwner
+export default getAirdropOwner

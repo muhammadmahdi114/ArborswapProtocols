@@ -18,10 +18,9 @@ const AdminPanel = ({
     showModal,
     Private
 }) => {
-    const { id } = useParams()
-    const isCancelled = useAirdropIsCancelled(id);
-    const isStarted = useAirdropIsStarted(id);
-    const isEmpty = useAirdropIsEmpty(id);
+    const isCancelled = useAirdropIsCancelled(airdrop.airdropAddress);
+    const isStarted = useAirdropIsStarted(airdrop.airdropAddress);
+    const isEmpty = useAirdropIsEmpty(airdrop.airdropAddress);
     const [status, setStatus] = useState('');
     const [numberOfClaims, setNumberOfclaims] = useState(0);
     const [numberOfRemainingClaims, setNumberOfRemainingClaims] = useState(0);
@@ -38,7 +37,7 @@ const AdminPanel = ({
         (async () => {
           try {
     
-            const publicAirdropInfos = await getPublicAirdropsInfos(chainId, [id]);
+            const publicAirdropInfos = await getPublicAirdropsInfos(chainId, airdrop.airdropAddress)
             const numberOfClaimsNum = formatUnits(publicAirdropInfos.data[0][1], 0)
             const numberOfRemainingClaimsNum = formatUnits(publicAirdropInfos.data[0][2], 0)
             const claimSizeNum = formatUnits(publicAirdropInfos.data[0][0], 18)
@@ -80,7 +79,7 @@ const AdminPanel = ({
         }
     
         
-    }, [isCancelled, isStarted, isEmpty, id])
+    }, [isCancelled, isStarted, isEmpty,airdrop])
 
     
 

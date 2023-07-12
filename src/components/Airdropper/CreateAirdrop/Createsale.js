@@ -21,7 +21,7 @@ export default function Createsale({
   setActive,
   amount,
 }) {
-  const { library, chainId } = useEthers();
+  const { library, chainId ,account} = useEthers();
   const [modal, showModal] = useState(0);
   const [error, setError] = useState();
 
