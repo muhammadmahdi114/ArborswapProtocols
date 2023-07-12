@@ -44,7 +44,7 @@ export default function LockedAsset({ type }) {
             setReady(true);
             return;
           } else {
-            navigate("/locked-assets");
+            // navigate("/locked-assets");
           }
         }
         if (!active) {

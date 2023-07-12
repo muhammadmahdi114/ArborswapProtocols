@@ -55,8 +55,15 @@ export default function Locker() {
       }
       const infoLp = await fetchLp();
       console.log("liquidityInfo", infoLp);
-      if (infoLp.success) {
-        setLiquidityList(infoLp.data);
+      if (infoLp) {
+        for (let i = 0; i < infoLp.data.length; i++) {
+          setLiquidityList((prev) => [
+            ...prev,
+            {
+              ...infoLp.data[i].lock,
+            },
+          ]);
+        }
       }
       closeLoadingModal();
       setReady(true);
@@ -64,10 +71,10 @@ export default function Locker() {
       console.log("error", error);
     }
   };
-
+  console.log(liquidityList, "liquidityList")
   useEffect(() => {
     handleFetch();
-  }, [chainId]);
+  }, []);
   return (
     <BaseLayout
       title={"Locker"}

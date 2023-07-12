@@ -21,7 +21,7 @@ export default function Card({ data, token }) {
   const getTokenData = async () => {
     if (!token) {
       console.log("LP token")
-      const tempData = await getLpInfo(data.info.token);
+      const tempData = await getLpInfo(data.token);
       setTokenData(tempData.data);
     } else {
       const tempData = await getTokenInfo(chainID,data.info.token);
@@ -32,10 +32,10 @@ export default function Card({ data, token }) {
   const fetchAmount = async () => {
     await window.ethereum.enable();
     const web3 = new Web3(window.ethereum);
-    const contract = new web3.eth.Contract(ERC20Abi, data.info.token);
+    const contract = new web3.eth.Contract(ERC20Abi, data.token);
     const decimals = await contract.methods.decimals().call();
 
-    const amount = formatUnits(data.info.amount, decimals);
+    const amount = formatUnits(data.amount, decimals);
     setAmount(amount);
   };
 
@@ -47,8 +47,12 @@ export default function Card({ data, token }) {
   }, [data, token]);
   console.log(tokenData, "tokenData")
   const unlockDate = useMemo(() => {
-    setDate(moment.unix(data.info.unlockDate.toNumber()));
-    return moment.unix(data.info.unlockDate.toNumber()).format("YYYY-MM-DD");
+    console.log(data.unlockDate, "unlockDate");
+    //hex to unix
+    const unix = moment.unix(data.unlockDate.hex);
+    console.log(unix, "unix");
+    setDate(moment.unix(data.unlockDate.hex))
+    return moment.unix(data.unlockDate.hex).format("YYYY-MM-DD");
   }, [data]);
 
   return (
@@ -59,7 +63,7 @@ export default function Card({ data, token }) {
             <div className="flex items-center">
               <TokenImage
                 className="w-10 h-10 relative z-10"
-                src={data.info.logoImage}
+                src={data.logoImage}
                 alt="BLANK"
               />
               {tokenData && tokenData.token1?.symbol === "WBNB" ? (
