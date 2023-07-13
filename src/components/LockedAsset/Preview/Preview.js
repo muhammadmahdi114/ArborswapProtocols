@@ -51,9 +51,8 @@ export default function Preview({ type, asset, tokenInfo, lpInfo,setEdit ,isAdmi
   }, [asset])
 
   const unlockDate = useMemo(() => {
-    const num=formatBigToNum(asset?.unlockDate)
-    console.log(num,"num")
-    return moment.unix(num*1000).format('YYYY-MM-DD')
+
+    return moment.unix(asset?.unlockDate.hex).format('YYYY-MM-DD')
   }, [asset])
 
   const handleEdit = () => {

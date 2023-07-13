@@ -108,7 +108,7 @@ export default function Amount({ type, asset, tokenInfo, lpInfo }) {
         </span>
       </div>
 
-      {/* <Timer date={asset?.unlockDate?.toNumber() * 1000} /> */}
+      <Timer date={asset?.unlockDate?.hex * 1000} />
     </div>
   );
 }
