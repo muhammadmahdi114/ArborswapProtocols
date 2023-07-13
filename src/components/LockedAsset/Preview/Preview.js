@@ -7,6 +7,7 @@ import Web3 from 'web3'
 import ERC20Abi from '../../../config/abi/ERC20.json'
 import { formatUnits } from 'ethers/lib/utils'
 import TokenImage from 'components/Common/TokenImage'
+import { formatBigToNum } from 'utils/numberFormat'
 
 
 export default function Preview({ type, asset, tokenInfo, lpInfo,setEdit ,isAdmin}) {
@@ -24,13 +25,13 @@ export default function Preview({ type, asset, tokenInfo, lpInfo,setEdit ,isAdmi
     }
     return `${lpInfo?.token0?.symbol}/${lpInfo?.token1?.symbol}`
   }, [type, tokenInfo, lpInfo])
-
+  console.log(lpInfo,"preview")
   const fetchAmount = async () => {
     await window.ethereum.enable();
     const web3 = new Web3(window.ethereum);
-    const contract = new web3.eth.Contract(ERC20Abi, asset.info.token);
+    const contract = new web3.eth.Contract(ERC20Abi, asset.token.data.token0.address);
     const decimals = await contract.methods.decimals().call();
-    const amount = formatUnits(asset.info.amount, decimals);
+    const amount = formatUnits(asset.amount, decimals);
     setAmount(amount);
   }
 
@@ -50,7 +51,9 @@ export default function Preview({ type, asset, tokenInfo, lpInfo,setEdit ,isAdmi
   }, [asset])
 
   const unlockDate = useMemo(() => {
-    return moment.unix(asset?.info?.unlockDate?.toNumber()).format('YYYY-MM-DD')
+    const num=formatBigToNum(asset?.unlockDate)
+    console.log(num,"num")
+    return moment.unix(num*1000).format('YYYY-MM-DD')
   }, [asset])
 
   const handleEdit = () => {
@@ -63,7 +66,7 @@ export default function Preview({ type, asset, tokenInfo, lpInfo,setEdit ,isAdmi
         <div className="flex items-center">
           {lpInfo && asset &&
             <div className="flex items-center">
-              <TokenImage className="w-10 h-10 relative z-10" src={asset.info.logoImage} alt="BLANK" />
+              <TokenImage className="w-10 h-10 relative z-10" src={asset.logoImage} alt="BLANK" />
               {lpInfo && lpInfo.token1.symbol === "WBNB" ?
                 <img className="w-8 h-8 -ml-5 mr-3 relative z-0" src="/images/cards/bnb.svg" alt="BNB" />
                 : null
