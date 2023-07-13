@@ -12,8 +12,7 @@ export default function List({ data, token = false }) {
   const [date, setDate] = useState(null)
   const [amount, setAmount] = useState(null)
   const getTokenData = async () => {
-    const tempData = await getLpInfo(data.token)
-    setTokenData(tempData.data)
+    setTokenData(data.token.data)
   }
 
   const fetchAmount = async () => {

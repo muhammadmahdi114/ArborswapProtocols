@@ -17,10 +17,10 @@ export default function Amount({ type, asset, tokenInfo, lpInfo }) {
   const [owner, setOwner] = useState(null);
   const amount = useMemo(() => {
     return asset && tokenInfo
-      ? formatUnits(asset?.info?.amount, tokenInfo?.decimals) * 1
+      ? formatUnits(asset?.amount, tokenInfo?.decimals) * 1
       : 0;
   }, [asset, tokenInfo]);
-
+  console.log(asset,"amount")
   const getOwner= async () => {
     const contract = new Contract(
       asset.address,
@@ -73,7 +73,7 @@ export default function Amount({ type, asset, tokenInfo, lpInfo }) {
           <div className="flex items-center">
             <TokenImage
               className="w-10 h-10 relative z-10"
-              src={asset.info.logoImage}
+              src={asset.logoImage}
               alt="BLANK"
             />
             {lpInfo && lpInfo.token1.symbol === "WBNB" ? (
@@ -94,7 +94,7 @@ export default function Amount({ type, asset, tokenInfo, lpInfo }) {
       <div className="flex mt-10">
         <button
           onClick={handleClaim}
-          disabled={asset.info.isWithdrawn}
+          disabled={asset.isWithdrawn}
           className="w-full cursor-pointer bg-primary-green bg-opacity-100 hover:bg-opacity-90 disabled:bg-opacity-60  rounded-md text-white dark:text-white font-bold py-4"
         >
           Claim
@@ -108,7 +108,7 @@ export default function Amount({ type, asset, tokenInfo, lpInfo }) {
         </span>
       </div>
 
-      <Timer date={asset?.info?.unlockDate?.toNumber() * 1000} />
+      <Timer date={asset?.unlockDate?.hex * 1000} />
     </div>
   );
 }

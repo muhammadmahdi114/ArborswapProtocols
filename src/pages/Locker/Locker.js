@@ -19,7 +19,7 @@ export default function Locker() {
   const [ready, setReady] = useState(false);
   const [tokenList, setTokenList] = useState([]);
   const [liquidityList, setLiquidityList] = useState([]);
-
+  const [id, setId] = useState(null);
   const chainId = useDefaultChainId();
   console.log("chainId", chainId);
   const { open: openLoadingModal, close: closeLoadingModal } =
@@ -60,6 +60,7 @@ export default function Locker() {
           setLiquidityList((prev) => [
             ...prev,
             {
+              ...infoLp.data[i],
               ...infoLp.data[i].lock,
             },
           ]);

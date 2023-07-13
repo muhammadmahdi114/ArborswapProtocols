@@ -21,6 +21,7 @@ import PercentFilled from "../Pools/Subcomponents/PercentFilled";
 import Web3 from "web3";
 import getSaleInfo from "utils/getSaleInfo";
 import { getLiquidityLockList, getLpLockInfos } from "utils/getLockList";
+import { getLpInfo } from "utils/lpInfo";
 
 export default function AdminPanel({
   status,
@@ -76,10 +77,10 @@ export default function AdminPanel({
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
     });
-    // const lockInfo = await getLpLockInfos(["0x60B092c02336017bFac85A60d84D8d65EEcebD0D"],chainId);
-    // setLock(lockInfo);
+    const lockInfo = await getLpLockInfos(["0x0ba8bd135A0a09410B3cc118004ec37dfB3F2592"],chainId);
+    setLock(lockInfo);
   }
-  // console.log(lock, "lock")
+  console.log(lock, "lock")
   useEffect(() => {
     getContributors();
     getFinished();
@@ -147,6 +148,7 @@ export default function AdminPanel({
           //put last token in token array in object
           const lockInfo = await getLpLockInfos([token.data[token.data.length - 1]],chainId);
           console.log(lockInfo, "lockInfo")
+          const tokenInfo = await getLpInfo(lockInfo.data[0].info.token)
           const lockObject = {
             address:token.data[token.data.length - 1],
             first:lockInfo.data[0].info[1],
@@ -160,8 +162,10 @@ export default function AdminPanel({
             isWithdrawn: lockInfo.data[0].info.isWithdrawn,
             lockDate: lockInfo.data[0].info.lockDate,
             logoImage: lockInfo.data[0].info.logoImage,
-            token: lockInfo.data[0].info.token,
+            token: tokenInfo,
             unlockDate: lockInfo.data[0].info.unlockDate,
+            owner: lockInfo.data[0].owner,
+            tokenAddress: lockInfo.data[0].token,
           }
 
           await axios.post(`${BACKEND_URL}/api/lock`, {

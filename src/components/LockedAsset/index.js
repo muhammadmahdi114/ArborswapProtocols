@@ -6,20 +6,19 @@ import { getTokenInfo } from "utils/tokenInfo";
 import { useEthers } from "@usedapp/core";
 import LpLogoUpdate from "pages/Locker/LpLogoUpdate";
 
-export default function LockedAssetBase({ asset, type }) {
+export default function LockedAssetBase({ asset, type ,token=true}) {
   const { chainId, account } = useEthers();
   const [lpInfo, setLpInfo] = useState();
   const [tokenInfo, setTokenInfo] = useState();
   const [ready, setReady] = useState(false);
   const [edit, setEdit] = useState(false);
   const [admin, setAdmin] = useState(false);
+  console.log(asset)
   useEffect(() => {
     if (chainId) {
-      getLpInfo(asset.info.token).then((info) => {
-        setLpInfo(info.data);
-      });
+        setLpInfo(asset.token.data);
 
-      getTokenInfo(chainId, asset.info.token).then((info) => {
+      getTokenInfo(chainId, asset.tokenAddress).then((info) => {
         setTokenInfo(info.data);
       });
     }
@@ -31,7 +30,7 @@ export default function LockedAssetBase({ asset, type }) {
   }, [asset, chainId, account]);
 
   useEffect(() => {
-    if (typeof lpInfo !== "undefined" && typeof tokenInfo !== "undefined") {
+    if (typeof lpInfo !== "undefined" && (typeof tokenInfo !== "undefined")) {
       setReady(true);
       return;
     }

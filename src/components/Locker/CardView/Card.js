@@ -21,14 +21,13 @@ export default function Card({ data, token }) {
   const getTokenData = async () => {
     if (!token) {
       console.log("LP token")
-      const tempData = await getLpInfo(data.token);
-      setTokenData(tempData.data);
+      setTokenData(data.token.data);
     } else {
-      const tempData = await getTokenInfo(chainID,data.info.token);
+      const tempData = await getTokenInfo(chainID,data.tokenAddress);
       setTokenData(tempData.data);
     }
   };
-
+  console.log(data, "data in card")
   const fetchAmount = async () => {
     await window.ethereum.enable();
     const web3 = new Web3(window.ethereum);
@@ -54,7 +53,6 @@ export default function Card({ data, token }) {
     setDate(moment.unix(data.unlockDate.hex))
     return moment.unix(data.unlockDate.hex).format("YYYY-MM-DD");
   }, [data]);
-
   return (
     <div className="rounded-[20px] bg-white dark:bg-dark-1">
       <div className="px-6">
@@ -94,7 +92,7 @@ export default function Card({ data, token }) {
           </div>
           <Link
             to={`/locked-assets/${token ? "token" : "lp-token"}/${
-              data.address
+              token? data.address : data._id
             }`}
           >
             <div className="flex items-center">
