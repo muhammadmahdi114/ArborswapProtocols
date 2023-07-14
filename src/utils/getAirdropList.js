@@ -171,6 +171,7 @@ export const getUserParticipationPublic = async (chainId,address, account) => {
 }
 
 export const getAirdropInfos = async (chainId, address) => {
+  console.log(chainId, address,"getAirdropInfos")
   setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
   const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
@@ -211,6 +212,7 @@ export const getAirdropInfos = async (chainId, address) => {
 }
 
 export const getPublicAirdropsInfos = async (chainId, address) => {
+  console.log(chainId, address,"getPublicAirdropsInfos")
   setMulticallAddress(chainId, MULTICALL_ADDRESS[chainId])
   const provider = new ethers.providers.JsonRpcProvider(RPC_ADDRESS[chainId])
   const ethcallProvider = new Provider(provider)
@@ -232,6 +234,7 @@ export const getPublicAirdropsInfos = async (chainId, address) => {
       data: result,
     }
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       data: result,

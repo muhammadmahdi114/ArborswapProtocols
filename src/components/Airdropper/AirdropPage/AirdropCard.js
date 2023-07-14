@@ -21,6 +21,7 @@ export default function AirdropCard({ data, status, privateCard,id }) {
         const publicAirdropInfos = await getPublicAirdropsInfos(chainId, [
           data.airdropAddress,
         ]);
+        console.log(publicAirdropInfos, "publicAirdropInfos")
         const infos = await getAirdropInfos(chainId, [data.airdropAddress]);
         setInfos(infos.data[0]);
         const numberOfClaimsNum = formatUnits(publicAirdropInfos.data[0][1], 0);
@@ -30,6 +31,7 @@ export default function AirdropCard({ data, status, privateCard,id }) {
       }
     })();
   }
+  console.log(numberOfClaims, "numberOfClaims")
   const tags = data.tags.split(",");
   // let totalAmount = Number(formatUnits(data.info?.totalAmountToAirdrop, 18))
   useEffect(() => {
@@ -171,7 +173,7 @@ export default function AirdropCard({ data, status, privateCard,id }) {
             <div className="flex items-center justify-between mt-6">
               <div className="flex flex-col items-center justify-between">
                 <span className="text-xs font-medium text-gray dark:text-gray-dark">
-                  Number Of Claims.
+                  Selected Addr.
                 </span>
                 <span className="text-dark-text dark:text-light-text font-semibold">
                   {numberOfClaims==="-"?"-":Math.floor(numberOfClaims)}
