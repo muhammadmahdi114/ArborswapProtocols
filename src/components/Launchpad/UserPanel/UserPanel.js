@@ -10,7 +10,6 @@ import FairLaunchAbi from "../../../config/abi/FairlaunchSale.json";
 import FairLaunchErcAbi from "../../../config/abi/FairlaunchErcAbi.json";
 import useParticipated from "utils/getParticipated";
 import { formatBigToNum } from "utils/numberFormat";
-import ConfirmModal from "../Admin/subComponents/ConfirmModal";
 import { useModal } from "react-simple-modal-provider";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,7 +21,6 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
   const { account, library } = useEthers();
   const [allocated, setAllocated] = useState(0);
   const [bought, setBought] = useState(0);
-  const [showModal, setShowModal] = useState(false);
   const [tokensWithdrawn, setTokensWithdrawn] = useState(false);
   const participated = useParticipated(sale.saleAddress, account);
   const { open: openLoadingModal, close: closeLoadingModal } =
@@ -41,7 +39,6 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
 
   const withdrawTokens = async () => {
     openLoadingModal()
-    setShowModal(false);
     if (tokensWithdrawn) {
       toast.error("Tokens already withdrawn");
       closeLoadingModal()
@@ -95,6 +92,7 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
 
       }
       toast.success("Tokens Withdrawn");
+      window.location.reload();
     } catch (err) {
       toast.error("Transaction Failed");
       closeLoadingModal()
@@ -104,7 +102,6 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
 
   const withdrawParticipation = async () => {
     openLoadingModal()
-    setShowModal(false);
     if (participated[0] === false) {
       toast.error("You have not participated in this sale");
       return;
@@ -161,7 +158,7 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
 
         <div className="flex flex-col items-center">
           <span className="font-medium text-gray dark:text-gray-dark text-sm mt-5">
-            Available to Claim
+            {tokensWithdrawn?"You claimed":"Available to Claim"}
           </span>
 
           <div className="mt-3 flex">
@@ -171,21 +168,21 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
             </span>
           </div>
         </div>
-        {(status === "Ended" || isFinished) && (
+        {(status === "Ended" && isFinished) && (
           <div className="mt-7">
             <button
             disabled={tokensWithdrawn}
-              onClick={() => setShowModal(true)}
+              onClick={withdrawTokens}
               className="w-full bg-primary-green rounded-md text-white font-bold py-4 disabled:bg-dim-text "
             >
-              Withdraw
+              {tokensWithdrawn ? "Tokens Withdrawn" : "Withdraw Tokens"}
             </button>
           </div>
         )}
         {status !== "Ended" && sale.saleType === "fairlaunch" && (
           <div className="mt-7">
             <button
-              onClick={() => setShowModal(true)}
+              onClick={withdrawParticipation}
               className="w-full bg-primary-green rounded-md text-white font-bold py-4"
             >
               Withdraw
@@ -193,27 +190,6 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
           </div>
         )}
       </div>
-      {showModal && (
-        <ConfirmModal
-          //if sale is fairlaunch and not status is not Ended then withdrawParticipation else withdrawTokens
-          runFunction={
-            sale.saleType === "fairlaunch" && status !== "Ended"
-              ? withdrawParticipation
-              : withdrawTokens
-          }
-          title={
-            sale.saleType === "fairlaunch" && status !== "Ended"
-              ? "Withdraw Participation"
-              : "Withdraw Tokens"
-          }
-          description={
-            sale.saleType === "fairlaunch" && status !== "Ended"
-              ? "Are you sure you want to withdraw your participation?"
-              : "Are you sure you want to withdraw your tokens?"
-          }
-          setShowModal={setShowModal}
-        />
-      )}
     </>
   );
 }

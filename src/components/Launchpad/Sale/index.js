@@ -11,7 +11,6 @@ import FairLaunchAbi from "../../../config/abi/FairlaunchSale.json";
 import FairLaunchErcAbi from "../../../config/abi/FairlaunchErcAbi.json";
 import getSuccessPublic from "utils/successfulPublic";
 import useParticipated from "utils/getParticipated";
-import ConfirmModal from "../Admin/subComponents/ConfirmModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PercentFilled from "../Pools/Subcomponents/PercentFilled";
@@ -37,7 +36,6 @@ export default function SaleBox({
   isCancelled
 }) {
   const [filled_percent, setFilledPercent] = useState(0);
-  const [showModal2, setShowModal2] = useState(false);
   const { account, library } = useEthers();
   const [saleInfo, setSaleInfo] = useState(null);
   const saleSuccess = getSuccessPublic(presale_address);
@@ -234,7 +232,7 @@ export default function SaleBox({
           (saleSuccess[0] === false ? (
             <div className="mt-7">
               <button
-                onClick={() => setShowModal2(true)}
+                onClick={withdrawFunds}
                 className={`w-full ${
                   status === "Upcoming"
                     ? "bg-light dark:bg-dark text-dark-text dark:text-light-text"
@@ -252,14 +250,6 @@ export default function SaleBox({
           <Timer date={new Date(ends_on * 1000)} />
         )}
       </div>
-      {showModal2 && (
-        <ConfirmModal
-          runFunction={withdrawFunds}
-          title={"Withdraw Funds"}
-          description={"Are you sure you want to withdraw funds?"}
-          setShowModal={setShowModal2}
-        />
-      )}
     </>
   );
 }

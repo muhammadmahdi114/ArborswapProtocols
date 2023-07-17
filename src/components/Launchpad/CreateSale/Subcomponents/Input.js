@@ -5,7 +5,8 @@ import HeadingTags from "../../../TokenLocker/Subcomponents/HeadingTags";
 export default function Input({
   heading,
   tooltip,
-  icon,
+  icon1,
+  icon2,
   value,
   disabled,
   currencies,
@@ -39,10 +40,10 @@ export default function Input({
               src={currencies[currencySelected - 1].icon}
               alt="currency-icon"
             />
-          ) : icon ? (
+          ) : icon1 && icon2 ? (
             <img
               className="w-5 h-5"
-              src={icon}
+              src={dropdown ? icon2 : icon1}
               alt="currency-icon"
               onClick={() => {
                 setDropdown(!dropdown);
@@ -68,7 +69,9 @@ export default function Input({
               <div
                 key={index}
                 className="w-full text-white  py-3 flex border-b border-dashed border-dark-2 justify-center items-center hover:bg-white hover:text-dark-1"
-                onClick={() => changeState(item)}
+                onClick={() => {changeState(item)
+                  setDropdown(false);
+                }}
               >
                 {item}
               </div>

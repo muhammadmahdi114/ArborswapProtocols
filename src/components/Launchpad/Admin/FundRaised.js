@@ -15,24 +15,22 @@ import { toast } from "react-toastify";
 import { useEthers } from "@usedapp/core";
 import { Contract } from "ethers";
 
-
-export default function FundRaised({ icon, pool, status, sale }) {
+export default function FundRaised({ icon, pool, status, sale, isFinished }) {
   const { account, library } = useEthers();
-
+  console.log(isFinished, "poolstuff");
   const [saleInfo, setSaleInfo] = useState(null);
   const [Raised, setRaised] = useState(0);
   const [earningsWithdrawn, setEarningsWithdrawn] = useState(false);
   const { open: openLoadingModal, close: closeLoadingModal } =
     useModal("LoadingModal");
   async function getWithdrawn() {
-    try{
-    const saleInfo = await getSaleInfo(sale.saleAddress);
-    setEarningsWithdrawn(saleInfo.earningsWithdrawn);
-    console.log(saleInfo.earningsWithdrawn, "earningsWithdrawn");
+    try {
+      const saleInfo = await getSaleInfo(sale.saleAddress);
+      setEarningsWithdrawn(saleInfo.earningsWithdrawn);
+      console.log(saleInfo.earningsWithdrawn, "earningsWithdrawn");
     } catch (err) {
       console.log(err);
     }
-
   }
   const withdrawEarnings = async () => {
     if (earningsWithdrawn) {
@@ -95,6 +93,7 @@ export default function FundRaised({ icon, pool, status, sale }) {
         toast.success("Earnings withdrawn successfully");
       }
       closeLoadingModal();
+      window.location.reload();
     } catch (err) {
       console.log(err);
       setEarningsWithdrawn(true);
@@ -108,7 +107,7 @@ export default function FundRaised({ icon, pool, status, sale }) {
     console.log(result.totalBNBRaised, "FundRaised");
     const raised = BigNumber.from(result.totalBNBRaised);
     const percents = raised.mul(100).div(result.hardCap);
-    const newPercent = formatBigToNum(percents.toString(),0,1);
+    const newPercent = formatBigToNum(percents.toString(), 0, 1);
     setRaised(newPercent);
   }
   useEffect(() => {
@@ -127,19 +126,26 @@ export default function FundRaised({ icon, pool, status, sale }) {
         <img src={icon} alt="pool-icon" className="w-7 h-7 mr-2" />
         <div className="flex items-end">
           <span className="font-bold text-dark-text dark:text-light-text text-2xl">
-            {(sale.hardCap * (Raised / 100)).toFixed(4)}
+            {parseFloat((sale.hardCap * (Raised / 100)))}
           </span>
-          <span className="text-gray dark:text-gray-dark">&nbsp;(${sale.presalePrice*(sale.hardCap * (Raised / 100)).toFixed(4)})</span>
+          {earningsWithdrawn ? (
+            <span className="text-gray dark:text-gray-dark ml-2"> (Claimed)</span>
+          ) : (
+            <span className="text-gray dark:text-gray-dark">
+              &nbsp;($
+              {sale.presalePrice * (sale.hardCap * (Raised / 100)).toFixed(4)})
+            </span>
+          )}
         </div>
       </div>
 
       <div className="flex mt-10">
         <button
-        disabled={earningsWithdrawn?true:false}
-            onClick={withdrawEarnings}
-          className={`w-full rounded-md text-white font-bold py-4 ${earningsWithdrawn? "bg-gray-dark":"bg-gradient-to-r from-primary-green to-[#C89211]" }`}
+          disabled={earningsWithdrawn || !isFinished ? true : false}
+          onClick={withdrawEarnings}
+          className={`w-full rounded-md text-white font-bold py-4 disabled:bg-gray-dark bg-gradient-to-r from-primary-green to-[#C89211]`}
         >
-          Claim
+          {earningsWithdrawn ? "Earnings Claimed" : "Claim"}
         </button>
       </div>
     </div>
