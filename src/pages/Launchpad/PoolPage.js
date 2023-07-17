@@ -11,11 +11,12 @@ import Web3 from "web3";
 
 export default function PoolPage() {
   const { id } = useParams();
+  const { account } = useEthers();
   const [pool, setPool] = useState(null);
   const [modal, showModal] = useState(false);
   const [admin, setAdmin] = useState(false);
   const [adminMode, setAdminMode] = useState(false);
-  const [account, setAccount] = useState(null);
+  const [userAccount, setUserAccount] = useState(null);
   const [saleOwner, setSaleOwner] = useState(null);
   const { open: openLoadingModal, close: closeLoadingModal } =
     useModal("LoadingModal");
@@ -27,17 +28,21 @@ export default function PoolPage() {
     try {
       await window.ethereum.enable();
       const res = await web3.eth.getAccounts();
-      setAccount(res[0]);
+      setUserAccount(res[0]);
       if (res[0] === saleOwner) {
         setAdmin(true);
         setAdminMode(true);
+      }
+      else {
+        setAdmin(false);
+        setAdminMode(false);
       }
     } catch (e) {
       console.log(e);
     }
   }
   getAccount();
-  }, [saleOwner]);
+  }, [saleOwner,account]);
 
   useEffect(() => {
     //get pool data from api
@@ -70,7 +75,7 @@ export default function PoolPage() {
               to_symbol={pool.sale.token.tokenSymbol}
               token={pool.sale.token}
               sale={pool.sale}
-              account={account}
+              account={userAccount}
             />
           </div>
         )}

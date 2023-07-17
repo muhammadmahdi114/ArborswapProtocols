@@ -12,7 +12,6 @@ import FairLaunchErcAbi from "../../../config/abi/FairlaunchErcAbi.json";
 import { BACKEND_URL } from "config/constants/LaunchpadAddress";
 import axios from "axios";
 import getSuccessPublic from "utils/successfulPublic";
-import ConfirmModal from "./subComponents/ConfirmModal";
 import getIsFinished from "utils/getFinished";
 import { useModal } from "react-simple-modal-provider";
 import { toast } from "react-toastify";
@@ -35,8 +34,6 @@ export default function AdminPanel({
 }) {
   console.log(status);
   const { library, chainId } = useEthers();
-  const [showModal, setShowModal] = useState(false);
-  const [showModalCancel, setShowModalCancel] = useState(false);
   const [isFinished, setIsFinished] = useState(null);
   const [saleInfo, setSaleInfo] = useState(null);
   const[lock, setLock] = useState(null);
@@ -92,7 +89,6 @@ export default function AdminPanel({
       toast.error("Please switch to appropriate network");
       return;
     }
-    setShowModal(false);
     openLoadingModal();
     let contract;
 
@@ -204,7 +200,6 @@ export default function AdminPanel({
       toast.error("Please switch to appropriate network");
       return;
     }
-    setShowModal(false);
     openLoadingModal();
     let contract;
 
@@ -454,7 +449,7 @@ export default function AdminPanel({
           <div className="mt-7">
             <button
               onClick={() => {
-                setShowModal(true);
+                finalizeSale();
               }}
               className={`w-full ${
                 status === "Upcoming"
@@ -472,7 +467,7 @@ export default function AdminPanel({
           <div className="mt-7">
             <button
               onClick={() => {
-                setShowModalCancel(true);
+                cancelSale();
               }}
               className={`w-full ${
                 status === "Upcoming"
@@ -490,29 +485,6 @@ export default function AdminPanel({
           </span>
         )}
       </div>
-
-      {showModal && (
-        // in this pass withdrawEarnings function if saleInfo is not null and true
-        // else pass finalizeSale function
-
-        <ConfirmModal
-          runFunction={finalizeSale}
-          title={"Finalize Sale"}
-          description={"Are you sure you want to finalize the sale?"}
-          setShowModal={setShowModal}
-        />
-      )}
-      {showModalCancel && (
-        // in this pass withdrawEarnings function if saleInfo is not null and true
-        // else pass finalizeSale function
-
-        <ConfirmModal
-          runFunction={cancelSale}
-          title={"Cancel Sale"}
-          description={"Are you sure you want to cancel the sale?"}
-          setShowModal={setShowModalCancel}
-        />
-      )}
     </>
   );
 }

@@ -48,7 +48,6 @@ export default function PoolPageBase({ pool, visible, showModal, admin,objId ,is
       }
     } 
   }, [pool])
-
   return (
     pool && (
       <div className="w-full flex justify-center">
@@ -93,7 +92,7 @@ export default function PoolPageBase({ pool, visible, showModal, admin,objId ,is
             {
               admin && (pool.status === 'Ended'|| visible===false) &&
               <div className='mt-[30px]'>
-                <FundRaised icon={pool.image} pool = {pool} status={pool.status} sale={pool}/>
+                <FundRaised icon={pool.image} pool = {pool} status={pool.status} sale={pool} isFinished={isFinished}/>
               </div>
             }
             {pool.saleType !== 'private' && !admin && 
