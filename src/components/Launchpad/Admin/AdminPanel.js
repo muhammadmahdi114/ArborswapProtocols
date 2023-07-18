@@ -32,11 +32,10 @@ export default function AdminPanel({
   objId,
   cancelled,
 }) {
-  console.log(status);
   const { library, chainId } = useEthers();
   const [isFinished, setIsFinished] = useState(null);
   const [saleInfo, setSaleInfo] = useState(null);
-  const[lock, setLock] = useState(null);
+  const [lock, setLock] = useState(null);
   const [contributors, setContributors] = useState(null);
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [whiteListedAddresses, setWhiteListedAddresses] = useState([""]);
@@ -45,13 +44,23 @@ export default function AdminPanel({
     useModal("LoadingModal");
 
   const getContributors = async () => {
-    const contract = new Contract(
-      sale.saleAddress,
-      PublicSaleAbi,
-      library.getSigner()
-    );
-    const contributors = await contract.numberOfParticipants();
-    setContributors(contributors.toNumber());
+    try {
+      let abi;
+      if (sale.saleType === "standard") {
+        abi = PublicSaleAbi;
+      } else if (sale.saleType === "private") {
+        abi = PrivateSaleAbi;
+      }
+      const contract = new Contract(
+        sale.saleAddress,
+        abi,
+        library.getSigner()
+      );
+      const contributors = await contract.numberOfParticipants();
+      setContributors(contributors.toNumber());
+    } catch (err) {
+      console.log(err,"ahahahah");
+    }
   };
   console.log(finished, "finished");
   const handleAddressChange = (newValue) => {
@@ -74,15 +83,17 @@ export default function AdminPanel({
     const res = await getSuccessPublic(sale.saleAddress).then((res) => {
       setSaleInfo(res);
     });
-    const lockInfo = await getLpLockInfos(["0x0ba8bd135A0a09410B3cc118004ec37dfB3F2592"],chainId);
+    const lockInfo = await getLpLockInfos(
+      ["0x0ba8bd135A0a09410B3cc118004ec37dfB3F2592"],
+      chainId
+    );
     setLock(lockInfo);
   }
-  console.log(lock, "lock")
+  console.log(lock, "lock");
   useEffect(() => {
     getContributors();
     getFinished();
     getCurrentSaleInfo();
-    
   }, []);
   const finalizeSale = async () => {
     if (chainId !== sale.chainID) {
@@ -142,17 +153,20 @@ export default function AdminPanel({
         console.log(token);
         if (token) {
           //put last token in token array in object
-          const lockInfo = await getLpLockInfos([token.data[token.data.length - 1]],chainId);
-          console.log(lockInfo, "lockInfo")
-          const tokenInfo = await getLpInfo(lockInfo.data[0].info.token)
+          const lockInfo = await getLpLockInfos(
+            [token.data[token.data.length - 1]],
+            chainId
+          );
+          console.log(lockInfo, "lockInfo");
+          const tokenInfo = await getLpInfo(lockInfo.data[0].info.token);
           const lockObject = {
-            address:token.data[token.data.length - 1],
-            first:lockInfo.data[0].info[1],
-            second:lockInfo.data[0].info[2],
-            third:lockInfo.data[0].info[3],
-            fourth:lockInfo.data[0].info[4],
-            fifth:lockInfo.data[0].info[5],
-            sixth:lockInfo.data[0].info[6],
+            address: token.data[token.data.length - 1],
+            first: lockInfo.data[0].info[1],
+            second: lockInfo.data[0].info[2],
+            third: lockInfo.data[0].info[3],
+            fourth: lockInfo.data[0].info[4],
+            fifth: lockInfo.data[0].info[5],
+            sixth: lockInfo.data[0].info[6],
             amount: lockInfo.data[0].info.amount,
             isVesting: lockInfo.data[0].info.isVesting,
             isWithdrawn: lockInfo.data[0].info.isWithdrawn,
@@ -162,11 +176,11 @@ export default function AdminPanel({
             unlockDate: lockInfo.data[0].info.unlockDate,
             owner: lockInfo.data[0].owner,
             tokenAddress: lockInfo.data[0].token,
-          }
+          };
 
           await axios.post(`${BACKEND_URL}/api/lock`, {
             Lock: lockObject,
-            liquidity:true,
+            liquidity: true,
             chainId: chainId,
           });
         }
@@ -403,6 +417,7 @@ export default function AdminPanel({
               address={sale.saleAddress}
               isFinished={finished}
               isCancelled={cancelled}
+              saleType={sale.saleType}
             />
           </div>
         )}

@@ -28,6 +28,7 @@ export default function PoolPageBase({ pool, visible, showModal, admin,objId ,is
   const getLiquidTokens = async (saleAddress) => {
     const web3 = new Web3(window.ethereum);
       try{
+        if (pool.saleType==="private") return
         const sale = new web3.eth.Contract(SaleAbi, saleAddress);
         const liquidityTokens = await sale.methods.tokensAmountForLiquidity().call();
         setLiquidityTokens(liquidityTokens)

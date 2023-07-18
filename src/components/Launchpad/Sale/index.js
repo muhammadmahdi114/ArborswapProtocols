@@ -42,7 +42,7 @@ export default function SaleBox({
   const participated = useParticipated(presale_address, account);
   console.log(whitelisting && !whitelistedUser, "whitelisting");
   useEffect(() => {
-    const result = getSaleInfo(presale_address).then((res) => {
+    const result = getSaleInfo(presale_address,sale.saleType).then((res) => {
       setSaleInfo(res);
     });
   }, []);
@@ -165,6 +165,7 @@ export default function SaleBox({
           showModal={showModal}
           isFinished={isFinished}
           isCancelled={isCancelled}
+          saleType={sale.saleType}
         />
         {/* if sale is upcoming then show countdown */}
 

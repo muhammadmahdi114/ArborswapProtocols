@@ -133,6 +133,7 @@ export default function PoolsBase({ pools, loading }) {
                   item={pool}
                   isCancelled={pool.isCancelled}
                   isFinished={pool.isFinished}
+                  saleType = {pool.sale.saleType}
                 />
 
                 <div className="flex items-center justify-between mt-6">
