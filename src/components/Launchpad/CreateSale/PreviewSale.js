@@ -43,11 +43,11 @@ export default function PreviewSale({
     useModal("LoadingModal");
 
   async function calcMax() {
-    const result = await getCalcMax(saleObject, token)
+    const result = await getCalcMax(saleObject, token,chainId,saleType)
     setMax(result)
   }
   async function getFee() {
-    const res = await getDeploymentFeePublic()
+    const res = await getDeploymentFeePublic(saleType)
     setDeployFee(res)
     setDeploymentFee(ethers.utils.formatEther(res))
   }
@@ -65,7 +65,7 @@ export default function PreviewSale({
       console.log(err);
     }
   }, [max]);
-
+  console.log(saleObject, "saleObject")
   useEffect(() => {}, [startTime]);
   const chainId = useDefaultChainId();
   useEffect(() => {
@@ -147,6 +147,7 @@ export default function PreviewSale({
     } else if (saleType === "private") {
       let finalSaleObject;
       if (saleObject.currency.name === "Binance") {
+        console.log( "private sale", "binance")
         finalSaleObject = await deployPrivateSale(
           token,
           saleObject,
@@ -154,6 +155,7 @@ export default function PreviewSale({
           account,
           deploymentFee,
           saleData,
+          chainId,
           closeLoadingModal
         );
       } else {
@@ -164,6 +166,7 @@ export default function PreviewSale({
           account,
           deploymentFee,
           saleData,
+          chainId,
           closeLoadingModal
         );
       }

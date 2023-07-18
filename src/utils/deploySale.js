@@ -592,6 +592,7 @@ export const deployPrivateSale = async (
   account,
   deploymentFee,
   saleData,
+  chainId,
   closeLoadingModal
 ) => {
   const contract = new Contract(
@@ -602,17 +603,29 @@ export const deployPrivateSale = async (
   const adminAddress = ADMIN_ADDRESS;
 
   const saleId = await contract.getNumberOfSalesDeployed();
-
+    console.log(saleObject)
   try {
     const tx = await contract.deployNormalPrivateSale(
-      [adminAddress, account],
+      [adminAddress,token.tokenAddress, account],
       [
         parseEther(Number(saleObject.minAllocation).toString()).toString(),
         parseEther(Number(saleObject.maxAllocation).toString()).toString(),
+        parseUnits(
+          saleObject.presalePrice.toString(),
+          token.tokenDecimals
+        ).toString(),
         saleObject.endDate,
         saleObject.startDate,
         parseEther(Number(saleObject.hardCap).toString()).toString(),
         parseEther(Number(saleObject.softCap).toString()).toString(),
+        100,
+      ],
+      [saleObject.endDate*60, saleObject.endDate*90, saleObject.endDate*120, saleObject.endDate*150],
+      [
+        parseFloat(saleObject.percent1),
+        parseFloat(saleObject.percent2),
+        parseFloat(saleObject.percent3),
+        parseFloat(saleObject.percent4),
       ],
       { value: utils.parseEther(deploymentFee) }
     );
@@ -625,6 +638,7 @@ export const deployPrivateSale = async (
       saleAddress: deployedAddress,
       saleType: saleData.type,
       github: saleData.github,
+      chainID: chainId,
       website: saleData.website,
       twitter: saleData.twitter,
       linkedin: saleData.linkedin,
@@ -638,6 +652,7 @@ export const deployPrivateSale = async (
       firstRelease: saleObject.firstRelease,
       minAllocation: saleObject.minAllocation,
       maxAllocation: saleObject.maxAllocation,
+      presalePrice: saleObject.presalePrice,
       endDate: saleObject.endDate,
       startDate: saleObject.startDate,
       hardCap: saleObject.hardCap,
@@ -651,6 +666,7 @@ export const deployPrivateSale = async (
 
     return finalSaleObject;
   } catch (error) {
+    console.log(error);
     alert("Transaction Failed");
     closeLoadingModal();
   }
@@ -663,6 +679,7 @@ export const deployPrivateErSale = async (
   account,
   deploymentFee,
   saleData,
+  chainId,
   closeLoadingModal
 ) => {
   const contract = new Contract(
@@ -705,6 +722,7 @@ export const deployPrivateErSale = async (
       saleAddress: deployedAddress,
       saleType: saleData.type,
       github: saleData.github,
+      chainID: chainId,
       website: saleData.website,
       twitter: saleData.twitter,
       linkedin: saleData.linkedin,

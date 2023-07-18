@@ -98,6 +98,10 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
   const { account, library } = useEthers();
   const [enoughBalance, setEnoughBalance] = useState(false);
   const [whiteListedAddresses, setWhiteListedAddresses] = useState([""]);
+  const [percent1, setPercent1] = useState(0);
+  const [percent2, setPercent2] = useState(0);
+  const [percent3, setPercent3] = useState(0);
+  const [percent4, setPercent4] = useState(0);
   // const [whiteListedDates, setWhiteListedDates] = useState([]);
 
   const { open: openLoadingModal, close: closeLoadingModal } =
@@ -189,7 +193,11 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
         return;
       }
     }
-
+    let total = parseFloat(percent1)+parseFloat(percent2)+parseFloat(percent3)+parseFloat(percent4);
+    if(saleType==="private"&&total!==100){
+      toast.error("Percentages should add up to 100");
+      return;
+    }
     //if white list then set white list dates and addresses else error
     // if (whiteisting) {
     //   if (whiteListedAddresses.length > whiteListedDates.length) {
@@ -201,7 +209,7 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
       toast.error("Insufficient Balance!");
       return;
     }
-    if (amountLiquidity < 51 || amountLiquidity === undefined) {
+    if (saleType==="standard"&&(amountLiquidity < 51 || amountLiquidity === undefined)) {
       toast.error("Liquidity should be greater than 50%");
       return;
     }
@@ -210,24 +218,25 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
       toast.error("Listing rate can't be more than presale rate");
       return;
     }
-    if (
-      lockup === undefined ||
-      maxAllocation === undefined ||
-      minAllocation === undefined ||
-      hardCap === undefined ||
-      softCap === undefined ||
-      presalePrice === undefined ||
-      endDate === undefined ||
-      startDate === undefined ||
-      amountLiquidity === undefined ||
-      listing === undefined
-    ) {
-      toast.error("Please fill all the fields");
-      return;
-    }
+
     let res = false;
     openLoadingModal();
     if (saleType === "standard") {
+      if (
+        lockup === undefined ||
+        maxAllocation === undefined ||
+        minAllocation === undefined ||
+        hardCap === undefined ||
+        softCap === undefined ||
+        presalePrice === undefined ||
+        endDate === undefined ||
+        startDate === undefined ||
+        amountLiquidity === undefined ||
+        listing === undefined
+      ) {
+        toast.error("Please fill all the fields");
+        return;
+      }
       if (currencySelected === 1) {
         if (chainId === 56) {
           res = await approveTokens(library, token, BSC_PUBLIC_FACTORYADDRESS);
@@ -277,6 +286,10 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
       isFinished: false,
       whiteListedAddresses: whiteListedAddresses,
       // whiteListedDates: whiteListedDates,
+      percent1: percent1,
+      percent2: percent2,
+      percent3: percent3,
+      percent4: percent4,
     };
 
     setSaleObject(presaleObject);
@@ -408,7 +421,7 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
 
         <PreviewHeader heading={"Presale Details"} />
 
-        {saleType === "standard" && (
+        {(saleType === "standard"||saleType === "private" ) && (
           <>
             <Input
               heading={"Presale Price"}
@@ -616,6 +629,38 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
               setVestingPeriod={setVestingPeriod}
               setVestingRelease={setVestingRelease}
             />
+            <PreviewHeader heading={"Vesting Portions"} />
+            <div className="mt-10">
+              <Input 
+                heading={"Vesting Portion 1"}
+                changeState={setPercent1}
+                tooltip={"Enter the percentage of tokens to be released in the first vesting period"}
+                placeholder={"0"}
+                nothing={true}
+              />
+              < Input
+                heading={"Vesting Portion 2"}
+                changeState={setPercent2}
+                tooltip={"Enter the percentage of tokens to be released in the second vesting period"}
+                placeholder={"0"}
+                nothing={true}
+              />
+              <Input
+                heading={"Vesting Portion 3"}
+                changeState={setPercent3}
+                tooltip={"Enter the percentage of tokens to be released in the third vesting period"}
+                placeholder={"0"}
+                nothing={true}
+              />
+              <Input
+                heading={"Vesting Portion 4"}
+                changeState={setPercent4}
+                tooltip={"Enter the percentage of tokens to be released in the fourth vesting period"}
+                placeholder={"0"}
+                nothing={true}
+              />
+            </div>
+
           </div>
         )}
         {saleType === "standard" && (

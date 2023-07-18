@@ -6,12 +6,12 @@ import { formatBigToNum } from "utils/numberFormat";
 import axios from "axios";
 import { BACKEND_URL } from "config/constants/LaunchpadAddress";
 
-export default function PercentFilled({ address, setFilled = () => {}, item, showModal,isFinished,isCancelled }) {
+export default function PercentFilled({ address, setFilled = () => {}, item, showModal,isFinished,isCancelled,saleType }) {
   const [filled_percent, setFilledPercent] = useState("0");
   const [saleInfo, setSaleInfo] = useState(null);
   const [priceInBNB, setPriceInBNB] = useState(null);
   useEffect(() => {
-    const result = getSaleInfo(address).then((res) => {
+    const result = getSaleInfo(address,saleType).then((res) => {
       setSaleInfo(res);
     });
   }, [showModal]);

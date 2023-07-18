@@ -43,7 +43,7 @@ export default function Modal({
   const { open: openLoadingModal, close: closeLoadingModal } =
   useModal("LoadingModal");
   // const sale_info_public_erc = usePublicErcSaleInfo(sale.saleAddress);
-
+  console.log(sale,"saleis")
   let account = "";
   const [balanceBNB, setBalanceBNB] = useState(null);
   const [balance, setBalance] = useState(0);
@@ -208,7 +208,7 @@ export default function Modal({
   const handleSubmit = async () => {
     //user balanceBNB
     //check if sale started
-    bought = await getAmountParticipated(sale.saleAddress);
+    bought = await getAmountParticipated(sale.saleAddress,acct,sale.saleType);
     const userAllocation = formatBigToNum(bought[0].toString(), 18, 4);
     if (userAllocation >= sale.maxAllocation) {
       toast.error("You have reached the maximum allocation");

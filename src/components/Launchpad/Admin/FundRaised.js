@@ -25,7 +25,7 @@ export default function FundRaised({ icon, pool, status, sale, isFinished }) {
     useModal("LoadingModal");
   async function getWithdrawn() {
     try {
-      const saleInfo = await getSaleInfo(sale.saleAddress);
+      const saleInfo = await getSaleInfo(sale.saleAddress,sale.saleType);
       setEarningsWithdrawn(saleInfo.earningsWithdrawn);
       console.log(saleInfo.earningsWithdrawn, "earningsWithdrawn");
     } catch (err) {
@@ -102,7 +102,7 @@ export default function FundRaised({ icon, pool, status, sale, isFinished }) {
     }
   };
   async function getInfo() {
-    const result = await getSaleInfo(pool.saleAddress);
+    const result = await getSaleInfo(pool.saleAddress,pool.saleType);
     setSaleInfo(result);
     console.log(result.totalBNBRaised, "FundRaised");
     const raised = BigNumber.from(result.totalBNBRaised);

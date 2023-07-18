@@ -46,6 +46,7 @@ export default function SaleBox({ icon, sale, status, isFinished, isCancelled })
     }
     if (participated[0] === false) {
       toast.error("You have not participated in this sale");
+      closeLoadingModal()
       return;
     }
     let contract;
