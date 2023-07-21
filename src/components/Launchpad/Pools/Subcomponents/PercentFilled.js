@@ -6,19 +6,29 @@ import { formatBigToNum } from "utils/numberFormat";
 import axios from "axios";
 import { BACKEND_URL } from "config/constants/LaunchpadAddress";
 
-export default function PercentFilled({ address, setFilled = () => {}, item, showModal,isFinished,isCancelled,saleType }) {
+export default function PercentFilled({ address, setFilled = () => {}, item, showModal,isFinished,isCancelled,saleType,sale }) {
   const [filled_percent, setFilledPercent] = useState("0");
   const [saleInfo, setSaleInfo] = useState(null);
   const [priceInBNB, setPriceInBNB] = useState(null);
   useEffect(() => {
-    const result = getSaleInfo(address,saleType).then((res) => {
+    if (!sale) return;
+    console.log(sale.currency.symbol)
+    const result = getSaleInfo(address,saleType,sale.currency.symbol).then((res) => {
+      console.log(res,sale,"saleingooo")
       setSaleInfo(res);
     });
-  }, [showModal]);
+  }, [showModal,sale]);
   // console.log(sale)
   async function getPrice() {
     if (!saleInfo) return;
-    const res = await saleInfo.totalBNBRaised;
+    let res
+    if(sale.saleType === "standard"){
+    res = await saleInfo.totalBNBRaised;
+    }
+    else if(sale.saleType === "private"){
+    res = await saleInfo.totalERC20Raised;
+    }
+    console.log(res,"in get price")
     const temp = BigNumber.from(res);
     setPriceInBNB(temp);
   }

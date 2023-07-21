@@ -400,7 +400,6 @@ export default function Presale({ setActive, saleType, setSaleObject, token }) {
     setWhiteisting(!whiteisting);
     setTempFixed(!tempfixed);
   };
-
   return (
     <>
       <div className="w-full">

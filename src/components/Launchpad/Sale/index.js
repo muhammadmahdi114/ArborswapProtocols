@@ -166,6 +166,7 @@ export default function SaleBox({
           isFinished={isFinished}
           isCancelled={isCancelled}
           saleType={sale.saleType}
+          sale={sale}
         />
         {/* if sale is upcoming then show countdown */}
 

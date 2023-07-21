@@ -131,6 +131,7 @@ export default function PoolsBase({ pools, loading }) {
                 <PercentFilled
                   address={pool.sale.saleAddress}
                   item={pool}
+                  sale = {pool.sale}
                   isCancelled={pool.isCancelled}
                   isFinished={pool.isFinished}
                   saleType = {pool.sale.saleType}

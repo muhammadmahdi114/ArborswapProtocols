@@ -20,6 +20,7 @@ import {
   PublicErc_FACTORYADRESS,
   PrivateErc_FACTORYADRESS,
   FairLaunchErc_FACTORYADRESS,
+  BSC_PUBLIC_ERC_FACTORYADDRESS,
 } from "config/constants/LaunchpadAddress";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { ethers, utils } from "ethers";
@@ -44,6 +45,12 @@ export const approveTokens = async (library, token, factoryContractAddress) => {
   }
   return true;
 };
+
+// Public sale
+/* formating break to find functions easily
+
+
+*/
 
 export const deployPublicSaleMainnet = async (
   token,
@@ -359,6 +366,13 @@ export const deployPublicSaleTestnet = async (
     alert("Transaction Failed");
   }
 };
+
+// Public ERC
+/* formating break to find functions easily
+
+
+*/
+
 export const deployPublicSaleERCTestnet = async (
   token,
   saleObject,
@@ -471,6 +485,8 @@ export const deployPublicSaleERCTestnet = async (
   }
 };
 
+
+
 export const deployPublicSaleERCMainnet = async (
   token,
   saleObject,
@@ -481,21 +497,21 @@ export const deployPublicSaleERCMainnet = async (
   chainId,
   closeLoadingModal
 ) => {
+  console.log(chainId, "chainId")
   if (chainId !== 56) {
     alert("Please connect to BSC Mainnet");
     return;
   }
-  alert('Released soon')
-  return;
+  console.log("this is public erc mainnet, chainId", chainId)
   const contract = new Contract(
-    BSC_PUBLIC_FACTORYADDRESS,
+    BSC_PUBLIC_ERC_FACTORYADDRESS,
     PublicErcAbi,
     library.getSigner()
   );
 
   const saleId = await contract.getNumberOfSalesDeployed();
 
-  const routerAddress = ROUTER_ADDRESS;
+  const routerAddress = BSC_ROUTER_ADDRESS;
   const adminAddress = ADMIN_ADDRESS;
   let PaymentToken = "";
   if (saleObject.currency.name === "Tether") {
@@ -585,6 +601,12 @@ export const deployPublicSaleERCMainnet = async (
   }
 };
 
+// PRIVATE SALE
+/* formating break to find functions easily
+
+
+*/
+
 export const deployPrivateSale = async (
   token,
   saleObject,
@@ -595,6 +617,10 @@ export const deployPrivateSale = async (
   chainId,
   closeLoadingModal
 ) => {
+  if(chainId!==97){
+    alert("Please connect to BSC Testnet");
+    return;
+  }
   const contract = new Contract(
     Private_FACTORYADRESS,
     PrivateAbi,
@@ -672,7 +698,8 @@ export const deployPrivateSale = async (
   }
 };
 
-export const deployPrivateErSale = async (
+
+export const deployPrivateSaleMainnet = async (
   token,
   saleObject,
   library,
@@ -682,34 +709,41 @@ export const deployPrivateErSale = async (
   chainId,
   closeLoadingModal
 ) => {
+  if(chainId!==97){
+    alert("Please connect to BSC Testnet");
+    return;
+  }
   const contract = new Contract(
-    PrivateErc_FACTORYADRESS,
-    PrivateErcAbi,
+    Private_FACTORYADRESS,
+    PrivateAbi,
     library.getSigner()
   );
   const adminAddress = ADMIN_ADDRESS;
-  const routerAddress = ROUTER_ADDRESS;
-  let PaymentToken = "";
-  if (saleObject.currency.name === "Tether") {
-    PaymentToken = USDT_ADDRESS;
-  } else if (saleObject.currency.name === "Gnosis") {
-    PaymentToken = USDC_ADDRESS;
-  } else if (saleObject.currency.name === "Roburna") {
-    PaymentToken = RBA_ADDRESS;
-  }
 
   const saleId = await contract.getNumberOfSalesDeployed();
-
+    console.log(saleObject)
   try {
-    const tx = await contract.deployPrivateSaleERC20(
-      [routerAddress, adminAddress, token.tokenAddress, account, PaymentToken],
+    const tx = await contract.deployNormalPrivateSale(
+      [adminAddress,token.tokenAddress, account],
       [
-        parseEther(saleObject.minAllocation.toString()).toString(),
-        parseEther(saleObject.maxAllocation.toString()).toString(),
+        parseEther(Number(saleObject.minAllocation).toString()).toString(),
+        parseEther(Number(saleObject.maxAllocation).toString()).toString(),
+        parseUnits(
+          saleObject.presalePrice.toString(),
+          token.tokenDecimals
+        ).toString(),
         saleObject.endDate,
         saleObject.startDate,
-        parseEther(saleObject.hardCap.toString()).toString(),
-        parseEther(saleObject.softCap.toString()).toString(),
+        parseEther(Number(saleObject.hardCap).toString()).toString(),
+        parseEther(Number(saleObject.softCap).toString()).toString(),
+        100,
+      ],
+      [saleObject.endDate*60, saleObject.endDate*90, saleObject.endDate*120, saleObject.endDate*150],
+      [
+        parseFloat(saleObject.percent1),
+        parseFloat(saleObject.percent2),
+        parseFloat(saleObject.percent3),
+        parseFloat(saleObject.percent4),
       ],
       { value: utils.parseEther(deploymentFee) }
     );
@@ -736,6 +770,223 @@ export const deployPrivateErSale = async (
       firstRelease: saleObject.firstRelease,
       minAllocation: saleObject.minAllocation,
       maxAllocation: saleObject.maxAllocation,
+      presalePrice: saleObject.presalePrice,
+      endDate: saleObject.endDate,
+      startDate: saleObject.startDate,
+      hardCap: saleObject.hardCap,
+      softCap: saleObject.softCap,
+      currency: saleObject.currency,
+      dex: saleObject.dex,
+      whiteisting: saleObject.whiteisting,
+      owner: account,
+      isFinished: false,
+    };
+
+    return finalSaleObject;
+  } catch (error) {
+    console.log(error);
+    alert("Transaction Failed");
+    closeLoadingModal();
+  }
+};
+
+// PRIVATE SALE ERC
+/* formating break to find functions easily
+
+
+*/
+
+
+export const deployPrivateErcSale = async (
+  token,
+  saleObject,
+  library,
+  account,
+  deploymentFee,
+  saleData,
+  chainId,
+  closeLoadingModal
+) => {
+  if (chainId !== 97) {
+    alert("Please connect to BSC testnet");
+    return;
+  }
+  const contract = new Contract(
+    PrivateErc_FACTORYADRESS,
+    PrivateErcAbi,
+    library.getSigner()
+  );
+  const adminAddress = ADMIN_ADDRESS;
+  // const routerAddress = ROUTER_ADDRESS;
+  let PaymentToken = "";
+  if (saleObject.currency.name === "Tether") {
+    PaymentToken = USDT_ADDRESS;
+  } else if (saleObject.currency.name === "Gnosis") {
+    PaymentToken = USDC_ADDRESS;
+  } else if (saleObject.currency.name === "Roburna") {
+    PaymentToken = RBA_ADDRESS;
+  }
+
+  const saleId = await contract.getNumberOfSalesDeployed();
+  console.log(saleId.toNumber(), "saleId")
+  console.log("private erc")
+  console.log([adminAddress,token.tokenAddress, account,PaymentToken],"first array")
+  console.log([
+    parseEther(Number(saleObject.minAllocation).toString()).toString(),
+    parseEther(Number(saleObject.maxAllocation).toString()).toString(),
+    parseUnits(
+      saleObject.presalePrice.toString(),
+      token.tokenDecimals
+    ).toString(),
+    saleObject.endDate,
+    saleObject.startDate,
+    parseEther(Number(saleObject.hardCap).toString()).toString(),
+    parseEther(Number(saleObject.softCap).toString()).toString(),
+  ],"second array")
+  console.log({ value: utils.parseEther(deploymentFee) },"third array")
+  try {
+    const tx = await contract.deployERC20PrivateSale(
+      [adminAddress,token.tokenAddress, account,PaymentToken],
+      [
+        parseEther(Number(saleObject.minAllocation).toString()).toString(),
+        parseEther(Number(saleObject.maxAllocation).toString()).toString(),
+        parseUnits(
+          saleObject.presalePrice.toString(),
+          token.tokenDecimals
+        ).toString(),
+        saleObject.endDate,
+        saleObject.startDate,
+        parseEther(Number(saleObject.hardCap).toString()).toString(),
+        parseEther(Number(saleObject.softCap).toString()).toString(),
+        100,
+      ],
+      [saleObject.endDate*60, saleObject.endDate*90, saleObject.endDate*120, saleObject.endDate*150],
+      [
+        parseFloat(saleObject.percent1),
+        parseFloat(saleObject.percent2),
+        parseFloat(saleObject.percent3),
+        parseFloat(saleObject.percent4),
+      ],      { value: utils.parseEther(deploymentFee) }
+    );
+    await tx.wait();
+
+    const deployedAddress = await contract.saleIdToAddress(saleId.toNumber());
+
+    const finalSaleObject = {
+      saleId: saleId.toNumber(),
+      saleAddress: deployedAddress,
+      saleType: saleData.type,
+      github: saleData.github,
+      chainID: chainId,
+      website: saleData.website,
+      twitter: saleData.twitter,
+      linkedin: saleData.linkedin,
+      discord: saleData.discord,
+      telegram: saleData.telegram,
+      image: saleData.image,
+      name: saleData.name,
+      description: saleData.description,
+      tags: saleData.tags,
+      token: token,
+      firstRelease: saleObject.firstRelease,
+      minAllocation: saleObject.minAllocation,
+      maxAllocation: saleObject.maxAllocation,
+      presalePrice: saleObject.presalePrice,
+      endDate: saleObject.endDate,
+      startDate: saleObject.startDate,
+      hardCap: saleObject.hardCap,
+      softCap: saleObject.softCap,
+      currency: saleObject.currency,
+      dex: saleObject.dex,
+      whiteisting: saleObject.whiteisting,
+      owner: account,
+      isFinished: false,
+    };
+
+    return finalSaleObject;
+  } catch (error) {
+    alert("Transaction Failed");
+    console.log(error)
+    closeLoadingModal();
+  }
+};
+export const deployPrivateErcSaleMainnet = async (
+  token,
+  saleObject,
+  library,
+  account,
+  deploymentFee,
+  saleData,
+  chainId,
+  closeLoadingModal
+) => {
+  if (chainId !== 56) {
+    alert("Please connect to BSC mainnet");
+    return;
+  }
+  const contract = new Contract(
+    PrivateErc_FACTORYADRESS,
+    PrivateErcAbi,
+    library.getSigner()
+  );
+  const adminAddress = ADMIN_ADDRESS;
+  const routerAddress = BSC_ROUTER_ADDRESS;
+  let PaymentToken = "";
+  if (saleObject.currency.name === "Tether") {
+    PaymentToken = USDT_ADDRESS;
+  } else if (saleObject.currency.name === "Gnosis") {
+    PaymentToken = USDC_ADDRESS;
+  } else if (saleObject.currency.name === "Roburna") {
+    PaymentToken = RBA_ADDRESS;
+  }
+
+  const saleId = await contract.getNumberOfSalesDeployed();
+
+  try {
+    const tx = await contract.deployERC20PrivateSale(
+      [routerAddress, adminAddress, token.tokenAddress, account, PaymentToken],
+      [
+        parseEther(saleObject.minAllocation.toString()).toString(),
+        parseEther(saleObject.maxAllocation.toString()).toString(),
+        saleObject.endDate,
+        saleObject.startDate,
+        parseEther(saleObject.hardCap.toString()).toString(),
+        parseEther(saleObject.softCap.toString()).toString(),
+        100,
+      ],
+      [saleObject.endDate*60, saleObject.endDate*90, saleObject.endDate*120, saleObject.endDate*150],
+      [
+        parseFloat(saleObject.percent1),
+        parseFloat(saleObject.percent2),
+        parseFloat(saleObject.percent3),
+        parseFloat(saleObject.percent4),
+      ],
+      { value: utils.parseEther(deploymentFee) }
+    );
+    await tx.wait();
+
+    const deployedAddress = await contract.saleIdToAddress(saleId.toNumber());
+
+    const finalSaleObject = {
+      saleId: saleId.toNumber(),
+      saleAddress: deployedAddress,
+      saleType: saleData.type,
+      github: saleData.github,
+      chainID: chainId,
+      website: saleData.website,
+      twitter: saleData.twitter,
+      linkedin: saleData.linkedin,
+      discord: saleData.discord,
+      telegram: saleData.telegram,
+      image: saleData.image,
+      name: saleData.name,
+      description: saleData.description,
+      tags: saleData.tags,
+      token: token,
+      firstRelease: saleObject.firstRelease,
+      minAllocation: saleObject.minAllocation,
+      maxAllocation: saleObject.maxAllocation,
+      presalePrice: saleObject.presalePrice,
       endDate: saleObject.endDate,
       startDate: saleObject.startDate,
       hardCap: saleObject.hardCap,
@@ -753,6 +1004,14 @@ export const deployPrivateErSale = async (
     closeLoadingModal();
   }
 };
+
+
+
+// Fairlaunch onwards
+/* formating break to find functions easily
+
+
+*/
 
 export const deployFairLaunchSale = async (
   token,

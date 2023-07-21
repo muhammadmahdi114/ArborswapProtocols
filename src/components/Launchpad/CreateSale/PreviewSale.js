@@ -15,9 +15,10 @@ import {
   deployFairLaunchSale,
   deployPublicSaleERCMainnet,
   deployFairLaunchSaleERC20,
-  deployPrivateErSale,
+  deployPrivateErcSale,
   deployPublicSaleTestnet,
   deployPublicSaleERCTestnet,
+  deployPrivateSaleMainnet,
 } from "utils/deploySale";
 import axios from "axios";
 import { BACKEND_URL } from "config/constants/LaunchpadAddress";
@@ -148,6 +149,7 @@ export default function PreviewSale({
       let finalSaleObject;
       if (saleObject.currency.name === "Binance") {
         console.log( "private sale", "binance")
+        if(chainId === 97) {
         finalSaleObject = await deployPrivateSale(
           token,
           saleObject,
@@ -158,8 +160,21 @@ export default function PreviewSale({
           chainId,
           closeLoadingModal
         );
+        }
+        else {
+          finalSaleObject = await deployPrivateSaleMainnet(
+            token,
+            saleObject,
+            library,
+            account,
+            deploymentFee,
+            saleData,
+            chainId,
+            closeLoadingModal
+          );
+        }
       } else {
-        finalSaleObject = await deployPrivateErSale(
+        finalSaleObject = await deployPrivateErcSale(
           token,
           saleObject,
           library,
