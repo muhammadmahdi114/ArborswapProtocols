@@ -414,6 +414,7 @@ export default function AdminPanel({
             </div>
 
             <PercentFilled
+              sale = {sale}
               address={sale.saleAddress}
               isFinished={finished}
               isCancelled={cancelled}

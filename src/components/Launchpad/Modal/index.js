@@ -87,6 +87,7 @@ export default function Modal({
     console.log("currenct address", sale.currency.address);
     console.log(acct, "acct");
     if (sale.currency.symbol !== "BNB") {
+      console.log(sale.currency.address, "sale.currency.address")
       const contract = new Contract(
         sale.currency.address,
         ERC20,
@@ -94,6 +95,7 @@ export default function Modal({
       );
       const getBalance = async () => {
         try{
+          if(!acct) return;
         const balance = await contract.balanceOf(acct);
         const balanceString = (formatBigToNum(balance, 18));
         setBalance(parseFloat(balanceString.replace(/,/g, '')))
