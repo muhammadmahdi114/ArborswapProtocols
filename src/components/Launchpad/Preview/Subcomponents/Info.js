@@ -8,13 +8,17 @@ import TelegramSVG from 'svgs/Socials/telegram'
 import TwitterSVG from 'svgs/Socials/twitter'
 import DiscordSVG from 'svgs/Socials/discord'
 
+const addImageFallback = (event)=>{
+  event.currentTarget.src = '/images/fallback.png';
+}
+
 export default function Info({ icon, name, is_private, tags, pool, setEdit,edit,admin }) {
   const { theme } = useContext(ThemeContext);
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center">
-        <img src={icon} alt={name} className="w-[54px] h-[54px]" />
+        {<img src={icon} alt={name} onError={addImageFallback} className="w-[54px] h-[54px]" />}
 
         <div className=" ml-4">
           <div className="flex items-center">

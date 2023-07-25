@@ -2,11 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Timer from "./Subcomponents/Timer";
 import { useEffect, useState } from "react";
-
 import PercentFilled from "./Subcomponents/PercentFilled";
+
+const addImageFallback = (event)=>{
+  event.currentTarget.src = '/images/fallback.png';
+}
 
 export default function PoolsBase({ pools, loading }) {
   //an array of filled percentages
+    
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
       {!loading &&
@@ -19,6 +23,7 @@ export default function PoolsBase({ pools, loading }) {
                   <img
                     src={pool.sale.image}
                     alt={pool.sale.name}
+                    onError={addImageFallback}
                     className="w-[54px] h-[54px]"
                   />
 
